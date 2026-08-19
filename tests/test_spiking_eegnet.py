@@ -67,6 +67,21 @@ class SpikingEEGNetTests(unittest.TestCase):
             },
         )
 
+    def test_kaggle_notebook_uses_public_main(self):
+        notebook = json.loads(
+            Path(
+                "benchmarks/eeg_motor_imagery/kaggle_kernel/"
+                "spiking-eegnet-motor-imagery-eeg.ipynb"
+            ).read_text()
+        )
+        source = "".join(
+            line
+            for cell in notebook["cells"]
+            for line in cell.get("source", [])
+        )
+        self.assertIn("'--branch', 'main'", source)
+        self.assertNotIn("null/eeg-research-harness", source)
+
 
 if __name__ == "__main__":
     unittest.main()

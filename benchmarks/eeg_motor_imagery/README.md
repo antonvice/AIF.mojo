@@ -138,3 +138,16 @@ Spiking EEGNet improved eight of ten subjects versus logistic regression. Its
 mean subject balanced-accuracy gain was 7.1 points with a paired bootstrap 95%
 interval of +2.4 to +12.3 points. It improved nine of ten subjects versus the
 tuned reservoir, with a mean gain of 5.6 points and interval of +2.7 to +8.7.
+
+### Kaggle walkthrough
+
+The checked notebook under `kaggle_kernel/` downloads EEGBCI from PhysioNet and
+reruns the same subject-separated protocol on a Kaggle GPU. Rebuild its JSON
+from the readable source before publishing:
+
+```bash
+python3 benchmarks/eeg_motor_imagery/kaggle_kernel/build_notebook.py
+```
+
+The notebook clones public `main`; it never depends on a temporary feature
+branch.
