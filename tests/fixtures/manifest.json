@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "repository": "https://github.com/biaslab/UAI-MP-AIF-JAX",
+    "relative_path": "UAI-MP-AIF-JAX",
+    "commit": "30ee6f0ebce32c6a430fa7c25f1c01390415a797",
+    "required_clean": true
+  },
+  "runtime": {
+    "python": "3.13.13",
+    "jax": "0.9.0",
+    "jaxlib": "0.9.0",
+    "numpy": "2.4.2",
+    "mojo": "1.0.0b2",
+    "dtype": "Float32",
+    "jax_backend": "cpu",
+    "jax_enable_x64": false
+  },
+  "axes": {
+    "transition_dense": ["x_new", "x_old", "theta", "action"],
+    "transition_sparse": ["x_old", "action", "theta"],
+    "observation": ["channel", "outcome", "state", "theta"],
+    "state_belief": ["state"],
+    "static_belief": ["theta"],
+    "terminal_goal": ["state"],
+    "theta_goal": ["state", "theta"],
+    "action_distribution": ["time", "action"],
+    "minigrid_observation": [
+      "fov_x",
+      "fov_y",
+      "cell_type",
+      "state",
+      "theta"
+    ],
+    "minigrid_orientation_observation": ["orientation", "state"]
+  },
+  "tolerances": {
+    "float32_probability_atol": 1e-5,
+    "float32_probability_rtol": 1e-5,
+    "probability_sum_environment_atol": 1e-6,
+    "probability_sum_inference_atol": 1e-5,
+    "region_channel_atol": 1e-4,
+    "minigrid_float16_atol_min": 1e-3,
+    "minigrid_float16_atol_max": 1e-2,
+    "masked_action_probability_max": 1e-6,
+    "argmax_margin_min": 1e-4
+  },
+  "goal_forms": {
+    "terminal": {
+      "axes": ["state"],
+      "semantics": "terminal-state distribution"
+    },
+    "theta_preference": {
+      "axes": ["state", "theta"],
+      "semantics": "per-step preference marginalized with theta beliefs"
+    }
+  },
+  "planner_paths": {
+    "loopy-vbp": ["dense"],
+    "loopy": ["dense", "deterministic_sparse"],
+    "region-extended": ["dense"],
+    "dyn-channel": ["dense", "deterministic_sparse"],
+    "nuijten": ["dense", "deterministic_sparse"],
+    "vbp-channel": ["dense", "deterministic_sparse"],
+    "precise-info-seeking": ["dense"],
+    "active-inference": ["dense", "precomputed_deterministic_sparse"]
+  },
+  "planner_smoke_fixture": {
+    "dtype": "Float32",
+    "n_states": 2,
+    "n_static": 2,
+    "n_actions": 2,
+    "n_observation_channels": 1,
+    "n_observation_types": 2,
+    "planning_horizon": 2,
+    "planning_iterations": 2,
+    "damping": 0.5,
+    "action_prior": [0.6, 0.4],
+    "action_mask": [1, 1],
+    "goal_form": "theta_preference",
+    "transition_path": "dense"
+  },
+  "experiment_smoke_fixtures": {
+    "frozen_lake": {
+      "generator": "generate_frozen_lake_transition",
+      "grid_size": 2,
+      "n_states": 8,
+      "n_static": 2,
+      "n_actions": 5,
+      "n_observation_channels": 12,
+      "n_observation_types": 2,
+      "goal_form": "theta_preference"
+    },
+    "wumpus_world": {
+      "generator": "generate_wumpus_transition",
+      "grid_size": 2,
+      "n_states": 8,
+      "n_static": 2,
+      "n_actions": 5,
+      "n_observation_channels": 7,
+      "n_observation_types": 2,
+      "goal_form": "theta_preference"
+    },
+    "rocksample": {
+      "generator": "generate_rocksample_transition",
+      "grid_size": 2,
+      "n_states": 24,
+      "n_static": 2,
+      "n_actions": 6,
+      "n_observation_channels": 1,
+      "n_observation_types": 3,
+      "goal_form": "theta_preference"
+    },
+    "minigrid": {
+      "generator": "generate_minigrid_transition_tensor",
+      "grid_size": 3,
+      "n_states": 108,
+      "n_static": 9,
+      "n_actions": 7,
+      "n_observation_channels": 9,
+      "n_observation_types": 11,
+      "goal_form": "terminal"
+    }
+  },
+  "deterministic_tapes": {
+    "frozen_lake": {
+      "grid_size": 2,
+      "theta": 0,
+      "initial_state": 0,
+      "actions": [4, 1, 2, 0],
+      "realized_movement_actions": [-1, 1, 2, 0],
+      "observation_draws": {
+        "kind": "per_channel_uniform",
+        "channels": 12,
+        "default": 0.5
+      },
+      "states": [4, 6, 7, 7]
+    },
+    "wumpus_world": {
+      "grid_size": 2,
+      "theta": 1,
+      "initial_state": 0,
+      "actions": [4, 2],
+      "observation_draws": [0.5, 0.005, 0.02, 0.95, 0.001, 0.5, 0.2],
+      "states": [4, 1]
+    },
+    "rocksample": {
+      "grid_size": 2,
+      "theta": 1,
+      "initial_state": 2,
+      "actions": [3, 4, 5, 1, 2, 0],
+      "realized_movement_actions": [3, -1, -1, 1, 2, 0],
+      "observation_draws": {
+        "kind": "per_channel_uniform",
+        "channels": 5,
+        "default": 0.5
+      },
+      "states": [0, 8, 20, 6, 7, 7]
+    },
+    "minigrid": {
+      "grid_size": 3,
+      "theta": 4,
+      "static_config": {"key_pos": 1, "door_pos": 1},
+      "initial_state": 3,
+      "actions": [3, 2, 0, 5, 2, 2, 1, 2],
+      "observation_source": "deterministic FOV plus orientation tape",
+      "states": [4, 16, 13, 14, 50, 86, 89, 101]
+    }
+  }
+}

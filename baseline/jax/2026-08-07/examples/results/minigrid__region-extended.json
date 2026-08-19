@@ -1,0 +1,25 @@
+{
+  "config": {
+    "grid_size": 3,
+    "env_name": "MiniGrid-DoorKey-5x5-v0",
+    "planning_method": "region-extended",
+    "fov_size": 3,
+    "n_episodes": 1,
+    "max_steps": 3,
+    "planning_horizon": 2,
+    "receding_horizon": true,
+    "inference_iterations": 2,
+    "planning_iterations": 2,
+    "no_orientation": false,
+    "damping": 0.5,
+    "obs_alpha": 0.0,
+    "seed_start": 0
+  },
+  "results": {
+    "success_rate": 0.0,
+    "avg_steps": 3.0,
+    "avg_reward": 0.0,
+    "successes": 0,
+    "total_time_s": 0.9316058158874512
+  }
+}

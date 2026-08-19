@@ -1,0 +1,39 @@
+{
+  "config": {
+    "environment": "rocksample",
+    "grid_size": 3,
+    "n_rocks": 1,
+    "n_configs": 2,
+    "half_eff_dist": 2.0,
+    "pos_noise": 0.1,
+    "slip_prob": 0.0,
+    "good_reward": 10.0,
+    "bad_penalty": 10.0,
+    "exit_reward": 10.0,
+    "good_logit": 2.0,
+    "bad_logit": 4.0,
+    "exit_logit": 2.0,
+    "goal_temperature": 1.0,
+    "sense_cost": 0.5,
+    "sample_cost": 0.5,
+    "planning_method": "loopy",
+    "n_episodes": 1,
+    "max_steps": 3,
+    "planning_horizon": 2,
+    "planning_iterations": 2,
+    "receding_horizon": true,
+    "seed_start": 0
+  },
+  "results": {
+    "success_rate": 1.0,
+    "avg_steps": 2.0,
+    "avg_reward": 10.0,
+    "std_reward": 0.0,
+    "good_rock_retrieval": 0.0,
+    "total_good_rocks": 1,
+    "total_good_collected": 0,
+    "episodes_with_good_rocks": 1,
+    "successes": 1,
+    "total_time_s": 0.7681481838226318
+  }
+}

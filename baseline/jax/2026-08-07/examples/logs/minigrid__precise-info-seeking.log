@@ -1,0 +1,51 @@
+environment: minigrid
+method: precise-info-seeking
+command: /Users/antonvice/Documents/AIF-MOJO/UAI-MP-AIF-JAX/.venv/bin/python run_minigrid.py --grid-size 3 --fov-size 3 --episodes 1 --max-steps 3 --planning-horizon 2 --inference-iterations 2 --planning-iterations 2 --damping 0.5 --receding-horizon --seed 0 --planning-method precise-info-seeking --output /Users/antonvice/Documents/AIF-MOJO/baseline/jax/2026-08-07/examples/results/minigrid__precise-info-seeking.json
+
+/Users/antonvice/Documents/AIF-MOJO/UAI-MP-AIF-JAX/.venv/lib/python3.13/site-packages/gymnasium/envs/registration.py:636: UserWarning: [33mWARN: Overriding environment MiniGrid-DoorKey-5x5-v0 already in registry.[0m
+  logger.warn(f"Overriding environment {new_spec.id} already in registry.")
+JAX devices: [CpuDevice(id=0)]
+JAX default backend: cpu
+Random seed: 0
+
+Internal grid size: 3x3
+MiniGrid environment: MiniGrid-DoorKey-5x5-v0 (includes outer walls)
+FOV size: 3x3
+
+Valid static configs: 9
+Generating tensors (this may take a moment)...
+  Transition tensor: (108, 108, 9, 7)
+  Observation tensor: (3, 3, 11, 108, 9)
+  Orientation tensor: (4, 108)
+  Transition tensor memory: 1.4 MB
+  Generated in 0.05s
+
+Goal: position (2, 2) with door open
+
+Creating agent...
+  Planning method: precise-info-seeking
+  FOV size: 3
+  Max steps: 3
+  Planning horizon: 2 (receding)
+  Inference iterations: 2
+  Planning iterations: 2
+  Channel damping: 0.5
+
+
+Running 1 episodes...
+--------------------------------------------------
+Episodes:   0%|          | 0/1 [00:00<?, ?it/s]/Users/antonvice/Documents/AIF-MOJO/UAI-MP-AIF-JAX/.venv/lib/python3.13/site-packages/gymnasium/utils/passive_env_checker.py:158: UserWarning: [33mWARN: The obs returned by the `reset()` method is not within the observation space.[0m
+  logger.warn(f"{pre} is not within the observation space.")
+/Users/antonvice/Documents/AIF-MOJO/UAI-MP-AIF-JAX/.venv/lib/python3.13/site-packages/gymnasium/utils/passive_env_checker.py:158: UserWarning: [33mWARN: The obs returned by the `step()` method is not within the observation space.[0m
+  logger.warn(f"{pre} is not within the observation space.")
+Episodes:   0%|          | 0/1 [00:01<?, ?it/s, success=0.0%, steps=3]Episodes: 100%|██████████| 1/1 [00:01<00:00,  1.03s/it, success=0.0%, steps=3]Episodes: 100%|██████████| 1/1 [00:01<00:00,  1.03s/it, success=0.0%, steps=3]
+--------------------------------------------------
+Success rate: 0.0%
+Average steps: 3.0
+Average reward: 0.000
+Total time: 1.04s (1037.7ms/episode)
+
+Results saved to /Users/antonvice/Documents/AIF-MOJO/baseline/jax/2026-08-07/examples/results/minigrid__precise-info-seeking.json
+real 1.69
+user 4.73
+sys 0.19

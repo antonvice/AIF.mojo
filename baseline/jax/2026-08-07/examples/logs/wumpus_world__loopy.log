@@ -1,0 +1,35 @@
+environment: wumpus_world
+method: loopy
+command: /Users/antonvice/Documents/AIF-MOJO/UAI-MP-AIF-JAX/.venv/bin/python run_wumpus_world.py --grid-size 3 --n-configs 3 --n-pits 1 --slip-prob 0.0 --episodes 1 --max-steps 3 --planning-horizon 2 --planning-iterations 2 --damping 0.5 --receding-horizon --seed 0 --planning-method loopy --output /Users/antonvice/Documents/AIF-MOJO/baseline/jax/2026-08-07/examples/results/wumpus_world__loopy.json
+
+JAX devices: [CpuDevice(id=0)]
+JAX default backend: cpu
+
+Wumpus World 3x3
+  Configs: 3, pits: 1
+  Obs noise: 0.1, pos noise: 0.1, slip prob: 0.0
+  Sense cost: 0.5
+
+Generating tensors...
+  Transition tensor: (18, 18, 3, 5) (19.0 KB)
+  Observation tensor: (12, 2, 18, 3) (5.1 KB)
+  Generated in 0.00s
+
+Creating agent...
+  Method: loopy
+  Planning horizon: 2 (receding)
+  Planning iterations: 2
+
+Running 1 episodes...
+--------------------------------------------------
+Episodes:   0%|          | 0/1 [00:00<?, ?it/s]Episodes:   0%|          | 0/1 [00:00<?, ?it/s, success=0.0%, steps=3]Episodes: 100%|██████████| 1/1 [00:00<00:00,  1.20it/s, success=0.0%, steps=3]Episodes: 100%|██████████| 1/1 [00:00<00:00,  1.20it/s, success=0.0%, steps=3]
+--------------------------------------------------
+Success rate: 0.0%
+Average steps: 3.0
+Average reward: 0.000
+Total time: 0.83s (834.7ms/episode)
+
+Results saved to /Users/antonvice/Documents/AIF-MOJO/baseline/jax/2026-08-07/examples/results/wumpus_world__loopy.json
+real 1.13
+user 1.90
+sys 0.09

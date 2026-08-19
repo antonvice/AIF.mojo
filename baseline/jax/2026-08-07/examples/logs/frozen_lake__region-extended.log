@@ -1,0 +1,37 @@
+environment: frozen_lake
+method: region-extended
+command: /Users/antonvice/Documents/AIF-MOJO/UAI-MP-AIF-JAX/.venv/bin/python run_frozen_lake.py --grid-size 3 --n-configs 3 --hole-fraction 0.2 --min-hamming 0 --slip-prob 0.0 --episodes 1 --max-steps 3 --planning-horizon 2 --planning-iterations 2 --damping 0.5 --receding-horizon --seed 0 --planning-method region-extended --output /Users/antonvice/Documents/AIF-MOJO/baseline/jax/2026-08-07/examples/results/frozen_lake__region-extended.json
+
+JAX devices: [CpuDevice(id=0)]
+JAX default backend: cpu
+
+Frozen Lake 3x3
+  Configs: 3, hole fraction: 0.2, min_hamming: 0
+  Base noise: 0.05, noise range: 0.15
+  Slip prob: 0.0
+  Hole penalty: 1.0, goal temperature: 1.0
+  Scan cost: 0.5
+
+Generating tensors...
+  Transition tensor: (18, 18, 3, 5) (19.0 KB)
+  Observation tensor: (27, 2, 18, 3) (11.4 KB)
+  Generated in 0.00s
+
+Creating agent...
+  Method: region-extended
+  Planning horizon: 2 (receding)
+  Planning iterations: 2
+
+Running 1 episodes...
+--------------------------------------------------
+Episodes:   0%|          | 0/1 [00:00<?, ?it/s]Episodes:   0%|          | 0/1 [00:00<?, ?it/s, success=0.0%, steps=3]Episodes: 100%|██████████| 1/1 [00:00<00:00,  1.01it/s, success=0.0%, steps=3]Episodes: 100%|██████████| 1/1 [00:00<00:00,  1.01it/s, success=0.0%, steps=3]
+--------------------------------------------------
+Success rate: 0.0%
+Average steps: 3.0
+Average reward: 0.000
+Total time: 1.00s (995.5ms/episode)
+
+Results saved to /Users/antonvice/Documents/AIF-MOJO/baseline/jax/2026-08-07/examples/results/frozen_lake__region-extended.json
+real 1.29
+user 2.92
+sys 0.10

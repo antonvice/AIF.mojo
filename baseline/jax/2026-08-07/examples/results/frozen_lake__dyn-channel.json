@@ -1,0 +1,28 @@
+{
+  "config": {
+    "environment": "frozen_lake",
+    "grid_size": 3,
+    "n_configs": 3,
+    "hole_fraction": 0.2,
+    "base_noise": 0.05,
+    "noise_range": 0.15,
+    "slip_prob": 0.0,
+    "hole_penalty": 1.0,
+    "goal_temperature": 1.0,
+    "scan_cost": 0.5,
+    "planning_method": "dyn-channel",
+    "n_episodes": 1,
+    "max_steps": 3,
+    "planning_horizon": 2,
+    "planning_iterations": 2,
+    "receding_horizon": true,
+    "seed_start": 0
+  },
+  "results": {
+    "success_rate": 0.0,
+    "avg_steps": 3.0,
+    "avg_reward": 0.0,
+    "successes": 0,
+    "total_time_s": 1.0799059867858887
+  }
+}

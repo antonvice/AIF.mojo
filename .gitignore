@@ -1,0 +1,8 @@
+.pixi/
+*.mojopkg
+*.mojoc
+__pycache__/
+*.pyc
+UAI-MP-AIF-JAX/
+data/smoke_matrix/
+benchmarks/results/

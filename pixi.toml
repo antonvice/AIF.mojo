@@ -1,0 +1,66 @@
+[workspace]
+authors = ["Anton Vice"]
+channels = ["https://conda.modular.com/max", "conda-forge"]
+name = "aif-mojo"
+platforms = ["osx-arm64"]
+version = "0.1.0"
+
+[tasks]
+test-numerics = "mojo run -I src tests/mojo/test_numerics.mojo"
+test-messages = "mojo run -I src tests/mojo/test_messages.mojo"
+test-sparse = "mojo run -I src tests/mojo/test_sparse_messages.mojo"
+test-loopy = "mojo run -I src tests/mojo/test_loopy_bp.mojo"
+test-state = "mojo run -I src tests/mojo/test_state_inference.mojo"
+test-convergence = "mojo run -I src tests/mojo/test_convergence.mojo"
+test-dyn-channel = "mojo run -I src tests/mojo/test_dyn_channel_loopy_bp.mojo"
+test-vbp-channel = "mojo run -I src tests/mojo/test_vbp_channel.mojo"
+test-nuijten = "mojo run -I src tests/mojo/test_nuijten_mp.mojo"
+test-loopy-vbp = "mojo run -I src tests/mojo/test_loopy_vbp.mojo"
+test-precise-info = "mojo run -I src tests/mojo/test_precise_info_seeking.mojo"
+test-region-extended = "mojo run -I src tests/mojo/test_region_extended_loopy_bp.mojo"
+test-active-inference = "mojo run -I src tests/mojo/test_active_inference.mojo"
+test-frozen-lake = "mojo run -I src tests/mojo/test_frozen_lake.mojo"
+test-wumpus = "mojo run -I src tests/mojo/test_wumpus_world.mojo"
+test-rocksample = "mojo run -I src tests/mojo/test_rocksample.mojo"
+test-minigrid = "mojo run -I src tests/mojo/test_minigrid.mojo"
+test-agent = "mojo run -I src tests/mojo/test_agent.mojo"
+test = { depends-on = ["test-numerics", "test-messages", "test-sparse", "test-loopy", "test-state", "test-convergence", "test-dyn-channel", "test-vbp-channel", "test-nuijten", "test-loopy-vbp", "test-precise-info", "test-region-extended", "test-active-inference", "test-frozen-lake", "test-wumpus", "test-rocksample", "test-minigrid", "test-agent"] }
+check = { depends-on = ["manifest", "test-schema", "test", "parity", "parity-env", "parity-convergence", "experiment-smoke", "package-smoke"] }
+check-all = { depends-on = ["check", "test-ref"] }
+example-loopy = "mojo run -I src examples/loopy_bp.mojo"
+example-all = "mojo run -I src examples/all_planners.mojo"
+package = "mojo precompile src/aif_mojo -o aif_mojo.mojoc"
+package-smoke = { cmd = "mojo run -I . examples/loopy_bp.mojo", depends-on = ["package"] }
+bootstrap-oracle = "python3 scripts/bootstrap_oracle.py"
+sync-oracle = "uv sync --project UAI-MP-AIF-JAX --python 3.13.13"
+manifest = "python3 tests/parity/check_manifest.py"
+experiment-smoke = "python3 scripts/run_experiment_matrix.py --output-dir data/smoke_matrix"
+benchmark = "python3 benchmarks/run_planner_benchmarks.py --runs 9 --output benchmarks/results/latest.json"
+
+[tasks.test-ref]
+cmd = "uv run pytest -q --ignore=reference --ignore=tests/test_minigrid_groundtruth.py"
+cwd = "UAI-MP-AIF-JAX"
+
+[tasks.parity]
+cmd = "uv run python ../tests/parity/check_messages.py"
+cwd = "UAI-MP-AIF-JAX"
+
+[tasks.parity-env]
+cmd = "uv run python ../tests/parity/check_environments.py"
+cwd = "UAI-MP-AIF-JAX"
+
+[tasks.parity-convergence]
+cmd = "uv run python ../tests/parity/check_convergence.py"
+cwd = "UAI-MP-AIF-JAX"
+
+[tasks.test-schema]
+cmd = "uv run pytest -q ../tests/parity/test_result_schemas.py"
+cwd = "UAI-MP-AIF-JAX"
+
+[dependencies]
+mojo = "==1.0.0b2"
+uv = "==0.12.2"
+
+[activation.env]
+MODULAR_CRASH_REPORTING_ENABLED = "false"
+UV_CACHE_DIR = "/tmp/aif-mojo-uv-cache"

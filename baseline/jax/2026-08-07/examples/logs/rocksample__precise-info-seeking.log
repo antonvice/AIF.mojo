@@ -1,0 +1,42 @@
+environment: rocksample
+method: precise-info-seeking
+command: /Users/antonvice/Documents/AIF-MOJO/UAI-MP-AIF-JAX/.venv/bin/python run_rocksample.py --grid-size 3 --n-rocks 1 --slip-prob 0.0 --episodes 1 --max-steps 3 --planning-horizon 2 --planning-iterations 2 --damping 0.5 --terminal-goal-only --receding-horizon --seed 0 --planning-method precise-info-seeking --output /Users/antonvice/Documents/AIF-MOJO/baseline/jax/2026-08-07/examples/results/rocksample__precise-info-seeking.json
+
+JAX devices: [CpuDevice(id=0)]
+JAX default backend: cpu
+
+RockSample[3,1]
+  Configs (2^k): 2
+  Half-eff dist: 2.0, pos noise: 0.1
+  Slip prob: 0.0
+  Rewards: good=10.0, bad_penalty=10.0, exit=10.0
+  Goal logits: good=2.0, bad=4.0, exit=2.0
+  Goal temperature: 1.0
+  Action costs: sense=0.5, sample=0.5
+
+Generating tensors...
+  Rock positions: [7]
+  Transition tensor: (54, 54, 2, 6) (136.7 KB)
+  Observation tensor: (10, 3, 54, 2) (12.7 KB)
+  Generated in 0.00s
+
+Creating agent...
+  Method: precise-info-seeking
+  Planning horizon: 2 (receding)
+  Terminal goal only: enabled
+  Planning iterations: 2
+
+Running 1 episodes...
+--------------------------------------------------
+Episodes:   0%|          | 0/1 [00:00<?, ?it/s]Episodes:   0%|          | 0/1 [00:01<?, ?it/s, success=100.0%, reward=10.0]Episodes: 100%|██████████| 1/1 [00:01<00:00,  1.10s/it, success=100.0%, reward=10.0]Episodes: 100%|██████████| 1/1 [00:01<00:00,  1.10s/it, success=100.0%, reward=10.0]
+--------------------------------------------------
+Success rate: 100.0%
+Average steps: 2.0
+Average reward: 10.000 (std: 0.000)
+Good rock retrieval: 0.0% (0/1 across 1 episodes with good rocks)
+Total time: 1.10s (1100.6ms/episode)
+
+Results saved to /Users/antonvice/Documents/AIF-MOJO/baseline/jax/2026-08-07/examples/results/rocksample__precise-info-seeking.json
+real 1.42
+user 2.41
+sys 0.10

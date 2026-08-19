@@ -1,0 +1,26 @@
+{
+  "config": {
+    "environment": "wumpus_world",
+    "grid_size": 3,
+    "n_configs": 3,
+    "n_pits": 1,
+    "obs_noise": 0.1,
+    "pos_noise": 0.1,
+    "slip_prob": 0.0,
+    "sense_cost": 0.5,
+    "planning_method": "active-inference",
+    "n_episodes": 1,
+    "max_steps": 3,
+    "planning_horizon": 2,
+    "planning_iterations": 2,
+    "receding_horizon": true,
+    "seed_start": 0
+  },
+  "results": {
+    "success_rate": 0.0,
+    "avg_steps": 3.0,
+    "avg_reward": 0.0,
+    "successes": 0,
+    "total_time_s": 1.059541940689087
+  }
+}
