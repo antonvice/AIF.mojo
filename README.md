@@ -106,22 +106,28 @@ Median and bootstrap 95% CI across five independent processes. Lower latency and
 
 | States | Backend | Compile (s) | Latency, ms (95% CI) | Calls/s (95% CI) | Peak RSS | Planner RSS delta |
 |---:|---|---:|---:|---:|---:|---:|
-| 8 | Mojo native | 1.876 | 0.234 [0.218, 0.386] | 4276.843 [2590.832, 4591.669] | 11.8 MiB | 0.4 MiB |
-| 8 | JAX eager | 0.000 | 43.704 [41.125, 78.441] | 22.881 [12.748, 24.316] | 325.9 MiB | 215.1 MiB |
-| 8 | JAX warm-JIT | 0.174 | 0.049 [0.046, 0.053] | 20376.960 [18758.163, 21506.022] | 217.5 MiB | 106.5 MiB |
-| 32 | Mojo native | 1.876 | 3.049 [2.897, 3.328] | 327.942 [300.506, 345.160] | 11.8 MiB | 0.3 MiB |
-| 32 | JAX eager | 0.000 | 38.683 [36.219, 41.492] | 25.851 [24.101, 27.609] | 326.9 MiB | 216.1 MiB |
-| 32 | JAX warm-JIT | 0.270 | 0.335 [0.309, 0.346] | 2981.853 [2893.292, 3236.125] | 222.4 MiB | 113.8 MiB |
-| 64 | Mojo native | 1.876 | 11.278 [10.759, 11.678] | 88.666 [85.630, 92.945] | 12.0 MiB | 0.6 MiB |
-| 64 | JAX eager | 0.000 | 42.497 [37.690, 56.449] | 23.531 [17.715, 26.532] | 347.2 MiB | 236.2 MiB |
-| 64 | JAX warm-JIT | 0.256 | 3.645 [3.037, 3.783] | 274.349 [264.314, 329.322] | 232.6 MiB | 121.6 MiB |
-| 128 | Mojo native | 1.876 | 70.770 [68.620, 80.058] | 14.130 [12.491, 14.573] | 13.6 MiB | 2.2 MiB |
-| 128 | JAX eager | 0.000 | 68.165 [60.278, 102.372] | 14.670 [9.768, 16.590] | 337.6 MiB | 226.6 MiB |
-| 128 | JAX warm-JIT | 0.405 | 7.949 [7.634, 8.697] | 125.803 [114.988, 130.986] | 231.2 MiB | 120.1 MiB |
+| 8 | Mojo native | 4.796 | 0.070 [0.058, 0.071] | 14317.388 [14058.650, 17282.871] | 12.3 MiB | 0.9 MiB |
+| 8 | JAX eager | 0.000 | 82.350 [67.221, 97.144] | 12.143 [10.294, 14.876] | 343.1 MiB | 231.8 MiB |
+| 8 | JAX warm-JIT | 0.410 | 0.110 [0.100, 0.125] | 9131.472 [8025.559, 10014.269] | 214.8 MiB | 103.8 MiB |
+| 32 | Mojo native | 4.796 | 1.507 [1.127, 1.985] | 663.423 [503.818, 887.020] | 12.4 MiB | 1.0 MiB |
+| 32 | JAX eager | 0.000 | 95.672 [72.186, 112.277] | 10.452 [8.907, 13.853] | 343.6 MiB | 232.7 MiB |
+| 32 | JAX warm-JIT | 0.606 | 0.656 [0.582, 1.115] | 1525.196 [896.536, 1717.124] | 226.6 MiB | 115.7 MiB |
+| 64 | Mojo native | 4.796 | 3.241 [3.196, 3.402] | 308.573 [293.982, 312.850] | 12.6 MiB | 1.2 MiB |
+| 64 | JAX eager | 0.000 | 76.872 [67.855, 85.713] | 13.009 [11.667, 14.737] | 348.1 MiB | 237.1 MiB |
+| 64 | JAX warm-JIT | 0.463 | 3.759 [3.554, 4.393] | 266.011 [227.657, 281.334] | 227.2 MiB | 116.2 MiB |
+| 128 | Mojo native | 4.796 | 10.552 [9.876, 11.249] | 94.765 [88.900, 101.257] | 13.9 MiB | 2.5 MiB |
+| 128 | JAX eager | 0.000 | 103.585 [68.354, 113.865] | 9.654 [8.782, 14.630] | 360.4 MiB | 249.5 MiB |
+| 128 | JAX warm-JIT | 0.521 | 8.540 [7.693, 9.768] | 117.100 [102.377, 129.990] | 231.1 MiB | 120.2 MiB |
 
 Snapshot: Apple M4 (arm64), Mojo 1.0.0b2 (2cf4d08a), 2026-08-19. [Full process-level JSON](docs/benchmarks/2026-08-19.json).
 These are machine-specific measurements, not universal language claims.
 <!-- BENCHMARK_RESULTS_END -->
+
+Relative to the [v0.1.0 benchmark](https://github.com/antonvice/AIF.mojo/blob/v0.1.0/docs/benchmarks/2026-08-19.json)
+on the same Apple M4, the optimized Mojo median is 3.3×, 2.0×, 3.5×, and 6.7×
+faster at 8, 32, 64, and 128 states.
+In this snapshot Mojo has the lower warm-call median at 8 and 64 states; JAX
+warm-JIT leads at 32 and 128 states.
 
 Choose **Mojo native** when low process memory, predictable native deployment,
 or avoiding a Python/XLA runtime matters. Choose **JAX warm-JIT** when peak CPU
@@ -142,6 +148,9 @@ var planner = PreparedDenseLoopyBP(
 )
 var policy = planner.plan(q_state, q_theta)
 ```
+
+The prepared planner owns mutable scratch storage; use one instance per
+concurrently executing agent.
 
 Reproduce the comparison on your machine:
 
