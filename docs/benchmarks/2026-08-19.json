@@ -46,7 +46,7 @@
   },
   "versions": {
     "mojo": "Mojo 1.0.0b2 (2cf4d08a)",
-    "aif_mojo_git": "9d2f817782319a6fb9b229d18616a25ab388960b",
+    "aif_mojo_git": "bfd673259ff94b46207e1fa7d67639af0d876603",
     "jax_oracle_git": "30ee6f0ebce32c6a430fa7c25f1c01390415a797"
   },
   "mojo_compile": {
