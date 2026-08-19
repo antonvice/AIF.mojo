@@ -166,6 +166,26 @@ its samples include process startup and must not be mixed with the in-process
 table above. Methodology and optimization notes are in
 [`MOJO_UPGRADE_NOTES.md`](MOJO_UPGRADE_NOTES.md).
 
+### Motor-imagery EEG experiment
+
+This optional Python research harness compares a linear baseline, an LIF
+spiking reservoir, and a sequential Active Inference decoder using
+leakage-safe subject-wise folds. It exercises AIF decision semantics around the
+native library; it is not a Mojo EEG implementation or evidence that AIF
+improves BCI accuracy.
+
+```bash
+pixi run test-eeg
+pixi run eeg-smoke
+```
+
+The default data are synthetic and validate only the benchmark pipeline. Pilot
+and held-out tuning artifacts are checked in for auditability. See
+[`benchmarks/eeg_motor_imagery/README.md`](benchmarks/eeg_motor_imagery/README.md)
+for the real EEG NPZ schema, the optional trainable Spiking-EEGNet experiment,
+and interpretation limits. The trainable experiment has unit coverage but no
+published performance claim until its held-out result JSON exists.
+
 ## Verify it
 
 ```bash
@@ -177,10 +197,12 @@ pixi run check               # native release gate
 pixi run check-all           # also run the frozen JAX suite
 ```
 
-The nested JAX checkout is a read-only test oracle, not a runtime dependency.
+The nested JAX checkout is a read-only test oracle, not a native-library runtime
+dependency.
 The manifest pins its commit, Python/JAX versions, tensor axes, tolerances, and
-deterministic tapes. Python is retained only for oracle comparison, JSON
-orchestration, and research-host adapters such as plotting and video.
+deterministic tapes. Python is retained for oracle comparison, JSON
+orchestration, and explicitly separated research harnesses such as the EEG
+experiment; the planners and environment models remain native Mojo.
 
 ## Project boundaries
 

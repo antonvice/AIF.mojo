@@ -9,6 +9,12 @@ All notable changes to AIF.mojo are documented here.
 - Added `PreparedDenseLoopyBP` for cached static logs and repeated agent-step
   planning without workspace allocation.
 - Updated the publication benchmark to compare default CPU worker pools.
+- Added an optional, leakage-safe motor-imagery EEG research harness with
+  synthetic smoke coverage, auditable pilot/tuning results, and an explicit
+  separation from the native Mojo core.
+- Added an optional surrogate-gradient Spiking-EEGNet training experiment with
+  subject-separated epoch selection and focused PyTorch tests; no trained
+  performance result is claimed yet.
 
 ## [0.1.0] - 2026-08-19
 

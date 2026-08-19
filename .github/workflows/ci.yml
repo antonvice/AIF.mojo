@@ -32,3 +32,5 @@ jobs:
       - run: pixi run parity-env
       - run: pixi run parity-convergence
       - run: pixi run test-schema
+      - run: pixi run test-eeg
+      - run: pixi run test-eeg-trainable

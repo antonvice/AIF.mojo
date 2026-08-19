@@ -353,6 +353,7 @@ AIF.mojo/
   examples/
   scripts/
   benchmarks/
+    eeg_motor_imagery/          # optional Python research harness
   UAI-MP-AIF-JAX/              # ignored frozen oracle checkout
 ```
 
@@ -558,6 +559,27 @@ with separate correctness and benchmark contracts.
 The release/API review is recorded in `MOJO_UPGRADE_NOTES.md`. No GPU claim is
 made by this CPU benchmark.
 
+### 10.1 Optional EEG research harness
+
+`benchmarks/eeg_motor_imagery/` is a Python experiment boundary, not part of
+the native package. It compares a linear baseline, an LIF reservoir, and a
+sequential AIF decoder on subject-wise motor-imagery folds. Scaling and fitting
+occur inside each fold; the 20-subject tuning protocol freezes subjects 11-20
+until final evaluation.
+
+Synthetic data validate code paths only. Checked result JSON preserves the
+five-subject pilot and the development/test-separated tuning run; raw PhysioNet
+epochs are not redistributed. These experiments make no claim that AIF or the
+SNN outperforms the linear baseline, and spike rate is not a hardware-energy
+measurement.
+
+The optional `train_spiking_eegnet.py` extension uses PyTorch for a
+surrogate-gradient Spiking-EEGNet. Subjects used for final testing remain
+disjoint from both training and epoch selection. Its focused test validates
+forward shape, surrogate-gradient finiteness, spike-rate bounds, and FFT
+preprocessing. It remains result-neutral until
+`benchmarks/results/spiking_eegnet.json` is produced and reviewed.
+
 ## 11. Toolchain and exact commands
 
 Mojo is pinned to `1.0.0b2` by `pixi.toml` and `pixi.lock`. Mojo packages are
@@ -580,6 +602,8 @@ pixi run parity
 pixi run parity-env
 pixi run parity-convergence
 pixi run test-schema
+pixi run test-eeg
+pixi run test-eeg-trainable
 ```
 
 ### 11.3 Runnable artifacts
@@ -593,6 +617,7 @@ pixi run package-smoke
 pixi run example-loopy
 pixi run example-all
 pixi run example-frozen
+pixi run eeg-smoke
 ```
 
 ### 11.4 Aggregate gates
@@ -605,8 +630,9 @@ pixi run check-all
 
 `check` depends on the manifest, schema, native unit, message/planner parity,
 environment parity, convergence parity, experiment-smoke, and package-smoke
-gates. The benchmark is intentionally separate because timing variability should
-not fail correctness CI. `check-all` adds the canonical frozen JAX suite.
+gates, plus the focused optional EEG harness tests. The benchmark is
+intentionally separate because timing variability should not fail correctness
+CI. `check-all` adds the canonical frozen JAX suite.
 
 The standard generated outputs are:
 
@@ -615,7 +641,13 @@ The standard generated outputs are:
 - `benchmarks/results/fair_latest.json` from the fair comparison;
 - `docs/benchmarks/YYYY-MM-DD.json` plus the generated README table and SVG from
   the publication benchmark;
-- `benchmarks/results/latest.json` from the legacy process benchmark.
+- `benchmarks/results/latest.json` from the legacy process benchmark;
+- `benchmarks/results/eegbci_left_right.json` and
+  `benchmarks/results/eeg_lif_tuning.json` from the optional EEG research
+  harness; raw EEG arrays remain ignored;
+- `benchmarks/results/spiking_eegnet.json` only after the optional trainable
+  model has completed its subject-held-out protocol; checkpoint files remain
+  ignored.
 
 ## 12. Definition of done
 

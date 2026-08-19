@@ -1,0 +1,209 @@
+{
+  "dataset": {
+    "source": "data/eegbci_left_right.npz",
+    "trials": 225,
+    "channels": 3,
+    "samples": 256,
+    "sampling_hz": 128.0,
+    "subjects": 5,
+    "evaluation": "leave-one-subject-out"
+  },
+  "feature_extraction": "4 windows; log mu (8-13 Hz) and beta (13-30 Hz) power",
+  "models": {
+    "logistic_regression": {
+      "accuracy": 0.6,
+      "balanced_accuracy": 0.601068134763787,
+      "macro_f1": 0.575534256243244,
+      "log_loss": 0.6893402051601127,
+      "brier": 0.2457958595006972,
+      "decision_windows": 4.0,
+      "elapsed_seconds": 0.01368826678954065
+    },
+    "lif_snn": {
+      "accuracy": 0.6,
+      "balanced_accuracy": 0.6004917184265011,
+      "macro_f1": 0.5708761233178942,
+      "log_loss": 0.7382512809211852,
+      "brier": 0.25837392019081545,
+      "decision_windows": 4.0,
+      "mean_spike_rate": 0.2884008487654321,
+      "elapsed_seconds": 0.09988870015367865
+    },
+    "sequential_aif": {
+      "accuracy": 0.5511111111111111,
+      "balanced_accuracy": 0.5514869188782232,
+      "macro_f1": 0.44678704960887766,
+      "log_loss": 0.8158812217926258,
+      "brier": 0.28731410024546233,
+      "decision_windows": 1.5333333333333332,
+      "elapsed_seconds": 0.08282944983802736
+    }
+  },
+  "folds": [
+    {
+      "subject": "1",
+      "models": {
+        "logistic_regression": {
+          "accuracy": 0.6,
+          "balanced_accuracy": 0.5938735177865613,
+          "macro_f1": 0.5635775862068966,
+          "log_loss": 0.7300946873451627,
+          "brier": 0.2641830472758374,
+          "decision_windows": 4.0,
+          "elapsed_seconds": 0.014548165956512094
+        },
+        "lif_snn": {
+          "accuracy": 0.5777777777777777,
+          "balanced_accuracy": 0.5770750988142292,
+          "macro_f1": 0.5769421078673923,
+          "log_loss": 0.7749194656507907,
+          "brier": 0.27762930731859214,
+          "decision_windows": 4.0,
+          "mean_spike_rate": 0.3450713734567902,
+          "elapsed_seconds": 0.15275829215534031
+        },
+        "sequential_aif": {
+          "accuracy": 0.5111111111111111,
+          "balanced_accuracy": 0.5,
+          "macro_f1": 0.338235294117647,
+          "log_loss": 0.7529629321655177,
+          "brier": 0.27722628931048493,
+          "decision_windows": 1.3111111111111111,
+          "elapsed_seconds": 0.07350983284413815
+        }
+      }
+    },
+    {
+      "subject": "2",
+      "models": {
+        "logistic_regression": {
+          "accuracy": 0.6444444444444445,
+          "balanced_accuracy": 0.6413043478260869,
+          "macro_f1": 0.6356275303643725,
+          "log_loss": 0.6159179575831104,
+          "brier": 0.21448427367158587,
+          "decision_windows": 4.0,
+          "elapsed_seconds": 0.01398695888929069
+        },
+        "lif_snn": {
+          "accuracy": 0.6888888888888889,
+          "balanced_accuracy": 0.682806324110672,
+          "macro_f1": 0.6605603448275863,
+          "log_loss": 0.7435243522731434,
+          "brier": 0.23349938821872354,
+          "decision_windows": 4.0,
+          "mean_spike_rate": 0.18034336419753086,
+          "elapsed_seconds": 0.0837387079373002
+        },
+        "sequential_aif": {
+          "accuracy": 0.6222222222222222,
+          "balanced_accuracy": 0.6264822134387352,
+          "macro_f1": 0.6098929117797043,
+          "log_loss": 0.6687348323631728,
+          "brier": 0.23758433406636195,
+          "decision_windows": 2.088888888888889,
+          "elapsed_seconds": 0.12018466601148248
+        }
+      }
+    },
+    {
+      "subject": "3",
+      "models": {
+        "logistic_regression": {
+          "accuracy": 0.5555555555555556,
+          "balanced_accuracy": 0.5622529644268774,
+          "macro_f1": 0.5150862068965517,
+          "log_loss": 0.7106012109639657,
+          "brier": 0.2555684394615241,
+          "decision_windows": 4.0,
+          "elapsed_seconds": 0.012948957970365882
+        },
+        "lif_snn": {
+          "accuracy": 0.5777777777777777,
+          "balanced_accuracy": 0.5770750988142292,
+          "macro_f1": 0.5769421078673923,
+          "log_loss": 0.7156745901835287,
+          "brier": 0.25695717677414215,
+          "decision_windows": 4.0,
+          "mean_spike_rate": 0.4003086419753087,
+          "elapsed_seconds": 0.08856620895676315
+        },
+        "sequential_aif": {
+          "accuracy": 0.5111111111111111,
+          "balanced_accuracy": 0.5,
+          "macro_f1": 0.338235294117647,
+          "log_loss": 0.8122664162320204,
+          "brier": 0.300914676938083,
+          "decision_windows": 1.488888888888889,
+          "elapsed_seconds": 0.0757979170884937
+        }
+      }
+    },
+    {
+      "subject": "4",
+      "models": {
+        "logistic_regression": {
+          "accuracy": 0.6,
+          "balanced_accuracy": 0.6067193675889329,
+          "macro_f1": 0.5635775862068966,
+          "log_loss": 0.7019091289531129,
+          "brier": 0.249250450635115,
+          "decision_windows": 4.0,
+          "elapsed_seconds": 0.013677208917215466
+        },
+        "lif_snn": {
+          "accuracy": 0.5333333333333333,
+          "balanced_accuracy": 0.5434782608695652,
+          "macro_f1": 0.4184615384615385,
+          "log_loss": 0.7480896483739441,
+          "brier": 0.27219365197293527,
+          "decision_windows": 4.0,
+          "mean_spike_rate": 0.2638599537037037,
+          "elapsed_seconds": 0.08905512490309775
+        },
+        "sequential_aif": {
+          "accuracy": 0.4888888888888889,
+          "balanced_accuracy": 0.5,
+          "macro_f1": 0.3283582089552239,
+          "log_loss": 1.173192546366706,
+          "brier": 0.3814150423017129,
+          "decision_windows": 1.1555555555555554,
+          "elapsed_seconds": 0.06184712518006563
+        }
+      }
+    },
+    {
+      "subject": "5",
+      "models": {
+        "logistic_regression": {
+          "accuracy": 0.6,
+          "balanced_accuracy": 0.6011904761904763,
+          "macro_f1": 0.599802371541502,
+          "log_loss": 0.6881780409552124,
+          "brier": 0.24549308645942386,
+          "decision_windows": 4.0,
+          "elapsed_seconds": 0.01328004221431911
+        },
+        "lif_snn": {
+          "accuracy": 0.6222222222222222,
+          "balanced_accuracy": 0.6220238095238095,
+          "macro_f1": 0.6214745175655616,
+          "log_loss": 0.7090483481245191,
+          "brier": 0.2515900766696842,
+          "decision_windows": 4.0,
+          "mean_spike_rate": 0.2524209104938272,
+          "elapsed_seconds": 0.08532516681589186
+        },
+        "sequential_aif": {
+          "accuracy": 0.6222222222222222,
+          "balanced_accuracy": 0.6309523809523809,
+          "macro_f1": 0.6192135390741662,
+          "log_loss": 0.6722493818357117,
+          "brier": 0.23943015861066894,
+          "decision_windows": 1.6222222222222222,
+          "elapsed_seconds": 0.08280770806595683
+        }
+      }
+    }
+  ]
+}

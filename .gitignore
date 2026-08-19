@@ -5,4 +5,10 @@ __pycache__/
 *.pyc
 UAI-MP-AIF-JAX/
 data/smoke_matrix/
-benchmarks/results/
+data/eegbci_left_right.npz
+data/eegbci_left_right_20.npz
+data/eegbci_left_right_30.npz
+benchmarks/results/*
+!benchmarks/results/eegbci_left_right.json
+!benchmarks/results/eeg_lif_tuning.json
+!benchmarks/results/spiking_eegnet.json
