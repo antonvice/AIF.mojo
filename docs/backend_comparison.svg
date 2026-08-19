@@ -6,78 +6,78 @@
 <text x="55" y="78" font-family="system-ui,sans-serif" font-size="15" fill="#4b5563">Same Float32 Loopy-BP planner · median of 5 processes · lower is better</text>
 <text x="55" y="120" font-family="system-ui,sans-serif" font-size="20" font-weight="700" fill="#111827">Median latency (log scale)</text>
 <text x="55" y="162" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=8 Mojo native</text>
-<rect x="225" y="148" width="103.2" height="18" rx="4" fill="#f97316"/>
-<text x="338.2" y="162" font-family="system-ui,sans-serif" font-size="12" fill="#111827">0.234 ms</text>
+<rect x="225" y="148" width="16.0" height="18" rx="4" fill="#f97316"/>
+<text x="251.0" y="162" font-family="system-ui,sans-serif" font-size="12" fill="#111827">0.070 ms</text>
 <text x="55" y="186" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=8 JAX eager</text>
-<rect x="225" y="172" width="395.3" height="18" rx="4" fill="#94a3b8"/>
-<text x="630.3" y="186" font-family="system-ui,sans-serif" font-size="12" fill="#111827">43.704 ms</text>
+<rect x="225" y="172" width="409.5" height="18" rx="4" fill="#94a3b8"/>
+<text x="644.5" y="186" font-family="system-ui,sans-serif" font-size="12" fill="#111827">82.350 ms</text>
 <text x="55" y="210" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=8 JAX warm-JIT</text>
-<rect x="225" y="196" width="16.1" height="18" rx="4" fill="#2563eb"/>
-<text x="251.1" y="210" font-family="system-ui,sans-serif" font-size="12" fill="#111827">0.049 ms</text>
+<rect x="225" y="196" width="41.0" height="18" rx="4" fill="#2563eb"/>
+<text x="276.0" y="210" font-family="system-ui,sans-serif" font-size="12" fill="#111827">0.110 ms</text>
 <text x="55" y="234" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=32 Mojo native</text>
-<rect x="225" y="220" width="246.6" height="18" rx="4" fill="#f97316"/>
-<text x="481.6" y="234" font-family="system-ui,sans-serif" font-size="12" fill="#111827">3.049 ms</text>
+<rect x="225" y="220" width="186.9" height="18" rx="4" fill="#f97316"/>
+<text x="421.9" y="234" font-family="system-ui,sans-serif" font-size="12" fill="#111827">1.507 ms</text>
 <text x="55" y="258" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=32 JAX eager</text>
-<rect x="225" y="244" width="388.5" height="18" rx="4" fill="#94a3b8"/>
-<text x="623.5" y="258" font-family="system-ui,sans-serif" font-size="12" fill="#111827">38.683 ms</text>
+<rect x="225" y="244" width="417.8" height="18" rx="4" fill="#94a3b8"/>
+<text x="652.8" y="258" font-family="system-ui,sans-serif" font-size="12" fill="#111827">95.672 ms</text>
 <text x="55" y="282" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=32 JAX warm-JIT</text>
-<rect x="225" y="268" width="123.4" height="18" rx="4" fill="#2563eb"/>
-<text x="358.4" y="282" font-family="system-ui,sans-serif" font-size="12" fill="#111827">0.335 ms</text>
+<rect x="225" y="268" width="140.6" height="18" rx="4" fill="#2563eb"/>
+<text x="375.6" y="282" font-family="system-ui,sans-serif" font-size="12" fill="#111827">0.656 ms</text>
 <text x="55" y="306" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=64 Mojo native</text>
-<rect x="225" y="292" width="319.7" height="18" rx="4" fill="#f97316"/>
-<text x="554.7" y="306" font-family="system-ui,sans-serif" font-size="12" fill="#111827">11.278 ms</text>
+<rect x="225" y="292" width="229.5" height="18" rx="4" fill="#f97316"/>
+<text x="464.5" y="306" font-family="system-ui,sans-serif" font-size="12" fill="#111827">3.241 ms</text>
 <text x="55" y="330" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=64 JAX eager</text>
-<rect x="225" y="316" width="393.7" height="18" rx="4" fill="#94a3b8"/>
-<text x="628.7" y="330" font-family="system-ui,sans-serif" font-size="12" fill="#111827">42.497 ms</text>
+<rect x="225" y="316" width="405.6" height="18" rx="4" fill="#94a3b8"/>
+<text x="640.6" y="330" font-family="system-ui,sans-serif" font-size="12" fill="#111827">76.872 ms</text>
 <text x="55" y="354" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=64 JAX warm-JIT</text>
-<rect x="225" y="340" width="256.6" height="18" rx="4" fill="#2563eb"/>
-<text x="491.6" y="354" font-family="system-ui,sans-serif" font-size="12" fill="#111827">3.645 ms</text>
+<rect x="225" y="340" width="237.7" height="18" rx="4" fill="#2563eb"/>
+<text x="472.7" y="354" font-family="system-ui,sans-serif" font-size="12" fill="#111827">3.759 ms</text>
 <text x="55" y="378" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=128 Mojo native</text>
-<rect x="225" y="364" width="422.2" height="18" rx="4" fill="#f97316"/>
-<text x="657.2" y="378" font-family="system-ui,sans-serif" font-size="12" fill="#111827">70.770 ms</text>
+<rect x="225" y="364" width="295.2" height="18" rx="4" fill="#f97316"/>
+<text x="530.2" y="378" font-family="system-ui,sans-serif" font-size="12" fill="#111827">10.552 ms</text>
 <text x="55" y="402" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=128 JAX eager</text>
-<rect x="225" y="388" width="420.1" height="18" rx="4" fill="#94a3b8"/>
-<text x="655.1" y="402" font-family="system-ui,sans-serif" font-size="12" fill="#111827">68.165 ms</text>
+<rect x="225" y="388" width="422.2" height="18" rx="4" fill="#94a3b8"/>
+<text x="657.2" y="402" font-family="system-ui,sans-serif" font-size="12" fill="#111827">103.585 ms</text>
 <text x="55" y="426" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=128 JAX warm-JIT</text>
-<rect x="225" y="412" width="300.1" height="18" rx="4" fill="#2563eb"/>
-<text x="535.1" y="426" font-family="system-ui,sans-serif" font-size="12" fill="#111827">7.949 ms</text>
+<rect x="225" y="412" width="283.4" height="18" rx="4" fill="#2563eb"/>
+<text x="518.4" y="426" font-family="system-ui,sans-serif" font-size="12" fill="#111827">8.540 ms</text>
 <text x="55" y="475" font-family="system-ui,sans-serif" font-size="20" font-weight="700" fill="#111827">Median peak process memory</text>
 <text x="55" y="517" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=8 Mojo native</text>
 <rect x="225" y="503" width="13.6" height="18" rx="4" fill="#f97316"/>
-<text x="248.6" y="517" font-family="system-ui,sans-serif" font-size="12" fill="#111827">11.844 MiB</text>
+<text x="248.6" y="517" font-family="system-ui,sans-serif" font-size="12" fill="#111827">12.312 MiB</text>
 <text x="55" y="541" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=8 JAX eager</text>
-<rect x="225" y="527" width="373.7" height="18" rx="4" fill="#94a3b8"/>
-<text x="608.7" y="541" font-family="system-ui,sans-serif" font-size="12" fill="#111827">325.906 MiB</text>
+<rect x="225" y="527" width="379.1" height="18" rx="4" fill="#94a3b8"/>
+<text x="614.1" y="541" font-family="system-ui,sans-serif" font-size="12" fill="#111827">343.094 MiB</text>
 <text x="55" y="565" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=8 JAX warm-JIT</text>
-<rect x="225" y="551" width="249.3" height="18" rx="4" fill="#2563eb"/>
-<text x="484.3" y="565" font-family="system-ui,sans-serif" font-size="12" fill="#111827">217.453 MiB</text>
+<rect x="225" y="551" width="237.4" height="18" rx="4" fill="#2563eb"/>
+<text x="472.4" y="565" font-family="system-ui,sans-serif" font-size="12" fill="#111827">214.844 MiB</text>
 <text x="55" y="589" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=32 Mojo native</text>
-<rect x="225" y="575" width="13.5" height="18" rx="4" fill="#f97316"/>
-<text x="248.5" y="589" font-family="system-ui,sans-serif" font-size="12" fill="#111827">11.781 MiB</text>
+<rect x="225" y="575" width="13.7" height="18" rx="4" fill="#f97316"/>
+<text x="248.7" y="589" font-family="system-ui,sans-serif" font-size="12" fill="#111827">12.359 MiB</text>
 <text x="55" y="613" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=32 JAX eager</text>
-<rect x="225" y="599" width="374.9" height="18" rx="4" fill="#94a3b8"/>
-<text x="609.9" y="613" font-family="system-ui,sans-serif" font-size="12" fill="#111827">326.938 MiB</text>
+<rect x="225" y="599" width="379.6" height="18" rx="4" fill="#94a3b8"/>
+<text x="614.6" y="613" font-family="system-ui,sans-serif" font-size="12" fill="#111827">343.609 MiB</text>
 <text x="55" y="637" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=32 JAX warm-JIT</text>
-<rect x="225" y="623" width="255.0" height="18" rx="4" fill="#2563eb"/>
-<text x="490.0" y="637" font-family="system-ui,sans-serif" font-size="12" fill="#111827">222.375 MiB</text>
+<rect x="225" y="623" width="250.4" height="18" rx="4" fill="#2563eb"/>
+<text x="485.4" y="637" font-family="system-ui,sans-serif" font-size="12" fill="#111827">226.641 MiB</text>
 <text x="55" y="661" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=64 Mojo native</text>
-<rect x="225" y="647" width="13.8" height="18" rx="4" fill="#f97316"/>
-<text x="248.8" y="661" font-family="system-ui,sans-serif" font-size="12" fill="#111827">12.031 MiB</text>
+<rect x="225" y="647" width="13.9" height="18" rx="4" fill="#f97316"/>
+<text x="248.9" y="661" font-family="system-ui,sans-serif" font-size="12" fill="#111827">12.609 MiB</text>
 <text x="55" y="685" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=64 JAX eager</text>
-<rect x="225" y="671" width="398.1" height="18" rx="4" fill="#94a3b8"/>
-<text x="633.1" y="685" font-family="system-ui,sans-serif" font-size="12" fill="#111827">347.219 MiB</text>
+<rect x="225" y="671" width="384.6" height="18" rx="4" fill="#94a3b8"/>
+<text x="619.6" y="685" font-family="system-ui,sans-serif" font-size="12" fill="#111827">348.094 MiB</text>
 <text x="55" y="709" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=64 JAX warm-JIT</text>
-<rect x="225" y="695" width="266.8" height="18" rx="4" fill="#2563eb"/>
-<text x="501.8" y="709" font-family="system-ui,sans-serif" font-size="12" fill="#111827">232.641 MiB</text>
+<rect x="225" y="695" width="251.0" height="18" rx="4" fill="#2563eb"/>
+<text x="486.0" y="709" font-family="system-ui,sans-serif" font-size="12" fill="#111827">227.188 MiB</text>
 <text x="55" y="733" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=128 Mojo native</text>
-<rect x="225" y="719" width="15.6" height="18" rx="4" fill="#f97316"/>
-<text x="250.6" y="733" font-family="system-ui,sans-serif" font-size="12" fill="#111827">13.625 MiB</text>
+<rect x="225" y="719" width="15.4" height="18" rx="4" fill="#f97316"/>
+<text x="250.4" y="733" font-family="system-ui,sans-serif" font-size="12" fill="#111827">13.906 MiB</text>
 <text x="55" y="757" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=128 JAX eager</text>
-<rect x="225" y="743" width="387.1" height="18" rx="4" fill="#94a3b8"/>
-<text x="622.1" y="757" font-family="system-ui,sans-serif" font-size="12" fill="#111827">337.609 MiB</text>
+<rect x="225" y="743" width="398.1" height="18" rx="4" fill="#94a3b8"/>
+<text x="633.1" y="757" font-family="system-ui,sans-serif" font-size="12" fill="#111827">360.359 MiB</text>
 <text x="55" y="781" font-family="system-ui,sans-serif" font-size="12" fill="#334155">S=128 JAX warm-JIT</text>
-<rect x="225" y="767" width="265.1" height="18" rx="4" fill="#2563eb"/>
-<text x="500.1" y="781" font-family="system-ui,sans-serif" font-size="12" fill="#111827">231.219 MiB</text>
+<rect x="225" y="767" width="255.3" height="18" rx="4" fill="#2563eb"/>
+<text x="490.3" y="781" font-family="system-ui,sans-serif" font-size="12" fill="#111827">231.078 MiB</text>
 <rect x="55" y="820" width="14" height="14" rx="3" fill="#f97316"/><text x="77" y="832" font-family="system-ui,sans-serif" font-size="13" fill="#475569">Mojo native</text>
 <rect x="190" y="820" width="14" height="14" rx="3" fill="#94a3b8"/><text x="212" y="832" font-family="system-ui,sans-serif" font-size="13" fill="#475569">JAX eager</text>
 <rect x="310" y="820" width="14" height="14" rx="3" fill="#2563eb"/><text x="332" y="832" font-family="system-ui,sans-serif" font-size="13" fill="#475569">JAX warm-JIT</text>
