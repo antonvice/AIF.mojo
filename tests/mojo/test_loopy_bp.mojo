@@ -3,13 +3,16 @@ from std.math import exp
 from std.testing import TestSuite, assert_true
 
 from aif_mojo.loopy_bp import (
+    PreparedDenseLoopyBP,
     backward_messages,
     compute_action_marginals,
     compute_theta_cavities,
+    make_dense_loopy_bp_workspace,
     forward_pass,
     loopy_bp_planning_sparse,
     loopy_bp_planning_sparse_theta_goal,
     loopy_bp_planning_dense,
+    loopy_bp_planning_dense_prelogged_with_workspace,
     loopy_bp_planning_dense_theta_goal,
 )
 from aif_mojo.numerics import LOG_ZERO, safe_log
@@ -30,6 +33,13 @@ def probability_pair(a: Float32, b: Float32) -> List[Float32]:
 
 def log_pair(a: Float32, b: Float32) -> List[Float32]:
     return probability_pair(safe_log(a), safe_log(b))
+
+
+def log_values(values: List[Float32]) -> List[Float32]:
+    var result = List[Float32](capacity=len(values))
+    for value in values:
+        result.append(safe_log(value))
+    return result^
 
 
 def flip_or_stay_reduced(horizon: Int) -> List[Float32]:
@@ -66,6 +76,22 @@ def dense_uncertain_transition() -> List[Float32]:
     result.append(0.0)
     result.append(0.0)
     result.append(1.0)
+    return result^
+
+
+def benchmark_transition(n_states: Int) -> List[Float32]:
+    var result = List[Float32](capacity=n_states * n_states * 2 * 4)
+    for new_state in range(n_states):
+        for old_state in range(n_states):
+            for static_idx in range(2):
+                for action_idx in range(4):
+                    if (
+                        new_state
+                        == (old_state + static_idx + action_idx) % n_states
+                    ):
+                        result.append(1.0)
+                    else:
+                        result.append(0.0)
     return result^
 
 
@@ -180,6 +206,97 @@ def test_dense_planner_matches_sparse_and_jax() raises:
     )
     assert_close(result[0], 0.10800002)
     assert_close(result[1], 0.892)
+
+
+def test_prelogged_dense_workspace_matches_public_planner() raises:
+    var transition = dense_uncertain_transition()
+    var workspace = make_dense_loopy_bp_workspace(1, 2, 2, 2)
+    var result = loopy_bp_planning_dense_prelogged_with_workspace(
+        log_pair(1.0, 0.0),
+        log_pair(0.9, 0.1),
+        log_values(transition),
+        log_pair(0.01, 0.99),
+        log_pair(0.5, 0.5),
+        workspace,
+        1,
+        3,
+        2,
+        2,
+        2,
+    )
+    assert_close(result[0], 0.10800002)
+    assert_close(result[1], 0.892)
+
+    # The same allocation is intentionally reusable across planning calls.
+    var second = loopy_bp_planning_dense_prelogged_with_workspace(
+        log_pair(1.0, 0.0),
+        log_pair(0.9, 0.1),
+        log_values(transition),
+        log_pair(0.01, 0.99),
+        log_pair(0.5, 0.5),
+        workspace,
+        1,
+        3,
+        2,
+        2,
+        2,
+    )
+    assert_close(second[0], result[0])
+    assert_close(second[1], result[1])
+
+
+def test_prepared_dense_planner_reuses_static_logs_and_workspace() raises:
+    var prepared = PreparedDenseLoopyBP(
+        dense_uncertain_transition(),
+        probability_pair(0.01, 0.99),
+        probability_pair(0.5, 0.5),
+        1,
+        3,
+        2,
+        2,
+        2,
+    )
+    var first = prepared.plan(
+        probability_pair(1.0, 0.0), probability_pair(0.9, 0.1)
+    )
+    var second = prepared.plan(
+        probability_pair(1.0, 0.0), probability_pair(0.9, 0.1)
+    )
+    assert_close(first[0], 0.10800002)
+    assert_close(first[1], 0.892)
+    assert_close(second[0], first[0])
+    assert_close(second[1], first[1])
+
+
+def test_dense_workspace_four_action_kernel_matches_jax() raises:
+    var n_states = 8
+    var q_state = List[Float32](length=n_states, fill=0.0)
+    q_state[0] = 1.0
+    var goal = List[Float32](capacity=n_states)
+    var total = Float32(n_states * (n_states + 1) // 2)
+    for state_idx in range(n_states):
+        goal.append(Float32(state_idx + 1) / total)
+    var prior = List[Float32]()
+    prior.append(0.4)
+    prior.append(0.3)
+    prior.append(0.2)
+    prior.append(0.1)
+    var result = loopy_bp_planning_dense(
+        q_state,
+        probability_pair(0.6, 0.4),
+        benchmark_transition(n_states),
+        goal,
+        prior,
+        3,
+        3,
+        n_states,
+        4,
+        2,
+    )
+    assert_close(result[0], 0.35159013)
+    assert_close(result[1], 0.31184679)
+    assert_close(result[2], 0.22579332)
+    assert_close(result[3], 0.11076975)
 
 
 def test_dense_theta_goal_planner_matches_sparse_and_jax() raises:

@@ -98,7 +98,8 @@ This is a fair CPU comparison of the **same** dense Float32 Loopy-BP fixture.
 AOT/JIT compilation and three warm-up calls are separated from repeated
 in-process calls. Five independent processes are measured for every backend at
 four state-space sizes, and every process must return the same normalized policy
-within `1e-5`.
+within `1e-5`. Both backends use their default CPU worker pools; the native
+kernel parallelizes independent dense reductions from 32 states upward.
 
 <!-- BENCHMARK_RESULTS_START -->
 Median and bootstrap 95% CI across five independent processes. Lower latency and memory are better.
@@ -127,6 +128,20 @@ or avoiding a Python/XLA runtime matters. Choose **JAX warm-JIT** when peak CPU
 throughput on repeated array programs matters and its runtime/compile footprint
 is acceptable. JAX eager is valuable for research iteration and debugging, but
 is not the fast deployment path in this fixture.
+
+For repeated dense terminal-goal planning, construct `PreparedDenseLoopyBP`
+once and call `plan()` at every agent step. It caches the static transition,
+goal, and action-prior logs and reuses one scratch workspace:
+
+```mojo
+from aif_mojo.loopy_bp import PreparedDenseLoopyBP
+
+var planner = PreparedDenseLoopyBP(
+    transition, goal, action_prior, horizon, iterations,
+    n_states, n_actions, n_theta,
+)
+var policy = planner.plan(q_state, q_theta)
+```
 
 Reproduce the comparison on your machine:
 

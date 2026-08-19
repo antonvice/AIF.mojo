@@ -142,8 +142,8 @@ def svg(payload: dict[str, Any]) -> str:
 
 def publish(input_path: Path) -> Path:
     payload = json.loads(input_path.read_text())
-    if payload.get("schema_version") != 2:
-        raise ValueError("publication requires benchmark schema_version=2")
+    if payload.get("schema_version") != 3:
+        raise ValueError("publication requires benchmark schema_version=3")
     date = payload["recorded_at_utc"][:10]
     DATED_RESULTS.mkdir(parents=True, exist_ok=True)
     dated_path = DATED_RESULTS / f"{date}.json"

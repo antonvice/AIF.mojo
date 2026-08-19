@@ -2,6 +2,14 @@
 
 All notable changes to AIF.mojo are documented here.
 
+## [Unreleased]
+
+- Replaced dense terminal-goal Loopy-BP temporary reductions with a reusable
+  contiguous workspace, SIMD action blocks, and coarse CPU parallelism.
+- Added `PreparedDenseLoopyBP` for cached static logs and repeated agent-step
+  planning without workspace allocation.
+- Updated the publication benchmark to compare default CPU worker pools.
+
 ## [0.1.0] - 2026-08-19
 
 Initial public release.
