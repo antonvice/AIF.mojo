@@ -1,0 +1,355 @@
+{
+  "protocol": {
+    "dataset": "data/eegbci_left_right_20.npz",
+    "development_subjects": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "test_subjects": [
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "seeds": [
+      11,
+      29,
+      47
+    ],
+    "sampler": "Optuna TPE",
+    "trials_requested": 100,
+    "trials_completed": 95,
+    "trials_pruned": 5,
+    "elapsed_seconds": 607.4701931248419,
+    "objective": "balanced_accuracy - 0.01 * log_loss",
+    "spike_rate_constraint": [
+      0.01,
+      0.6
+    ]
+  },
+  "best_development_trial": {
+    "number": 27,
+    "objective": 0.5896020541261481,
+    "metrics": {
+      "balanced_accuracy": 0.5964426877470356,
+      "log_loss": 0.6840633620887471,
+      "mean_spike_rate": 0.15139572080761315
+    },
+    "windows": 4,
+    "config": {
+      "neurons": 96,
+      "ticks": 24,
+      "decay": 0.9364150817991861,
+      "threshold": 0.8468794052769222,
+      "input_gain": 0.20019306739981818,
+      "recurrent_scale": 1.0,
+      "spectral_radius": 0.5394904448104475,
+      "recurrent_sparsity": 0.18529032963401312,
+      "ridge": 0.0739414974162605,
+      "temperature": 0.6357447290641157,
+      "reset": "zero"
+    }
+  },
+  "untouched_test": {
+    "default": {
+      "windows": 4,
+      "config": {
+        "neurons": 48,
+        "ticks": 12,
+        "decay": 0.86,
+        "threshold": 1.0,
+        "input_gain": 0.42,
+        "recurrent_scale": 0.12,
+        "spectral_radius": null,
+        "recurrent_sparsity": 1.0,
+        "ridge": 0.2,
+        "temperature": 4.0,
+        "reset": "subtract"
+      },
+      "result": {
+        "aggregate": {
+          "accuracy": 0.5244444444444445,
+          "balanced_accuracy": 0.5244444444444445,
+          "macro_f1": 0.5213812846663088,
+          "log_loss": 0.6972356325803851,
+          "brier": 0.2518760775586453,
+          "mean_spike_rate": 0.30132748199588477
+        },
+        "folds": [
+          {
+            "subject": 11,
+            "metrics": {
+              "accuracy": 0.5333333333333333,
+              "balanced_accuracy": 0.5365612648221344,
+              "macro_f1": 0.5248868778280543,
+              "log_loss": 0.6965163509802134,
+              "brier": 0.2516210582711792
+            },
+            "mean_spike_rate": 0.2926729681069959
+          },
+          {
+            "subject": 12,
+            "metrics": {
+              "accuracy": 0.5555555555555556,
+              "balanced_accuracy": 0.5654761904761905,
+              "macro_f1": 0.55,
+              "log_loss": 0.6803175251654671,
+              "brier": 0.2443507411940502
+            },
+            "mean_spike_rate": 0.2144579475308642
+          },
+          {
+            "subject": 13,
+            "metrics": {
+              "accuracy": 0.4666666666666667,
+              "balanced_accuracy": 0.4654150197628458,
+              "macro_f1": 0.46428571428571425,
+              "log_loss": 0.7145641211791021,
+              "brier": 0.26079754964533325
+            },
+            "mean_spike_rate": 0.35491576646090534
+          },
+          {
+            "subject": 14,
+            "metrics": {
+              "accuracy": 0.6444444444444445,
+              "balanced_accuracy": 0.6432806324110671,
+              "macro_f1": 0.6428571428571428,
+              "log_loss": 0.6889958884701066,
+              "brier": 0.246727574006606
+            },
+            "mean_spike_rate": 0.23581532921810702
+          },
+          {
+            "subject": 15,
+            "metrics": {
+              "accuracy": 0.4666666666666667,
+              "balanced_accuracy": 0.4723320158102767,
+              "macro_f1": 0.4327731092436975,
+              "log_loss": 0.7015326747459589,
+              "brier": 0.2541573824922234
+            },
+            "mean_spike_rate": 0.38114390432098766
+          },
+          {
+            "subject": 16,
+            "metrics": {
+              "accuracy": 0.5777777777777777,
+              "balanced_accuracy": 0.5760869565217391,
+              "macro_f1": 0.5744151319064211,
+              "log_loss": 0.7237756402263673,
+              "brier": 0.26197826320443035
+            },
+            "mean_spike_rate": 0.2015817901234568
+          },
+          {
+            "subject": 17,
+            "metrics": {
+              "accuracy": 0.4666666666666667,
+              "balanced_accuracy": 0.4614624505928854,
+              "macro_f1": 0.4327731092436975,
+              "log_loss": 0.6785358133898513,
+              "brier": 0.24486434559163364
+            },
+            "mean_spike_rate": 0.3467849794238684
+          },
+          {
+            "subject": 18,
+            "metrics": {
+              "accuracy": 0.5111111111111111,
+              "balanced_accuracy": 0.516798418972332,
+              "macro_f1": 0.48004201680672265,
+              "log_loss": 0.6821454504864891,
+              "brier": 0.24453003949409183
+            },
+            "mean_spike_rate": 0.35518582818930033
+          },
+          {
+            "subject": 19,
+            "metrics": {
+              "accuracy": 0.5555555555555556,
+              "balanced_accuracy": 0.5513833992094861,
+              "macro_f1": 0.537037037037037,
+              "log_loss": 0.6925742640510861,
+              "brier": 0.24989076981216082
+            },
+            "mean_spike_rate": 0.2543242026748971
+          },
+          {
+            "subject": 20,
+            "metrics": {
+              "accuracy": 0.4666666666666667,
+              "balanced_accuracy": 0.45652173913043476,
+              "macro_f1": 0.3181818181818182,
+              "log_loss": 0.7133985971092098,
+              "brier": 0.2598430518747439
+            },
+            "mean_spike_rate": 0.37639210390946504
+          }
+        ]
+      }
+    },
+    "tuned": {
+      "windows": 4,
+      "config": {
+        "neurons": 96,
+        "ticks": 24,
+        "decay": 0.9364150817991861,
+        "threshold": 0.8468794052769222,
+        "input_gain": 0.20019306739981818,
+        "recurrent_scale": 1.0,
+        "spectral_radius": 0.5394904448104475,
+        "recurrent_sparsity": 0.18529032963401312,
+        "ridge": 0.0739414974162605,
+        "temperature": 0.6357447290641157,
+        "reset": "zero"
+      },
+      "result": {
+        "aggregate": {
+          "accuracy": 0.5333333333333333,
+          "balanced_accuracy": 0.5333333333333333,
+          "macro_f1": 0.5309615040997439,
+          "log_loss": 0.6897411974667913,
+          "brier": 0.24830180438456503,
+          "mean_spike_rate": 0.18097881301440327
+        },
+        "folds": [
+          {
+            "subject": 11,
+            "metrics": {
+              "accuracy": 0.6222222222222222,
+              "balanced_accuracy": 0.6215415019762847,
+              "macro_f1": 0.6214745175655616,
+              "log_loss": 0.6833329552481753,
+              "brier": 0.24509856139965297
+            },
+            "mean_spike_rate": 0.18984696502057616
+          },
+          {
+            "subject": 12,
+            "metrics": {
+              "accuracy": 0.6888888888888889,
+              "balanced_accuracy": 0.6934523809523809,
+              "macro_f1": 0.6887351778656126,
+              "log_loss": 0.67309017822258,
+              "brier": 0.24000276615585744
+            },
+            "mean_spike_rate": 0.12070392875514402
+          },
+          {
+            "subject": 13,
+            "metrics": {
+              "accuracy": 0.4888888888888889,
+              "balanced_accuracy": 0.48616600790513836,
+              "macro_f1": 0.4796380090497738,
+              "log_loss": 0.6939001692808396,
+              "brier": 0.25037264852253005
+            },
+            "mean_spike_rate": 0.1869293338477366
+          },
+          {
+            "subject": 14,
+            "metrics": {
+              "accuracy": 0.4888888888888889,
+              "balanced_accuracy": 0.4891304347826087,
+              "macro_f1": 0.4888888888888889,
+              "log_loss": 0.6891978581401155,
+              "brier": 0.24803127498114183
+            },
+            "mean_spike_rate": 0.11756285365226338
+          },
+          {
+            "subject": 15,
+            "metrics": {
+              "accuracy": 0.4444444444444444,
+              "balanced_accuracy": 0.4496047430830039,
+              "macro_f1": 0.41558441558441556,
+              "log_loss": 0.6895817704020992,
+              "brier": 0.24822359143258615
+            },
+            "mean_spike_rate": 0.2120732060185185
+          },
+          {
+            "subject": 16,
+            "metrics": {
+              "accuracy": 0.5333333333333333,
+              "balanced_accuracy": 0.5326086956521738,
+              "macro_f1": 0.5324096981692232,
+              "log_loss": 0.6882239620047309,
+              "brier": 0.24753606155160202
+            },
+            "mean_spike_rate": 0.10150221836419754
+          },
+          {
+            "subject": 17,
+            "metrics": {
+              "accuracy": 0.5333333333333333,
+              "balanced_accuracy": 0.5296442687747036,
+              "macro_f1": 0.5181030086690465,
+              "log_loss": 0.6927776061143107,
+              "brier": 0.2498192475603679
+            },
+            "mean_spike_rate": 0.18577835648148147
+          },
+          {
+            "subject": 18,
+            "metrics": {
+              "accuracy": 0.5333333333333333,
+              "balanced_accuracy": 0.5355731225296443,
+              "macro_f1": 0.5296167247386759,
+              "log_loss": 0.6926183057468017,
+              "brier": 0.24973340621752152
+            },
+            "mean_spike_rate": 0.2718291859567901
+          },
+          {
+            "subject": 19,
+            "metrics": {
+              "accuracy": 0.5111111111111111,
+              "balanced_accuracy": 0.5059288537549407,
+              "macro_f1": 0.48004201680672265,
+              "log_loss": 0.6920251168465839,
+              "brier": 0.24943921744314884
+            },
+            "mean_spike_rate": 0.11871463477366255
+          },
+          {
+            "subject": 20,
+            "metrics": {
+              "accuracy": 0.4888888888888889,
+              "balanced_accuracy": 0.48320158102766797,
+              "macro_f1": 0.44976076555023925,
+              "log_loss": 0.7026640526616765,
+              "brier": 0.2547612685812416
+            },
+            "mean_spike_rate": 0.3048474472736626
+          }
+        ]
+      }
+    },
+    "paired_subject_analysis": {
+      "mean_subject_balanced_accuracy_delta": 0.008153350272915505,
+      "subject_bootstrap_ci95": [
+        -0.040265622059100295,
+        0.05252220379258414
+      ],
+      "subjects_improved": 6,
+      "subjects_tied": 0,
+      "subjects_worse": 4
+    }
+  }
+}
