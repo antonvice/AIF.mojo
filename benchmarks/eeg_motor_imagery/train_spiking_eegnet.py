@@ -452,7 +452,12 @@ def main() -> None:
         "checkpoints": checkpoints,
         "selection_histories": histories,
         "models": baselines | {"spiking_eegnet": spiking},
-        "paired_vs_logistic": paired_bootstrap(logistic_folds, spiking_folds),
+        "paired_comparisons": {
+            f"spiking_eegnet_vs_{name}": paired_bootstrap(
+                baseline["folds"], spiking_folds
+            )
+            for name, baseline in baselines.items()
+        },
     }
     args.output.write_text(json.dumps(result, indent=2) + "\n")
     for name, model_result in result["models"].items():

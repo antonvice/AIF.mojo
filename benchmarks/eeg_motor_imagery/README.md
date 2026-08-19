@@ -121,4 +121,20 @@ epoch count is used to refit subjects 1-20. Newly downloaded subjects 21-30 are
 evaluated only after all three seeds are trained.
 
 The output includes three model checkpoints, complete validation histories,
-per-subject metrics, and a paired subject bootstrap against logistic regression.
+per-subject metrics, and paired subject bootstraps against both baselines.
+
+### Fresh-cohort result
+
+The three seeds selected 47, 26, and 23 epochs using subjects 17-20, then were
+refit on all 900 development trials. Subjects 21-30 were evaluated once.
+
+| Model | Balanced accuracy | Macro F1 | Log loss | Spike rate |
+| --- | ---: | ---: | ---: | ---: |
+| Logistic regression | 0.5319 | 0.5299 | 0.6883 | n/a |
+| Tuned LIF reservoir | 0.5452 | 0.5435 | 0.6892 | 0.1442 |
+| Spiking EEGNet | **0.6052** | **0.6035** | **0.6737** | **0.0966** |
+
+Spiking EEGNet improved eight of ten subjects versus logistic regression. Its
+mean subject balanced-accuracy gain was 7.1 points with a paired bootstrap 95%
+interval of +2.4 to +12.3 points. It improved nine of ten subjects versus the
+tuned reservoir, with a mean gain of 5.6 points and interval of +2.7 to +8.7.

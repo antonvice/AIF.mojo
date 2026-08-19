@@ -1,4 +1,6 @@
+import json
 import unittest
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -41,6 +43,29 @@ class SpikingEEGNetTests(unittest.TestCase):
         filtered = fft_bandpass(eeg, 128.0)
         self.assertEqual(filtered.shape, eeg.shape)
         self.assertTrue(np.isfinite(filtered).all())
+
+    def test_published_result_preserves_subject_separation(self):
+        result = json.loads(
+            Path("benchmarks/results/spiking_eegnet.json").read_text()
+        )
+        protocol = result["protocol"]
+        development = set(protocol["development_subjects"])
+        validation = set(protocol["validation_subjects"])
+        test = set(protocol["test_subjects"])
+        self.assertTrue(validation <= development)
+        self.assertTrue(development.isdisjoint(test))
+        self.assertTrue(protocol["test_evaluated_after_epoch_selection"])
+        self.assertEqual(
+            set(result["models"]),
+            {"logistic_regression", "tuned_lif_reservoir", "spiking_eegnet"},
+        )
+        self.assertEqual(
+            set(result["paired_comparisons"]),
+            {
+                "spiking_eegnet_vs_logistic_regression",
+                "spiking_eegnet_vs_tuned_lif_reservoir",
+            },
+        )
 
 
 if __name__ == "__main__":
