@@ -5,14 +5,14 @@ from aif_mojo.sparse_messages import sparse_dyn_to_theta, sparse_reduced
 
 
 def _zeros(length: Int) -> List[Float32]:
-    var result = List[Float32]()
+    var result = List[Float32](capacity=length)
     for _ in range(length):
         result.append(0.0)
     return result^
 
 
 def _safe_log_values(values: List[Float32]) -> List[Float32]:
-    var result = List[Float32]()
+    var result = List[Float32](capacity=len(values))
     for value in values:
         result.append(safe_log(value))
     return result^
@@ -36,9 +36,9 @@ def forward_pass(
         result[state_idx] = log_q_x0[state_idx]
 
     for time_idx in range(horizon):
-        var next_message = List[Float32]()
+        var next_message = List[Float32](capacity=n_states)
         for new_idx in range(n_states):
-            var terms = List[Float32]()
+            var terms = List[Float32](capacity=n_states * n_actions)
             for old_idx in range(n_states):
                 for action_idx in range(n_actions):
                     var reduced_offset = (
@@ -73,9 +73,9 @@ def backward_messages(
 
     for reverse_idx in range(horizon):
         var time_idx = horizon - 1 - reverse_idx
-        var message = List[Float32]()
+        var message = List[Float32](capacity=n_states)
         for old_idx in range(n_states):
-            var terms = List[Float32]()
+            var terms = List[Float32](capacity=n_states * n_actions)
             for new_idx in range(n_states):
                 for action_idx in range(n_actions):
                     var reduced_offset = (
@@ -109,9 +109,9 @@ def _forward_pass_with_local(
         result[state_idx] = log_q_x0[state_idx]
 
     for time_idx in range(horizon):
-        var next_message = List[Float32]()
+        var next_message = List[Float32](capacity=n_states)
         for new_idx in range(n_states):
-            var terms = List[Float32]()
+            var terms = List[Float32](capacity=n_states * n_actions)
             for old_idx in range(n_states):
                 for action_idx in range(n_actions):
                     var reduced_offset = (
@@ -143,9 +143,9 @@ def _backward_messages_with_local(
     var result = _zeros((horizon + 1) * n_states)
     for reverse_idx in range(horizon):
         var time_idx = horizon - 1 - reverse_idx
-        var message = List[Float32]()
+        var message = List[Float32](capacity=n_states)
         for old_idx in range(n_states):
-            var terms = List[Float32]()
+            var terms = List[Float32](capacity=n_states * n_actions)
             for new_idx in range(n_states):
                 for action_idx in range(n_actions):
                     var reduced_offset = (
@@ -168,7 +168,7 @@ def _backward_messages_with_local(
 
 def _add_messages(lhs: List[Float32], rhs: List[Float32]) -> List[Float32]:
     debug_assert(len(lhs) == len(rhs), "message shape mismatch")
-    var result = List[Float32]()
+    var result = List[Float32](capacity=len(lhs))
     for i in range(len(lhs)):
         result.append(lhs[i] + rhs[i])
     return result^
@@ -184,11 +184,11 @@ def compute_action_marginals(
     n_actions: Int,
 ) -> List[Float32]:
     """Compute probability-space action marginals for every time step."""
-    var result = List[Float32]()
+    var result = List[Float32](capacity=horizon * n_actions)
     for time_idx in range(horizon):
-        var action_logits = List[Float32]()
+        var action_logits = List[Float32](capacity=n_actions)
         for action_idx in range(n_actions):
-            var terms = List[Float32]()
+            var terms = List[Float32](capacity=n_states * n_states)
             for new_idx in range(n_states):
                 for old_idx in range(n_states):
                     var reduced_offset = (
@@ -219,16 +219,16 @@ def compute_theta_cavities(
         len(log_dyn_to_theta) == horizon * n_static,
         "dynamics message shape mismatch",
     )
-    var totals = List[Float32]()
+    var totals = List[Float32](capacity=n_static)
     for static_idx in range(n_static):
         var value = log_prior_theta[static_idx]
         for time_idx in range(horizon):
             value += log_dyn_to_theta[time_idx * n_static + static_idx]
         totals.append(value)
 
-    var result = List[Float32]()
+    var result = List[Float32](capacity=horizon * n_static)
     for time_idx in range(horizon):
-        var cavity = List[Float32]()
+        var cavity = List[Float32](capacity=n_static)
         for static_idx in range(n_static):
             cavity.append(
                 totals[static_idx]
@@ -249,12 +249,14 @@ def compute_reduced_per_t_dense(
     n_static: Int,
 ) -> List[Float32]:
     """Marginalize theta from dense (new, old, theta, action) transitions."""
-    var result = List[Float32]()
+    var result = List[Float32](
+        capacity=horizon * n_states * n_states * n_actions
+    )
     for time_idx in range(horizon):
         for new_idx in range(n_states):
             for old_idx in range(n_states):
                 for action_idx in range(n_actions):
-                    var terms = List[Float32]()
+                    var terms = List[Float32](capacity=n_static)
                     for static_idx in range(n_static):
                         var transition_offset = (
                             (new_idx * n_states + old_idx) * n_static
@@ -279,10 +281,10 @@ def compute_dyn_to_theta_dense(
     n_static: Int,
 ) -> List[Float32]:
     """Compute dense dynamics-factor messages to theta."""
-    var result = List[Float32]()
+    var result = List[Float32](capacity=horizon * n_static)
     for time_idx in range(horizon):
         for static_idx in range(n_static):
-            var terms = List[Float32]()
+            var terms = List[Float32](capacity=n_states * n_states * n_actions)
             for new_idx in range(n_states):
                 for old_idx in range(n_states):
                     for action_idx in range(n_actions):
@@ -321,7 +323,7 @@ def loopy_bp_planning_sparse(
     var log_goal = _safe_log_values(goal)
     var log_action_prior = _safe_log_values(action_prior)
 
-    var log_cavity_theta = List[Float32]()
+    var log_cavity_theta = List[Float32](capacity=horizon * n_static)
     for _ in range(horizon):
         for static_idx in range(n_static):
             log_cavity_theta.append(log_prior_theta[static_idx])
@@ -372,7 +374,7 @@ def loopy_bp_planning_sparse(
             log_prior_theta, log_dyn_to_theta, horizon, n_static
         )
 
-    var result = List[Float32]()
+    var result = List[Float32](capacity=n_actions)
     for action_idx in range(n_actions):
         result.append(q_u[action_idx])
     return result^
@@ -397,7 +399,7 @@ def loopy_bp_planning_dense(
     var log_action_prior = _safe_log_values(action_prior)
     var log_transition = _safe_log_values(transition_tensor)
 
-    var log_cavity_theta = List[Float32]()
+    var log_cavity_theta = List[Float32](capacity=horizon * n_static)
     for _ in range(horizon):
         for static_idx in range(n_static):
             log_cavity_theta.append(log_prior_theta[static_idx])
@@ -441,7 +443,7 @@ def loopy_bp_planning_dense(
             log_prior_theta, log_dyn_to_theta, horizon, n_static
         )
 
-    var result = List[Float32]()
+    var result = List[Float32](capacity=n_actions)
     for action_idx in range(n_actions):
         result.append(q_u[action_idx])
     return result^

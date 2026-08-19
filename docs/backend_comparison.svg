@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="650" viewBox="0 0 1000 650" role="img" aria-labelledby="title desc">
+  <title id="title">Mojo native versus JAX eager and warm-JIT</title>
+  <desc id="desc">Log-scale latency and linear peak memory for 8-state and 64-state Loopy BP fixtures. Warm-JIT JAX has the lowest latency and Mojo has the lowest memory.</desc>
+  <rect width="1000" height="650" rx="18" fill="#f8fafc"/>
+  <text x="55" y="52" font-family="system-ui, sans-serif" font-size="28" font-weight="700" fill="#111827">Same planner, different runtime tradeoffs</text>
+  <text x="55" y="80" font-family="system-ui, sans-serif" font-size="15" fill="#4b5563">Dense Loopy BP · Float32 · Apple arm64 · lower is better</text>
+
+  <text x="55" y="125" font-family="system-ui, sans-serif" font-size="20" font-weight="700" fill="#111827">Mean latency (ms, log scale)</text>
+  <line x1="210" y1="150" x2="650" y2="150" stroke="#cbd5e1"/>
+  <text x="210" y="143" font-family="system-ui, sans-serif" font-size="12" fill="#64748b">0.03</text>
+  <text x="350" y="143" font-family="system-ui, sans-serif" font-size="12" fill="#64748b">0.3</text>
+  <text x="490" y="143" font-family="system-ui, sans-serif" font-size="12" fill="#64748b">3</text>
+  <text x="630" y="143" font-family="system-ui, sans-serif" font-size="12" fill="#64748b">30+</text>
+
+  <text x="55" y="178" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#475569">8 states</text>
+  <text x="95" y="205" font-family="system-ui, sans-serif" font-size="13" fill="#334155">Mojo</text><rect x="210" y="190" width="107" height="20" rx="4" fill="#f97316"/><text x="326" y="205" font-family="system-ui, sans-serif" font-size="13" fill="#111827">0.171</text>
+  <text x="72" y="233" font-family="system-ui, sans-serif" font-size="13" fill="#334155">JAX eager</text><rect x="210" y="218" width="428" height="20" rx="4" fill="#94a3b8"/><text x="647" y="233" font-family="system-ui, sans-serif" font-size="13" fill="#111827">33.018</text>
+  <text x="60" y="261" font-family="system-ui, sans-serif" font-size="13" fill="#334155">JAX warm-JIT</text><rect x="210" y="246" width="21" height="20" rx="4" fill="#2563eb"/><text x="240" y="261" font-family="system-ui, sans-serif" font-size="13" fill="#111827">0.042</text>
+
+  <text x="55" y="298" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#475569">64 states</text>
+  <text x="95" y="325" font-family="system-ui, sans-serif" font-size="13" fill="#334155">Mojo</text><rect x="210" y="310" width="351" height="20" rx="4" fill="#f97316"/><text x="570" y="325" font-family="system-ui, sans-serif" font-size="13" fill="#111827">9.346</text>
+  <text x="72" y="353" font-family="system-ui, sans-serif" font-size="13" fill="#334155">JAX eager</text><rect x="210" y="338" width="430" height="20" rx="4" fill="#94a3b8"/><text x="649" y="353" font-family="system-ui, sans-serif" font-size="13" fill="#111827">34.170</text>
+  <text x="60" y="381" font-family="system-ui, sans-serif" font-size="13" fill="#334155">JAX warm-JIT</text><rect x="210" y="366" width="261" height="20" rx="4" fill="#2563eb"/><text x="480" y="381" font-family="system-ui, sans-serif" font-size="13" fill="#111827">2.129</text>
+
+  <text x="55" y="435" font-family="system-ui, sans-serif" font-size="20" font-weight="700" fill="#111827">Peak process memory (MiB, linear scale)</text>
+  <line x1="210" y1="460" x2="650" y2="460" stroke="#cbd5e1"/>
+  <text x="210" y="453" font-family="system-ui, sans-serif" font-size="12" fill="#64748b">0</text>
+  <text x="420" y="453" font-family="system-ui, sans-serif" font-size="12" fill="#64748b">175</text>
+  <text x="630" y="453" font-family="system-ui, sans-serif" font-size="12" fill="#64748b">350</text>
+
+  <text x="55" y="488" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#475569">8 states</text>
+  <text x="95" y="515" font-family="system-ui, sans-serif" font-size="13" fill="#334155">Mojo</text><rect x="210" y="500" width="15" height="20" rx="4" fill="#f97316"/><text x="234" y="515" font-family="system-ui, sans-serif" font-size="13" fill="#111827">12.0</text>
+  <text x="72" y="543" font-family="system-ui, sans-serif" font-size="13" fill="#334155">JAX eager</text><rect x="210" y="528" width="410" height="20" rx="4" fill="#94a3b8"/><text x="629" y="543" font-family="system-ui, sans-serif" font-size="13" fill="#111827">341.8</text>
+  <text x="60" y="571" font-family="system-ui, sans-serif" font-size="13" fill="#334155">JAX warm-JIT</text><rect x="210" y="556" width="261" height="20" rx="4" fill="#2563eb"/><text x="480" y="571" font-family="system-ui, sans-serif" font-size="13" fill="#111827">217.4</text>
+
+  <text x="710" y="488" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#475569">64 states</text>
+  <rect x="710" y="500" width="15" height="20" rx="4" fill="#f97316"/><text x="734" y="515" font-family="system-ui, sans-serif" font-size="13" fill="#111827">Mojo 12.1</text>
+  <rect x="710" y="528" width="209" height="20" rx="4" fill="#94a3b8"/><text x="710" y="543" dx="8" font-family="system-ui, sans-serif" font-size="13" fill="#111827">JAX eager 348.2</text>
+  <rect x="710" y="556" width="140" height="20" rx="4" fill="#2563eb"/><text x="710" y="571" dx="8" font-family="system-ui, sans-serif" font-size="13" fill="#ffffff">JAX JIT 233.1</text>
+
+  <rect x="55" y="610" width="14" height="14" rx="3" fill="#f97316"/><text x="77" y="622" font-family="system-ui, sans-serif" font-size="13" fill="#475569">Mojo native</text>
+  <rect x="190" y="610" width="14" height="14" rx="3" fill="#94a3b8"/><text x="212" y="622" font-family="system-ui, sans-serif" font-size="13" fill="#475569">JAX eager</text>
+  <rect x="310" y="610" width="14" height="14" rx="3" fill="#2563eb"/><text x="332" y="622" font-family="system-ui, sans-serif" font-size="13" fill="#475569">JAX warm-JIT</text>
+</svg>

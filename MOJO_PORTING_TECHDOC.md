@@ -1,17 +1,18 @@
-# UAI-MP-AIF-JAX to Mojo: test-first porting technical design
+# AIF-MOJO: technical design and validation history
 
-Status: native numerical core complete; Python adapters intentionally retained
+Status: standalone native numerical core complete; Python validation adapters retained
 Prepared: 2026-08-07
-Updated: 2026-08-08
+Updated: 2026-08-19
 Reference implementation: `UAI-MP-AIF-JAX` at commit
 `30ee6f0ebce32c6a430fa7c25f1c01390415a797`
 
 ## 1. Decision and outcome
 
-The project ports the inference and environment-model core to native, CPU-first
-Mojo while retaining the JAX repository as a frozen behavioral oracle. The port
-preserves mathematical and externally visible semantics rather than copying the
-JAX API or execution model.
+AIF-MOJO is a standalone native, CPU-first implementation of active inference,
+message-passing planners, and partially observable environment models. The JAX
+research repository is retained only as a frozen behavioral oracle. AIF-MOJO
+preserves its validated mathematical semantics without depending on the JAX API
+or execution model at runtime.
 
 The test-first sequence is now closed for the native-core scope:
 
@@ -429,25 +430,31 @@ paper reproduction.
 
 ### 7.3 Benchmark contract
 
-`pixi run benchmark` compiles a Mojo runner, separates compile time and first
-execution, retains each repeated sample, and reports median, Q1, Q3, and IQR for
-all eight planners on one explicit tiny model. It also includes a bounded 3x3
-MiniGrid Active sample through:
+`pixi run benchmark` performs a like-for-like CPU comparison of the dense
+terminal-goal Loopy-BP planner in Mojo native, JAX eager, and JAX warm-JIT modes.
+All modes consume the same generated Float32 tensors and use `K=2`, `A=4`,
+`H=3`, three planning iterations, and the same normalized policy oracle. Two
+state sizes are measured: `S=8` and `S=64`.
 
-```text
-T_idx -> sparse theta-marginalized log_base
-      -> precomputed observation-to-state message
-      -> native precomputed Active Inference planner
-```
+Mojo AOT compilation and JAX lowering/compilation are recorded separately.
+Each runtime then performs three warm-up calls followed by adaptive repeated
+calls inside one process. JAX calls synchronize with `block_until_ready`; Mojo
+uses `std.benchmark.run` with `max_batch_size=1` and keeps an output live to
+prevent dead-code elimination. Results include mean/min/max latency,
+calls/second, measurement duration and count, warm-up duration, and complete
+process peak RSS. Median and p95 are additionally available for the individually
+timed JAX calls; the pinned Mojo benchmark API reports aggregate batches.
 
-The measured quantity is compiled-native **process wall time including process
-startup**. It is not in-process steady-state latency, and it must not be compared
-to a post-JIT JAX microbenchmark as if the scopes were equal.
+`pixi run benchmark-process` retains the previous eight-planner plus bounded
+3x3 MiniGrid Active runner. Its process-wall samples include startup and remain
+useful for launch-time regression tracking, but they are not mixed with the fair
+steady-state comparison.
 
 ### 7.4 Examples and package smoke
 
 - `example-loopy` exercises the public deterministic-sparse Loopy BP API.
 - `example-all` exercises the consolidated eight-planner dispatcher.
+- `example-frozen` renders a full native Frozen Lake belief-plan-step episode.
 - `package-smoke` precompiles `aif_mojo.mojoc` and reruns the public Loopy example
   against the packaged artifact.
 
@@ -461,7 +468,7 @@ to a post-JIT JAX microbenchmark as if the scopes were equal.
 | M3: first planner | complete | Loopy BP dense/sparse, both goals, horizons, iterations, masks |
 | M4: all planners | complete | all eight dense; supported sparse/precomputed paths; planner parity gates |
 | M5: environments/agents | complete for native-core scope | four native models and tapes; pure Frozen/Rock simulators; shared belief updates; Frozen all-eight and MiniGrid dense-eight/sparse-five dispatch; Python host adapters retained |
-| M6: convergence/schema/performance boundary | complete | seven VFE formulas, 14 traces, exact schemas, policy matrix, package smoke, honest process-wall benchmark |
+| M6: convergence/schema/performance boundary | complete | seven VFE formulas, 14 traces, exact schemas, policy matrix, package smoke, fair eager/JIT/native benchmark |
 
 The original plan proposed a general `NDArray` in M1. Implementation evidence
 showed it was unnecessary, so milestone closure uses flat Lists instead. This is
@@ -516,10 +523,18 @@ Correctness comes before optimization. Current code uses contiguous Float32
 buffers, explicit loops, stable reductions, and deterministic sparse transitions
 where valid.
 
-The present benchmark is suitable for regression tracking only within its stated
-scope: compile time, first compiled-process execution, and repeated
-compiled-process wall time including startup. It is median/IQR-ready because raw
-samples are retained, but it is not a steady-state microbenchmark.
+The fair benchmark now isolates compilation and warm-up from repeated
+in-process calls, compares two state-space sizes, and records latency,
+throughput, and peak RSS. The latest local artifact is
+`benchmarks/results/fair_latest.json`; results remain machine-specific. On the
+development Mac, warm-JIT JAX wins latency at both sizes, Mojo beats eager JAX
+and has much lower process peak RSS. This supports workload-specific choices,
+not a general language ranking.
+
+The first measured optimization was exact-capacity preallocation for temporary
+Lists in the dense Loopy-BP hot path. It preserves the public flat-buffer model,
+passes the differential gates, and avoids repeated geometric growth. Further
+work follows measured hotspots in this order:
 
 If performance work is requested, optimize in this order:
 
@@ -531,9 +546,8 @@ If performance work is requested, optimize in this order:
 6. add parallel CPU or GPU kernels only with new correctness and benchmark
    contracts.
 
-A future fair JAX comparison must measure post-JIT JAX execution against an
-in-process Mojo loop with process startup excluded. No such steady-state or GPU
-claim is made today.
+The release/API review is recorded in `MOJO_UPGRADE_NOTES.md`. No GPU claim is
+made by this CPU benchmark.
 
 ## 11. Toolchain and exact commands
 
@@ -564,9 +578,11 @@ pixi run test-schema
 ```bash
 pixi run experiment-smoke
 pixi run benchmark
+pixi run benchmark-process
 pixi run package-smoke
 pixi run example-loopy
 pixi run example-all
+pixi run example-frozen
 ```
 
 ### 11.4 Aggregate gates
@@ -586,7 +602,8 @@ The standard generated outputs are:
 
 - `aif_mojo.mojoc` from packaging;
 - `data/smoke_matrix/` from the policy matrix;
-- `benchmarks/results/latest.json` from the benchmark.
+- `benchmarks/results/fair_latest.json` from the fair comparison;
+- `benchmarks/results/latest.json` from the legacy process benchmark.
 
 ## 12. Definition of done
 
@@ -607,9 +624,9 @@ The native-core port is complete when all of the following remain true:
   declared tolerances;
 - all four exact experiment schemas pass golden tests;
 - the 8-by-4 matrix invokes native policies and labels its zero-episode scope;
-- the precompiled package and both examples run through public APIs;
-- benchmark output separates compile/first/repeated process-wall measurements
-  and does not claim steady-state;
+- the precompiled package and all three examples run through public APIs;
+- the fair benchmark separates compilation, warm-up, and repeated in-process
+  measurements and validates identical policies;
 - no Python/JAX inference runs inside the Mojo numerical core.
 
 The following are intentionally retained boundaries, not incomplete core-port
@@ -622,7 +639,7 @@ items:
 - flat row-major Lists instead of a general NDArray;
 - no GPU backend and no NumPy/Mojo RNG-stream parity;
 - no episode-quality claim from `experiment-smoke`;
-- no steady-state claim from the current process-wall benchmark.
+- machine-specific benchmark results rather than universal backend claims.
 
 Future work may replace an adapter, add native episode loops, introduce a narrow
 layout optimization, or propose the RockSample Loopy BP fix upstream. Those are
