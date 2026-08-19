@@ -522,8 +522,9 @@ semantics with adapters at the system boundary, not a language-purity rewrite.
 ## 10. Performance policy
 
 Correctness comes before optimization. Current code uses contiguous Float32
-buffers, explicit loops, stable reductions, and deterministic sparse transitions
-where valid.
+buffers, stable reductions, deterministic sparse transitions where valid, and
+an optimized dense terminal-goal Loopy-BP kernel behind the original public
+API.
 
 The fair benchmark isolates compilation and warm-up from repeated in-process
 calls, compares four state-space sizes across five independent processes per
@@ -533,20 +534,26 @@ planner RSS delta. The latest local artifact is
 `docs/benchmarks/`. Results remain machine-specific and support workload-specific
 choices rather than a general language ranking.
 
-The first measured optimization was exact-capacity preallocation for temporary
-Lists in the dense Loopy-BP hot path. It preserves the public flat-buffer model,
-passes the differential gates, and avoids repeated geometric growth. Further
-work follows measured hotspots in this order:
+The optimized kernel implements the measured priorities directly:
 
-If performance work is requested, optimize in this order:
+1. one caller-owned contiguous workspace replaces temporary reduction Lists;
+2. `PreparedDenseLoopyBP` caches static transition, goal, and action-prior logs
+   and reuses that workspace across agent steps;
+3. stable `logsumexp` reductions stream over buffers without materializing term
+   vectors;
+4. contiguous action blocks use four-lane SIMD with scalar tails, preserving
+   action counts that are not multiples of four;
+5. independent reduced-transition and theta-message rows use the default CPU
+   worker pool from 32 states upward;
+6. the probability-space compatibility API delegates to the same kernel, so
+   existing callers retain their signatures and outputs.
 
-1. remove measured full-tensor copies and allocations;
-2. improve contiguous iteration order;
-3. cache theta-marginalized quantities;
-4. vectorize proven inner reductions;
-5. introduce a narrow layout/view type for a demonstrated hotspot;
-6. add parallel CPU or GPU kernels only with new correctness and benchmark
-   contracts.
+The terminal-goal fast path is intentionally narrow. Theta-dependent dense
+preferences still use the reference implementation, and deterministic
+transitions should prefer the existing sparse planners. Future optimization is
+limited to measured consumers: a theta-goal workspace kernel, a narrow
+layout/view type if pointer arithmetic remains dominant, and GPU kernels only
+with separate correctness and benchmark contracts.
 
 The release/API review is recorded in `MOJO_UPGRADE_NOTES.md`. No GPU claim is
 made by this CPU benchmark.

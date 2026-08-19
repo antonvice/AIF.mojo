@@ -123,10 +123,6 @@ def jax_result(mode: str, fixture: str) -> dict[str, Any]:
         {
             "JAX_PLATFORMS": "cpu",
             "JAX_ENABLE_X64": "false",
-            "OMP_NUM_THREADS": "1",
-            "OPENBLAS_NUM_THREADS": "1",
-            "MKL_NUM_THREADS": "1",
-            "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false",
         }
     )
     measured = run_measured(
@@ -312,7 +308,7 @@ def main() -> int:
             )
 
     payload = {
-        "schema_version": 2,
+        "schema_version": 3,
         "recorded_at_utc": datetime.now(UTC).isoformat(),
         "planner": "loopy-bp-dense-terminal-goal",
         "fixture_contract": {
@@ -332,7 +328,7 @@ def main() -> int:
             "confidence_interval": "deterministic percentile bootstrap 95% CI of process medians; 10000 resamples; seed 0",
             "jax_jit_compilation_is_separate": True,
             "mojo_aot_compilation_is_separate": True,
-            "cpu_protocol": "single-threaded Mojo loops; JAX CPU with BLAS threads=1 and XLA Eigen multithreading disabled",
+            "cpu_protocol": "default CPU worker pools; Mojo parallelizes independent dense reductions for state spaces >=32; JAX/XLA uses its default CPU threading",
             "memory_metric": "complete process peak RSS plus runtime baseline and non-negative planner delta",
             "mojo_baseline": "peak RSS of an independent no-op invocation of the same AOT binary",
             "jax_baseline": "same-process RSS after JAX and planner import, before fixture allocation",

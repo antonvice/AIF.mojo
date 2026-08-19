@@ -4,6 +4,8 @@ AIF.mojo follows semantic versioning from `v0.1.0` onward.
 
 - Public functions imported by the examples and documented in
   `TECHNICAL_DESIGN.md` are the supported surface.
+- `PreparedDenseLoopyBP`, its `plan()` method, and the dense workspace sizing
+  and prelogged entry points follow the same pre-1.0 compatibility policy.
 - Flat-buffer axis order, planner IDs, action IDs, return layouts, and explicit
   terminal/theta goal selection are compatibility contracts.
 - Names beginning with `_`, diagnostic trace packing, benchmark schemas, and
