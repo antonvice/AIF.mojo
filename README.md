@@ -101,7 +101,25 @@ four state-space sizes, and every process must return the same normalized policy
 within `1e-5`.
 
 <!-- BENCHMARK_RESULTS_START -->
-Run `pixi run benchmark-publication` to generate the publication table.
+Median and bootstrap 95% CI across five independent processes. Lower latency and memory are better.
+
+| States | Backend | Compile (s) | Latency, ms (95% CI) | Calls/s (95% CI) | Peak RSS | Planner RSS delta |
+|---:|---|---:|---:|---:|---:|---:|
+| 8 | Mojo native | 1.876 | 0.234 [0.218, 0.386] | 4276.843 [2590.832, 4591.669] | 11.8 MiB | 0.4 MiB |
+| 8 | JAX eager | 0.000 | 43.704 [41.125, 78.441] | 22.881 [12.748, 24.316] | 325.9 MiB | 215.1 MiB |
+| 8 | JAX warm-JIT | 0.174 | 0.049 [0.046, 0.053] | 20376.960 [18758.163, 21506.022] | 217.5 MiB | 106.5 MiB |
+| 32 | Mojo native | 1.876 | 3.049 [2.897, 3.328] | 327.942 [300.506, 345.160] | 11.8 MiB | 0.3 MiB |
+| 32 | JAX eager | 0.000 | 38.683 [36.219, 41.492] | 25.851 [24.101, 27.609] | 326.9 MiB | 216.1 MiB |
+| 32 | JAX warm-JIT | 0.270 | 0.335 [0.309, 0.346] | 2981.853 [2893.292, 3236.125] | 222.4 MiB | 113.8 MiB |
+| 64 | Mojo native | 1.876 | 11.278 [10.759, 11.678] | 88.666 [85.630, 92.945] | 12.0 MiB | 0.6 MiB |
+| 64 | JAX eager | 0.000 | 42.497 [37.690, 56.449] | 23.531 [17.715, 26.532] | 347.2 MiB | 236.2 MiB |
+| 64 | JAX warm-JIT | 0.256 | 3.645 [3.037, 3.783] | 274.349 [264.314, 329.322] | 232.6 MiB | 121.6 MiB |
+| 128 | Mojo native | 1.876 | 70.770 [68.620, 80.058] | 14.130 [12.491, 14.573] | 13.6 MiB | 2.2 MiB |
+| 128 | JAX eager | 0.000 | 68.165 [60.278, 102.372] | 14.670 [9.768, 16.590] | 337.6 MiB | 226.6 MiB |
+| 128 | JAX warm-JIT | 0.405 | 7.949 [7.634, 8.697] | 125.803 [114.988, 130.986] | 231.2 MiB | 120.1 MiB |
+
+Snapshot: Apple M4 (arm64), Mojo 1.0.0b2 (2cf4d08a), 2026-08-19. [Full process-level JSON](docs/benchmarks/2026-08-19.json).
+These are machine-specific measurements, not universal language claims.
 <!-- BENCHMARK_RESULTS_END -->
 
 Choose **Mojo native** when low process memory, predictable native deployment,

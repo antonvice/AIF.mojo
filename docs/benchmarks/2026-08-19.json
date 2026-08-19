@@ -1,0 +1,2558 @@
+{
+  "schema_version": 2,
+  "recorded_at_utc": "2026-08-19T22:10:02.864151+00:00",
+  "planner": "loopy-bp-dense-terminal-goal",
+  "fixture_contract": {
+    "n_static": 2,
+    "n_actions": 4,
+    "horizon": 3,
+    "planning_iterations": 3,
+    "dtype": "Float32",
+    "transition_axes": [
+      "new",
+      "old",
+      "theta",
+      "action"
+    ],
+    "state_spaces": {
+      "small": 8,
+      "medium": 32,
+      "large": 64,
+      "xlarge": 128
+    }
+  },
+  "methodology": {
+    "same_fixture_and_policy_verified": true,
+    "independent_processes_per_backend_and_size": 5,
+    "warmup_iterations_per_process": 3,
+    "repeated_calls_are_in_process": true,
+    "confidence_interval": "deterministic percentile bootstrap 95% CI of process medians; 10000 resamples; seed 0",
+    "jax_jit_compilation_is_separate": true,
+    "mojo_aot_compilation_is_separate": true,
+    "cpu_protocol": "single-threaded Mojo loops; JAX CPU with BLAS threads=1 and XLA Eigen multithreading disabled",
+    "memory_metric": "complete process peak RSS plus runtime baseline and non-negative planner delta",
+    "mojo_baseline": "peak RSS of an independent no-op invocation of the same AOT binary",
+    "jax_baseline": "same-process RSS after JAX and planner import, before fixture allocation",
+    "mojo_latency": "std.benchmark mean per process with max_batch_size=1",
+    "jax_latency": "mean synchronous block_until_ready call per process"
+  },
+  "system": {
+    "platform": "macOS-26.6-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "processor": "arm",
+    "cpu_brand": "Apple M4",
+    "machine_model": "Mac16,13",
+    "physical_memory": "32 GB"
+  },
+  "versions": {
+    "mojo": "Mojo 1.0.0b2 (2cf4d08a)",
+    "aif_mojo_git": "8bc4b927c4553a05972bb44c1123acf49bddaa06",
+    "jax_oracle_git": "30ee6f0ebce32c6a430fa7c25f1c01390415a797"
+  },
+  "mojo_compile": {
+    "seconds": 1.8764739171601832,
+    "peak_rss_bytes": 157270016
+  },
+  "fixtures": [
+    {
+      "name": "small",
+      "n_states": 8,
+      "results": [
+        {
+          "backend": "mojo-native",
+          "fixture": "small",
+          "n_states": 8,
+          "process_count": 5,
+          "compile_seconds_median": 1.8764739171601832,
+          "compile_seconds_ci95": [
+            1.8764739171601832,
+            1.8764739171601832
+          ],
+          "warmup_seconds_median": 0.000876,
+          "latency_seconds_median": 0.00023381733167082296,
+          "latency_seconds_ci95": [
+            0.00021778571428571428,
+            0.00038597633744855966
+          ],
+          "throughput_calls_per_second_median": 4276.8429220116095,
+          "throughput_calls_per_second_ci95": [
+            2590.8323981992116,
+            4591.669399803214
+          ],
+          "runtime_peak_rss_bytes_median": 12419072,
+          "runtime_baseline_rss_bytes_median": 11993088,
+          "planner_incremental_rss_bytes_median": 425984,
+          "policy": [
+            0.35159013,
+            0.3118467,
+            0.22579332,
+            0.110769786
+          ],
+          "processes": [
+            {
+              "backend": "mojo-native",
+              "fixture": "small",
+              "n_states": 8,
+              "compile_seconds": null,
+              "first_execution_seconds": null,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.000995,
+              "measurement_iterations": 1944,
+              "measurement_duration_seconds": 0.750338,
+              "latency_mean_seconds": 0.00038597633744855966,
+              "latency_min_seconds": 0.000263,
+              "latency_max_seconds": 0.008514,
+              "throughput_calls_per_second": 2590.8323981992116,
+              "runtime_baseline_rss_bytes": 11993088,
+              "runtime_peak_rss_bytes": 12337152,
+              "planner_incremental_rss_bytes": 344064,
+              "policy": [
+                0.35159013,
+                0.3118467,
+                0.22579332,
+                0.110769786
+              ]
+            },
+            {
+              "backend": "mojo-native",
+              "fixture": "small",
+              "n_states": 8,
+              "compile_seconds": null,
+              "first_execution_seconds": null,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.001373,
+              "measurement_iterations": 2005,
+              "measurement_duration_seconds": 0.750168,
+              "latency_mean_seconds": 0.00037414862842892764,
+              "latency_min_seconds": 0.000263,
+              "latency_max_seconds": 0.001739,
+              "throughput_calls_per_second": 2672.7346407738005,
+              "runtime_baseline_rss_bytes": 11976704,
+              "runtime_peak_rss_bytes": 12255232,
+              "planner_incremental_rss_bytes": 278528,
+              "policy": [
+                0.35159013,
+                0.3118467,
+                0.22579332,
+                0.110769786
+              ]
+            },
+            {
+              "backend": "mojo-native",
+              "fixture": "small",
+              "n_states": 8,
+              "compile_seconds": null,
+              "first_execution_seconds": null,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.000876,
+              "measurement_iterations": 3208,
+              "measurement_duration_seconds": 0.750086,
+              "latency_mean_seconds": 0.00023381733167082296,
+              "latency_min_seconds": 0.0002,
+              "latency_max_seconds": 0.000645,
+              "throughput_calls_per_second": 4276.8429220116095,
+              "runtime_baseline_rss_bytes": 11993088,
+              "runtime_peak_rss_bytes": 12419072,
+              "planner_incremental_rss_bytes": 425984,
+              "policy": [
+                0.35159013,
+                0.3118467,
+                0.22579332,
+                0.110769786
+              ]
+            },
+            {
+              "backend": "mojo-native",
+              "fixture": "small",
+              "n_states": 8,
+              "compile_seconds": null,
+              "first_execution_seconds": null,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.000596,
+              "measurement_iterations": 3444,
+              "measurement_duration_seconds": 0.750054,
+              "latency_mean_seconds": 0.00021778571428571428,
+              "latency_min_seconds": 0.000181,
+              "latency_max_seconds": 0.000415,
+              "throughput_calls_per_second": 4591.669399803214,
+              "runtime_baseline_rss_bytes": 11960320,
+              "runtime_peak_rss_bytes": 12435456,
+              "planner_incremental_rss_bytes": 475136,
+              "policy": [
+                0.35159013,
+                0.3118467,
+                0.22579332,
+                0.110769786
+              ]
+            },
+            {
+              "backend": "mojo-native",
+              "fixture": "small",
+              "n_states": 8,
+              "compile_seconds": null,
+              "first_execution_seconds": null,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.000648,
+              "measurement_iterations": 3373,
+              "measurement_duration_seconds": 0.750185,
+              "latency_mean_seconds": 0.00022240883486510525,
+              "latency_min_seconds": 0.000171,
+              "latency_max_seconds": 0.000366,
+              "throughput_calls_per_second": 4496.224264681378,
+              "runtime_baseline_rss_bytes": 12009472,
+              "runtime_peak_rss_bytes": 12451840,
+              "planner_incremental_rss_bytes": 442368,
+              "policy": [
+                0.35159013,
+                0.3118467,
+                0.22579332,
+                0.110769786
+              ]
+            }
+          ]
+        },
+        {
+          "backend": "jax-eager",
+          "fixture": "small",
+          "n_states": 8,
+          "process_count": 5,
+          "compile_seconds_median": 0.0,
+          "compile_seconds_ci95": [
+            0.0,
+            0.0
+          ],
+          "warmup_seconds_median": 0.14277458400465548,
+          "latency_seconds_median": 0.043703520709338285,
+          "latency_seconds_ci95": [
+            0.04112476196938327,
+            0.078441416984424
+          ],
+          "throughput_calls_per_second_median": 22.881451740484753,
+          "throughput_calls_per_second_ci95": [
+            12.748367360556077,
+            24.316250164426094
+          ],
+          "runtime_peak_rss_bytes_median": 341737472,
+          "runtime_baseline_rss_bytes_median": 116277248,
+          "planner_incremental_rss_bytes_median": 225574912,
+          "policy": [
+            0.3515901267528534,
+            0.3118467926979065,
+            0.22579331696033478,
+            0.11076974868774414
+          ],
+          "processes": [
+            {
+              "backend": "jax-eager",
+              "fixture": "small",
+              "n_states": 8,
+              "compile_seconds": 0.0,
+              "first_execution_seconds": 2.126338957808912,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.11977541609667242,
+              "measurement_iterations": 5,
+              "measurement_duration_seconds": 0.3922196668572724,
+              "latency_mean_seconds": 0.078441416984424,
+              "latency_median_seconds": 0.04520891699939966,
+              "latency_min_seconds": 0.04296245891600847,
+              "latency_max_seconds": 0.17364854202605784,
+              "latency_p95_seconds": 0.17364854202605784,
+              "throughput_calls_per_second": 12.748367360556077,
+              "policy": [
+                0.3515901267528534,
+                0.3118467926979065,
+                0.22579331696033478,
+                0.11076974868774414
+              ],
+              "rss_bytes": {
+                "after_import": 116162560,
+                "after_fixture": 121667584,
+                "after_compile": 121667584,
+                "after_warmup": 341590016,
+                "after_measurement": 287277056
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116162560,
+              "runtime_peak_rss_bytes": 341737472,
+              "planner_incremental_rss_bytes": 225574912
+            },
+            {
+              "backend": "jax-eager",
+              "fixture": "small",
+              "n_states": 8,
+              "compile_seconds": 0.0,
+              "first_execution_seconds": 2.3166569171007723,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.14277458400465548,
+              "measurement_iterations": 6,
+              "measurement_duration_seconds": 0.26601470820605755,
+              "latency_mean_seconds": 0.04433315286102394,
+              "latency_median_seconds": 0.04482477100100368,
+              "latency_min_seconds": 0.03818670893087983,
+              "latency_max_seconds": 0.049521208042278886,
+              "latency_p95_seconds": 0.049521208042278886,
+              "throughput_calls_per_second": 22.55648280046337,
+              "policy": [
+                0.3515901267528534,
+                0.3118467926979065,
+                0.22579331696033478,
+                0.11076974868774414
+              ],
+              "rss_bytes": {
+                "after_import": 115621888,
+                "after_fixture": 120012800,
+                "after_compile": 120012800,
+                "after_warmup": 333266944,
+                "after_measurement": 328892416
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 115621888,
+              "runtime_peak_rss_bytes": 343490560,
+              "planner_incremental_rss_bytes": 227868672
+            },
+            {
+              "backend": "jax-eager",
+              "fixture": "small",
+              "n_states": 8,
+              "compile_seconds": 0.0,
+              "first_execution_seconds": 2.4805206249002367,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.15119341691024601,
+              "measurement_iterations": 6,
+              "measurement_duration_seconds": 0.26224099984392524,
+              "latency_mean_seconds": 0.043703520709338285,
+              "latency_median_seconds": 0.043508541537448764,
+              "latency_min_seconds": 0.038911666022613645,
+              "latency_max_seconds": 0.048862958094105124,
+              "latency_p95_seconds": 0.048862958094105124,
+              "throughput_calls_per_second": 22.881451740484753,
+              "policy": [
+                0.3515901267528534,
+                0.3118467926979065,
+                0.22579331696033478,
+                0.11076974868774414
+              ],
+              "rss_bytes": {
+                "after_import": 116506624,
+                "after_fixture": 121896960,
+                "after_compile": 121896960,
+                "after_warmup": 245530624,
+                "after_measurement": 245694464
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116506624,
+              "runtime_peak_rss_bytes": 342130688,
+              "planner_incremental_rss_bytes": 225624064
+            },
+            {
+              "backend": "jax-eager",
+              "fixture": "small",
+              "n_states": 8,
+              "compile_seconds": 0.0,
+              "first_execution_seconds": 1.8387562078423798,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.1477104160003364,
+              "measurement_iterations": 7,
+              "measurement_duration_seconds": 0.29129224992357194,
+              "latency_mean_seconds": 0.041609261983207295,
+              "latency_median_seconds": 0.04003037512302399,
+              "latency_min_seconds": 0.03728445805609226,
+              "latency_max_seconds": 0.05066199996508658,
+              "latency_p95_seconds": 0.05066199996508658,
+              "throughput_calls_per_second": 24.033110714714933,
+              "policy": [
+                0.3515901267528534,
+                0.3118467926979065,
+                0.22579331696033478,
+                0.11076974868774414
+              ],
+              "rss_bytes": {
+                "after_import": 116277248,
+                "after_fixture": 121700352,
+                "after_compile": 121700352,
+                "after_warmup": 267534336,
+                "after_measurement": 257212416
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116277248,
+              "runtime_peak_rss_bytes": 339214336,
+              "planner_incremental_rss_bytes": 222937088
+            },
+            {
+              "backend": "jax-eager",
+              "fixture": "small",
+              "n_states": 8,
+              "compile_seconds": 0.0,
+              "first_execution_seconds": 2.0226849589962512,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.13835466606542468,
+              "measurement_iterations": 7,
+              "measurement_duration_seconds": 0.287912999978289,
+              "latency_mean_seconds": 0.04112476196938327,
+              "latency_median_seconds": 0.0390625,
+              "latency_min_seconds": 0.03870458295568824,
+              "latency_max_seconds": 0.04924554191529751,
+              "latency_p95_seconds": 0.04924554191529751,
+              "throughput_calls_per_second": 24.316250164426094,
+              "policy": [
+                0.3515901267528534,
+                0.3118467926979065,
+                0.22579331696033478,
+                0.11076974868774414
+              ],
+              "rss_bytes": {
+                "after_import": 116424704,
+                "after_fixture": 121749504,
+                "after_compile": 121749504,
+                "after_warmup": 248922112,
+                "after_measurement": 222576640
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116424704,
+              "runtime_peak_rss_bytes": 338362368,
+              "planner_incremental_rss_bytes": 221937664
+            }
+          ]
+        },
+        {
+          "backend": "jax-jit",
+          "fixture": "small",
+          "n_states": 8,
+          "process_count": 5,
+          "compile_seconds_median": 0.17445995821617544,
+          "compile_seconds_ci95": [
+            0.14810216589830816,
+            0.19976487499661744
+          ],
+          "warmup_seconds_median": 0.0002068749163299799,
+          "latency_seconds_median": 4.907503396832114e-05,
+          "latency_seconds_ci95": [
+            4.64986048875347e-05,
+            5.33101254223207e-05
+          ],
+          "throughput_calls_per_second_median": 20376.959915005235,
+          "throughput_calls_per_second_ci95": [
+            18758.162583149817,
+            21506.02157674797
+          ],
+          "runtime_peak_rss_bytes_median": 228016128,
+          "runtime_baseline_rss_bytes_median": 116359168,
+          "planner_incremental_rss_bytes_median": 111656960,
+          "policy": [
+            0.3515901565551758,
+            0.3118467330932617,
+            0.22579337656497955,
+            0.11076974123716354
+          ],
+          "processes": [
+            {
+              "backend": "jax-jit",
+              "fixture": "small",
+              "n_states": 8,
+              "compile_seconds": 0.19976487499661744,
+              "first_execution_seconds": 0.001023957971483469,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.00029395800083875656,
+              "measurement_iterations": 4669,
+              "measurement_duration_seconds": 0.25001729209907353,
+              "latency_mean_seconds": 5.33101254223207e-05,
+              "latency_median_seconds": 5.183299072086811e-05,
+              "latency_min_seconds": 3.929203376173973e-05,
+              "latency_max_seconds": 0.0003817088436335325,
+              "latency_p95_seconds": 6.287498399615288e-05,
+              "throughput_calls_per_second": 18758.162583149817,
+              "policy": [
+                0.3515901565551758,
+                0.3118467330932617,
+                0.22579337656497955,
+                0.11076974123716354
+              ],
+              "rss_bytes": {
+                "after_import": 116359168,
+                "after_fixture": 121618432,
+                "after_compile": 228425728,
+                "after_warmup": 228540416,
+                "after_measurement": 228786176
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116359168,
+              "runtime_peak_rss_bytes": 228818944,
+              "planner_incremental_rss_bytes": 112459776
+            },
+            {
+              "backend": "jax-jit",
+              "fixture": "small",
+              "n_states": 8,
+              "compile_seconds": 0.14810216589830816,
+              "first_execution_seconds": 0.0006892920937389135,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.0002008338924497366,
+              "measurement_iterations": 5074,
+              "measurement_duration_seconds": 0.25003529200330377,
+              "latency_mean_seconds": 4.907503396832114e-05,
+              "latency_median_seconds": 4.9625057727098465e-05,
+              "latency_min_seconds": 4.087504930794239e-05,
+              "latency_max_seconds": 0.00010816589929163456,
+              "latency_p95_seconds": 5.587493069469929e-05,
+              "throughput_calls_per_second": 20376.959915005235,
+              "policy": [
+                0.3515901565551758,
+                0.3118467330932617,
+                0.22579337656497955,
+                0.11076974123716354
+              ],
+              "rss_bytes": {
+                "after_import": 116211712,
+                "after_fixture": 121618432,
+                "after_compile": 226525184,
+                "after_warmup": 226639872,
+                "after_measurement": 226885632
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116211712,
+              "runtime_peak_rss_bytes": 226918400,
+              "planner_incremental_rss_bytes": 110706688
+            },
+            {
+              "backend": "jax-jit",
+              "fixture": "small",
+              "n_states": 8,
+              "compile_seconds": 0.1755401249974966,
+              "first_execution_seconds": 0.0007064579986035824,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.00020983396098017693,
+              "measurement_iterations": 5020,
+              "measurement_duration_seconds": 0.2500311250332743,
+              "latency_mean_seconds": 4.9591680897763404e-05,
+              "latency_median_seconds": 4.7083012759685516e-05,
+              "latency_min_seconds": 3.574998117983341e-05,
+              "latency_max_seconds": 0.00025987508706748486,
+              "latency_p95_seconds": 6.320793181657791e-05,
+              "throughput_calls_per_second": 20164.672418778613,
+              "policy": [
+                0.3515901565551758,
+                0.3118467330932617,
+                0.22579337656497955,
+                0.11076974123716354
+              ],
+              "rss_bytes": {
+                "after_import": 116588544,
+                "after_fixture": 121896960,
+                "after_compile": 225067008,
+                "after_warmup": 225181696,
+                "after_measurement": 210190336
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116588544,
+              "runtime_peak_rss_bytes": 225345536,
+              "planner_incremental_rss_bytes": 108756992
+            },
+            {
+              "backend": "jax-jit",
+              "fixture": "small",
+              "n_states": 8,
+              "compile_seconds": 0.17445995821617544,
+              "first_execution_seconds": 0.0007611659821122885,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.0002068749163299799,
+              "measurement_iterations": 5190,
+              "measurement_duration_seconds": 0.2500305420253426,
+              "latency_mean_seconds": 4.7972456055023994e-05,
+              "latency_median_seconds": 4.737498238682747e-05,
+              "latency_min_seconds": 3.6207959055900574e-05,
+              "latency_max_seconds": 0.00018308288417756557,
+              "latency_p95_seconds": 5.77080063521862e-05,
+              "throughput_calls_per_second": 20845.295034571685,
+              "policy": [
+                0.3515901565551758,
+                0.3118467330932617,
+                0.22579337656497955,
+                0.11076974123716354
+              ],
+              "rss_bytes": {
+                "after_import": 116277248,
+                "after_fixture": 121683968,
+                "after_compile": 231653376,
+                "after_warmup": 231768064,
+                "after_measurement": 227803136
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116277248,
+              "runtime_peak_rss_bytes": 231833600,
+              "planner_incremental_rss_bytes": 115556352
+            },
+            {
+              "backend": "jax-jit",
+              "fixture": "small",
+              "n_states": 8,
+              "compile_seconds": 0.16043545911088586,
+              "first_execution_seconds": 0.0009475830011069775,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.00019433395937085152,
+              "measurement_iterations": 5355,
+              "measurement_duration_seconds": 0.2500047089997679,
+              "latency_mean_seconds": 4.64986048875347e-05,
+              "latency_median_seconds": 4.6042026951909065e-05,
+              "latency_min_seconds": 3.566686064004898e-05,
+              "latency_max_seconds": 0.00021620793268084526,
+              "latency_p95_seconds": 5.454220809042454e-05,
+              "throughput_calls_per_second": 21506.02157674797,
+              "policy": [
+                0.3515901565551758,
+                0.3118467330932617,
+                0.22579337656497955,
+                0.11076974123716354
+              ],
+              "rss_bytes": {
+                "after_import": 116359168,
+                "after_fixture": 121585664,
+                "after_compile": 227655680,
+                "after_warmup": 227770368,
+                "after_measurement": 228016128
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116359168,
+              "runtime_peak_rss_bytes": 228016128,
+              "planner_incremental_rss_bytes": 111656960
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "medium",
+      "n_states": 32,
+      "results": [
+        {
+          "backend": "mojo-native",
+          "fixture": "medium",
+          "n_states": 32,
+          "process_count": 5,
+          "compile_seconds_median": 1.8764739171601832,
+          "compile_seconds_ci95": [
+            1.8764739171601832,
+            1.8764739171601832
+          ],
+          "warmup_seconds_median": 0.008399,
+          "latency_seconds_median": 0.0030493238866396762,
+          "latency_seconds_ci95": [
+            0.0028972046332046333,
+            0.003327721238938053
+          ],
+          "throughput_calls_per_second_median": 327.9415493976895,
+          "throughput_calls_per_second_ci95": [
+            300.50594031101036,
+            345.1602929731228
+          ],
+          "runtime_peak_rss_bytes_median": 12353536,
+          "runtime_baseline_rss_bytes_median": 11993088,
+          "planner_incremental_rss_bytes_median": 360448,
+          "policy": [
+            0.32687467,
+            0.29999998,
+            0.23656265,
+            0.13656267
+          ],
+          "processes": [
+            {
+              "backend": "mojo-native",
+              "fixture": "medium",
+              "n_states": 32,
+              "compile_seconds": null,
+              "first_execution_seconds": null,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.008399,
+              "measurement_iterations": 240,
+              "measurement_duration_seconds": 0.750799,
+              "latency_mean_seconds": 0.0031283291666666666,
+              "latency_min_seconds": 0.002333,
+              "latency_max_seconds": 0.00382,
+              "throughput_calls_per_second": 319.6594561260737,
+              "runtime_baseline_rss_bytes": 11993088,
+              "runtime_peak_rss_bytes": 12353536,
+              "planner_incremental_rss_bytes": 360448,
+              "policy": [
+                0.32687467,
+                0.29999998,
+                0.23656265,
+                0.13656267
+              ]
+            },
+            {
+              "backend": "mojo-native",
+              "fixture": "medium",
+              "n_states": 32,
+              "compile_seconds": null,
+              "first_execution_seconds": null,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.008316,
+              "measurement_iterations": 247,
+              "measurement_duration_seconds": 0.753183,
+              "latency_mean_seconds": 0.0030493238866396762,
+              "latency_min_seconds": 0.002528,
+              "latency_max_seconds": 0.003995,
+              "throughput_calls_per_second": 327.9415493976895,
+              "runtime_baseline_rss_bytes": 11976704,
+              "runtime_peak_rss_bytes": 12337152,
+              "planner_incremental_rss_bytes": 360448,
+              "policy": [
+                0.32687467,
+                0.29999998,
+                0.23656265,
+                0.13656267
+              ]
+            },
+            {
+              "backend": "mojo-native",
+              "fixture": "medium",
+              "n_states": 32,
+              "compile_seconds": null,
+              "first_execution_seconds": null,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.010527,
+              "measurement_iterations": 248,
+              "measurement_duration_seconds": 0.752731,
+              "latency_mean_seconds": 0.0030352056451612903,
+              "latency_min_seconds": 0.002262,
+              "latency_max_seconds": 0.004267,
+              "throughput_calls_per_second": 329.466967615257,
+              "runtime_baseline_rss_bytes": 11993088,
+              "runtime_peak_rss_bytes": 12255232,
+              "planner_incremental_rss_bytes": 262144,
+              "policy": [
+                0.32687467,
+                0.29999998,
+                0.23656265,
+                0.13656267
+              ]
+            },
+            {
+              "backend": "mojo-native",
+              "fixture": "medium",
+              "n_states": 32,
+              "compile_seconds": null,
+              "first_execution_seconds": null,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.010282,
+              "measurement_iterations": 226,
+              "measurement_duration_seconds": 0.752065,
+              "latency_mean_seconds": 0.003327721238938053,
+              "latency_min_seconds": 0.002466,
+              "latency_max_seconds": 0.004022,
+              "throughput_calls_per_second": 300.50594031101036,
+              "runtime_baseline_rss_bytes": 11960320,
+              "runtime_peak_rss_bytes": 12353536,
+              "planner_incremental_rss_bytes": 393216,
+              "policy": [
+                0.32687467,
+                0.29999998,
+                0.23656265,
+                0.13656267
+              ]
+            },
+            {
+              "backend": "mojo-native",
+              "fixture": "medium",
+              "n_states": 32,
+              "compile_seconds": null,
+              "first_execution_seconds": null,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.007258,
+              "measurement_iterations": 259,
+              "measurement_duration_seconds": 0.750376,
+              "latency_mean_seconds": 0.0028972046332046333,
+              "latency_min_seconds": 0.00224,
+              "latency_max_seconds": 0.003769,
+              "throughput_calls_per_second": 345.1602929731228,
+              "runtime_baseline_rss_bytes": 12009472,
+              "runtime_peak_rss_bytes": 12386304,
+              "planner_incremental_rss_bytes": 376832,
+              "policy": [
+                0.32687467,
+                0.29999998,
+                0.23656265,
+                0.13656267
+              ]
+            }
+          ]
+        },
+        {
+          "backend": "jax-eager",
+          "fixture": "medium",
+          "n_states": 32,
+          "process_count": 5,
+          "compile_seconds_median": 0.0,
+          "compile_seconds_ci95": [
+            0.0,
+            0.0
+          ],
+          "warmup_seconds_median": 0.11034075007773936,
+          "latency_seconds_median": 0.03868295844378216,
+          "latency_seconds_ci95": [
+            0.03621948214380869,
+            0.041492333569164784
+          ],
+          "throughput_calls_per_second_median": 25.851176854875185,
+          "throughput_calls_per_second_ci95": [
+            24.10083776881507,
+            27.6094505169765
+          ],
+          "runtime_peak_rss_bytes_median": 342818816,
+          "runtime_baseline_rss_bytes_median": 116408320,
+          "planner_incremental_rss_bytes_median": 226574336,
+          "policy": [
+            0.32687464356422424,
+            0.3000001013278961,
+            0.23656262457370758,
+            0.13656266033649445
+          ],
+          "processes": [
+            {
+              "backend": "jax-eager",
+              "fixture": "medium",
+              "n_states": 32,
+              "compile_seconds": 0.0,
+              "first_execution_seconds": 1.764459541067481,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.14557283278554678,
+              "measurement_iterations": 7,
+              "measurement_duration_seconds": 0.2739329170435667,
+              "latency_mean_seconds": 0.03913207724690437,
+              "latency_median_seconds": 0.03920237487182021,
+              "latency_min_seconds": 0.03762624994851649,
+              "latency_max_seconds": 0.03997233300469816,
+              "latency_p95_seconds": 0.03997233300469816,
+              "throughput_calls_per_second": 25.55448292945162,
+              "policy": [
+                0.32687464356422424,
+                0.3000001013278961,
+                0.23656262457370758,
+                0.13656266033649445
+              ],
+              "rss_bytes": {
+                "after_import": 116244480,
+                "after_fixture": 121602048,
+                "after_compile": 121602048,
+                "after_warmup": 218824704,
+                "after_measurement": 219136000
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116244480,
+              "runtime_peak_rss_bytes": 342818816,
+              "planner_incremental_rss_bytes": 226574336
+            },
+            {
+              "backend": "jax-eager",
+              "fixture": "medium",
+              "n_states": 32,
+              "compile_seconds": 0.0,
+              "first_execution_seconds": 2.225187791045755,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.12776908394880593,
+              "measurement_iterations": 7,
+              "measurement_duration_seconds": 0.2904660829808563,
+              "latency_mean_seconds": 0.041492333569164784,
+              "latency_median_seconds": 0.041617708979174495,
+              "latency_min_seconds": 0.03975966712459922,
+              "latency_max_seconds": 0.042930500116199255,
+              "latency_p95_seconds": 0.042930500116199255,
+              "throughput_calls_per_second": 24.10083776881507,
+              "policy": [
+                0.32687464356422424,
+                0.3000001013278961,
+                0.23656262457370758,
+                0.13656266033649445
+              ],
+              "rss_bytes": {
+                "after_import": 116408320,
+                "after_fixture": 121831424,
+                "after_compile": 121831424,
+                "after_warmup": 307707904,
+                "after_measurement": 308035584
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116408320,
+              "runtime_peak_rss_bytes": 343654400,
+              "planner_incremental_rss_bytes": 227246080
+            },
+            {
+              "backend": "jax-eager",
+              "fixture": "medium",
+              "n_states": 32,
+              "compile_seconds": 0.0,
+              "first_execution_seconds": 1.810495040845126,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.11034075007773936,
+              "measurement_iterations": 7,
+              "measurement_duration_seconds": 0.2695298339240253,
+              "latency_mean_seconds": 0.03850205352396837,
+              "latency_median_seconds": 0.03926474996842444,
+              "latency_min_seconds": 0.03664120892062783,
+              "latency_max_seconds": 0.03963979193940759,
+              "latency_p95_seconds": 0.03963979193940759,
+              "throughput_calls_per_second": 25.97264063792021,
+              "policy": [
+                0.32687464356422424,
+                0.3000001013278961,
+                0.23656262457370758,
+                0.13656266033649445
+              ],
+              "rss_bytes": {
+                "after_import": 116424704,
+                "after_fixture": 121733120,
+                "after_compile": 121733120,
+                "after_warmup": 358760448,
+                "after_measurement": 359219200
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116424704,
+              "runtime_peak_rss_bytes": 359235584,
+              "planner_incremental_rss_bytes": 242810880
+            },
+            {
+              "backend": "jax-eager",
+              "fixture": "medium",
+              "n_states": 32,
+              "compile_seconds": 0.0,
+              "first_execution_seconds": 1.826114792143926,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.10819633421488106,
+              "measurement_iterations": 7,
+              "measurement_duration_seconds": 0.2535715422127396,
+              "latency_mean_seconds": 0.03621948214380869,
+              "latency_median_seconds": 0.03604929195716977,
+              "latency_min_seconds": 0.03442970779724419,
+              "latency_max_seconds": 0.03840841609053314,
+              "latency_p95_seconds": 0.03840841609053314,
+              "throughput_calls_per_second": 27.6094505169765,
+              "policy": [
+                0.32687464356422424,
+                0.3000001013278961,
+                0.23656262457370758,
+                0.13656266033649445
+              ],
+              "rss_bytes": {
+                "after_import": 116162560,
+                "after_fixture": 121454592,
+                "after_compile": 121454592,
+                "after_warmup": 207945728,
+                "after_measurement": 206290944
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116162560,
+              "runtime_peak_rss_bytes": 325156864,
+              "planner_incremental_rss_bytes": 208994304
+            },
+            {
+              "backend": "jax-eager",
+              "fixture": "medium",
+              "n_states": 32,
+              "compile_seconds": 0.0,
+              "first_execution_seconds": 1.7792764159385115,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.10717149986885488,
+              "measurement_iterations": 7,
+              "measurement_duration_seconds": 0.2708477498963475,
+              "latency_mean_seconds": 0.03868295844378216,
+              "latency_median_seconds": 0.03872966719791293,
+              "latency_min_seconds": 0.037354499800130725,
+              "latency_max_seconds": 0.039732459001243114,
+              "latency_p95_seconds": 0.039732459001243114,
+              "throughput_calls_per_second": 25.851176854875185,
+              "policy": [
+                0.32687464356422424,
+                0.3000001013278961,
+                0.23656262457370758,
+                0.13656266033649445
+              ],
+              "rss_bytes": {
+                "after_import": 116408320,
+                "after_fixture": 121618432,
+                "after_compile": 121618432,
+                "after_warmup": 219561984,
+                "after_measurement": 219463680
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116408320,
+              "runtime_peak_rss_bytes": 338624512,
+              "planner_incremental_rss_bytes": 222216192
+            }
+          ]
+        },
+        {
+          "backend": "jax-jit",
+          "fixture": "medium",
+          "n_states": 32,
+          "process_count": 5,
+          "compile_seconds_median": 0.2695158328860998,
+          "compile_seconds_ci95": [
+            0.22810474992729723,
+            0.303559249965474
+          ],
+          "warmup_seconds_median": 0.0010437499731779099,
+          "latency_seconds_median": 0.0003353619854272212,
+          "latency_seconds_ci95": [
+            0.00030901158667124613,
+            0.0003456270823288673
+          ],
+          "throughput_calls_per_second_median": 2981.8525755866135,
+          "throughput_calls_per_second_ci95": [
+            2893.291790857092,
+            3236.1246086991828
+          ],
+          "runtime_peak_rss_bytes_median": 233177088,
+          "runtime_baseline_rss_bytes_median": 116359168,
+          "planner_incremental_rss_bytes_median": 119275520,
+          "policy": [
+            0.32687458395957947,
+            0.30000004172325134,
+            0.23656269907951355,
+            0.13656263053417206
+          ],
+          "processes": [
+            {
+              "backend": "jax-jit",
+              "fixture": "medium",
+              "n_states": 32,
+              "compile_seconds": 0.303559249965474,
+              "first_execution_seconds": 0.0035145001020282507,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.0013348751235753298,
+              "measurement_iterations": 723,
+              "measurement_duration_seconds": 0.2501489578280598,
+              "latency_mean_seconds": 0.0003456270823288673,
+              "latency_median_seconds": 0.00032158405520021915,
+              "latency_min_seconds": 0.0002811669837683439,
+              "latency_max_seconds": 0.001230832887813449,
+              "latency_p95_seconds": 0.0004499161150306463,
+              "throughput_calls_per_second": 2893.291790857092,
+              "policy": [
+                0.32687458395957947,
+                0.30000004172325134,
+                0.23656269907951355,
+                0.13656263053417206
+              ],
+              "rss_bytes": {
+                "after_import": 116359168,
+                "after_fixture": 121651200,
+                "after_compile": 177127424,
+                "after_warmup": 184434688,
+                "after_measurement": 182583296
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116359168,
+              "runtime_peak_rss_bytes": 241565696,
+              "planner_incremental_rss_bytes": 125206528
+            },
+            {
+              "backend": "jax-jit",
+              "fixture": "medium",
+              "n_states": 32,
+              "compile_seconds": 0.2695158328860998,
+              "first_execution_seconds": 0.0009803329594433308,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.0011464578565210104,
+              "measurement_iterations": 809,
+              "measurement_duration_seconds": 0.2501572920009494,
+              "latency_mean_seconds": 0.00030901158667124613,
+              "latency_median_seconds": 0.00030679209157824516,
+              "latency_min_seconds": 0.0002819579094648361,
+              "latency_max_seconds": 0.0004055001772940159,
+              "latency_p95_seconds": 0.00033191684633493423,
+              "throughput_calls_per_second": 3236.1246086991828,
+              "policy": [
+                0.32687458395957947,
+                0.30000004172325134,
+                0.23656269907951355,
+                0.13656263053417206
+              ],
+              "rss_bytes": {
+                "after_import": 116408320,
+                "after_fixture": 121782272,
+                "after_compile": 231260160,
+                "after_warmup": 231440384,
+                "after_measurement": 231604224
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116408320,
+              "runtime_peak_rss_bytes": 232751104,
+              "planner_incremental_rss_bytes": 116342784
+            },
+            {
+              "backend": "jax-jit",
+              "fixture": "medium",
+              "n_states": 32,
+              "compile_seconds": 0.22810474992729723,
+              "first_execution_seconds": 0.0009394160006195307,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.0010040418710559607,
+              "measurement_iterations": 731,
+              "measurement_duration_seconds": 0.25016604200936854,
+              "latency_mean_seconds": 0.00034193679717115844,
+              "latency_median_seconds": 0.0003062498290091753,
+              "latency_min_seconds": 0.0002929579932242632,
+              "latency_max_seconds": 0.0020308750681579113,
+              "latency_p95_seconds": 0.00046333298087120056,
+              "throughput_calls_per_second": 2924.517069449663,
+              "policy": [
+                0.32687458395957947,
+                0.30000004172325134,
+                0.23656269907951355,
+                0.13656263053417206
+              ],
+              "rss_bytes": {
+                "after_import": 116359168,
+                "after_fixture": 121765888,
+                "after_compile": 221888512,
+                "after_warmup": 222248960,
+                "after_measurement": 190578688
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116359168,
+              "runtime_peak_rss_bytes": 235913216,
+              "planner_incremental_rss_bytes": 119554048
+            },
+            {
+              "backend": "jax-jit",
+              "fixture": "medium",
+              "n_states": 32,
+              "compile_seconds": 0.25259112496860325,
+              "first_execution_seconds": 0.0012580831535160542,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.0010437499731779099,
+              "measurement_iterations": 745,
+              "measurement_duration_seconds": 0.25005224999040365,
+              "latency_mean_seconds": 0.0003353619854272212,
+              "latency_median_seconds": 0.00031595793552696705,
+              "latency_min_seconds": 0.00028133392333984375,
+              "latency_max_seconds": 0.0012437908444553614,
+              "latency_p95_seconds": 0.00043033319525420666,
+              "throughput_calls_per_second": 2981.8525755866135,
+              "policy": [
+                0.32687458395957947,
+                0.30000004172325134,
+                0.23656269907951355,
+                0.13656263053417206
+              ],
+              "rss_bytes": {
+                "after_import": 108609536,
+                "after_fixture": 113901568,
+                "after_compile": 210518016,
+                "after_warmup": 211419136,
+                "after_measurement": 203063296
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 108609536,
+              "runtime_peak_rss_bytes": 227885056,
+              "planner_incremental_rss_bytes": 119275520
+            },
+            {
+              "backend": "jax-jit",
+              "fixture": "medium",
+              "n_states": 32,
+              "compile_seconds": 0.2955074170604348,
+              "first_execution_seconds": 0.0012496670242398977,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.0009517080616205931,
+              "measurement_iterations": 783,
+              "measurement_duration_seconds": 0.2500944158528,
+              "latency_mean_seconds": 0.00031919260497417865,
+              "latency_median_seconds": 0.0003172920551151037,
+              "latency_min_seconds": 0.0002809581346809864,
+              "latency_max_seconds": 0.0004066252149641514,
+              "latency_p95_seconds": 0.00035429210402071476,
+              "throughput_calls_per_second": 3132.9046613748956,
+              "policy": [
+                0.32687458395957947,
+                0.30000004172325134,
+                0.23656269907951355,
+                0.13656263053417206
+              ],
+              "rss_bytes": {
+                "after_import": 116457472,
+                "after_fixture": 121749504,
+                "after_compile": 233013248,
+                "after_warmup": 233177088,
+                "after_measurement": 197967872
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116457472,
+              "runtime_peak_rss_bytes": 233177088,
+              "planner_incremental_rss_bytes": 116719616
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "large",
+      "n_states": 64,
+      "results": [
+        {
+          "backend": "mojo-native",
+          "fixture": "large",
+          "n_states": 64,
+          "process_count": 5,
+          "compile_seconds_median": 1.8764739171601832,
+          "compile_seconds_ci95": [
+            1.8764739171601832,
+            1.8764739171601832
+          ],
+          "warmup_seconds_median": 0.036168,
+          "latency_seconds_median": 0.011278268656716418,
+          "latency_seconds_ci95": [
+            0.010759099999999999,
+            0.011678123076923078
+          ],
+          "throughput_calls_per_second_median": 88.66609143988438,
+          "throughput_calls_per_second_ci95": [
+            85.63019874110434,
+            92.94457714864627
+          ],
+          "runtime_peak_rss_bytes_median": 12615680,
+          "runtime_baseline_rss_bytes_median": 11993088,
+          "planner_incremental_rss_bytes_median": 638976,
+          "policy": [
+            0.3268747,
+            0.3,
+            0.23656267,
+            0.13656263
+          ],
+          "processes": [
+            {
+              "backend": "mojo-native",
+              "fixture": "large",
+              "n_states": 64,
+              "compile_seconds": null,
+              "first_execution_seconds": null,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.036168,
+              "measurement_iterations": 70,
+              "measurement_duration_seconds": 0.753137,
+              "latency_mean_seconds": 0.010759099999999999,
+              "latency_min_seconds": 0.00932,
+              "latency_max_seconds": 0.011919,
+              "throughput_calls_per_second": 92.94457714864627,
+              "runtime_baseline_rss_bytes": 11993088,
+              "runtime_peak_rss_bytes": 12599296,
+              "planner_incremental_rss_bytes": 606208,
+              "policy": [
+                0.3268747,
+                0.3,
+                0.23656267,
+                0.13656263
+              ]
+            },
+            {
+              "backend": "mojo-native",
+              "fixture": "large",
+              "n_states": 64,
+              "compile_seconds": null,
+              "first_execution_seconds": null,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.037379,
+              "measurement_iterations": 67,
+              "measurement_duration_seconds": 0.755644,
+              "latency_mean_seconds": 0.011278268656716418,
+              "latency_min_seconds": 0.009693,
+              "latency_max_seconds": 0.012868,
+              "throughput_calls_per_second": 88.66609143988438,
+              "runtime_baseline_rss_bytes": 11976704,
+              "runtime_peak_rss_bytes": 12615680,
+              "planner_incremental_rss_bytes": 638976,
+              "policy": [
+                0.3268747,
+                0.3,
+                0.23656267,
+                0.13656263
+              ]
+            },
+            {
+              "backend": "mojo-native",
+              "fixture": "large",
+              "n_states": 64,
+              "compile_seconds": null,
+              "first_execution_seconds": null,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.036624,
+              "measurement_iterations": 66,
+              "measurement_duration_seconds": 0.752087,
+              "latency_mean_seconds": 0.011395257575757574,
+              "latency_min_seconds": 0.009748,
+              "latency_max_seconds": 0.012552,
+              "throughput_calls_per_second": 87.75580484704564,
+              "runtime_baseline_rss_bytes": 11993088,
+              "runtime_peak_rss_bytes": 12582912,
+              "planner_incremental_rss_bytes": 589824,
+              "policy": [
+                0.3268747,
+                0.3,
+                0.23656267,
+                0.13656263
+              ]
+            },
+            {
+              "backend": "mojo-native",
+              "fixture": "large",
+              "n_states": 64,
+              "compile_seconds": null,
+              "first_execution_seconds": null,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.029409,
+              "measurement_iterations": 68,
+              "measurement_duration_seconds": 0.759211,
+              "latency_mean_seconds": 0.011164867647058823,
+              "latency_min_seconds": 0.009424,
+              "latency_max_seconds": 0.012877,
+              "throughput_calls_per_second": 89.56666855459154,
+              "runtime_baseline_rss_bytes": 11960320,
+              "runtime_peak_rss_bytes": 12713984,
+              "planner_incremental_rss_bytes": 753664,
+              "policy": [
+                0.3268747,
+                0.3,
+                0.23656267,
+                0.13656263
+              ]
+            },
+            {
+              "backend": "mojo-native",
+              "fixture": "large",
+              "n_states": 64,
+              "compile_seconds": null,
+              "first_execution_seconds": null,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.034747,
+              "measurement_iterations": 65,
+              "measurement_duration_seconds": 0.759078,
+              "latency_mean_seconds": 0.011678123076923078,
+              "latency_min_seconds": 0.009562,
+              "latency_max_seconds": 0.013245,
+              "throughput_calls_per_second": 85.63019874110434,
+              "runtime_baseline_rss_bytes": 12009472,
+              "runtime_peak_rss_bytes": 12713984,
+              "planner_incremental_rss_bytes": 704512,
+              "policy": [
+                0.3268747,
+                0.3,
+                0.23656267,
+                0.13656263
+              ]
+            }
+          ]
+        },
+        {
+          "backend": "jax-eager",
+          "fixture": "large",
+          "n_states": 64,
+          "process_count": 5,
+          "compile_seconds_median": 0.0,
+          "compile_seconds_ci95": [
+            0.0,
+            0.0
+          ],
+          "warmup_seconds_median": 0.12066670903004706,
+          "latency_seconds_median": 0.04249670849336932,
+          "latency_seconds_ci95": [
+            0.03769002981217844,
+            0.056448583211749795
+          ],
+          "throughput_calls_per_second_median": 23.531234193255887,
+          "throughput_calls_per_second_ci95": [
+            17.715236470130744,
+            26.53221568099898
+          ],
+          "runtime_peak_rss_bytes_median": 364085248,
+          "runtime_baseline_rss_bytes_median": 116310016,
+          "planner_incremental_rss_bytes_median": 247644160,
+          "policy": [
+            0.32687467336654663,
+            0.29999998211860657,
+            0.23656265437602997,
+            0.13656267523765564
+          ],
+          "processes": [
+            {
+              "backend": "jax-eager",
+              "fixture": "large",
+              "n_states": 64,
+              "compile_seconds": 0.0,
+              "first_execution_seconds": 1.955515667097643,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.10710291611030698,
+              "measurement_iterations": 7,
+              "measurement_duration_seconds": 0.2638392080552876,
+              "latency_mean_seconds": 0.03769002981217844,
+              "latency_median_seconds": 0.03714495897293091,
+              "latency_min_seconds": 0.03657891694456339,
+              "latency_max_seconds": 0.04129937500692904,
+              "latency_p95_seconds": 0.04129937500692904,
+              "throughput_calls_per_second": 26.53221568099898,
+              "policy": [
+                0.32687467336654663,
+                0.29999998211860657,
+                0.23656265437602997,
+                0.13656267523765564
+              ],
+              "rss_bytes": {
+                "after_import": 116228096,
+                "after_fixture": 121782272,
+                "after_compile": 121782272,
+                "after_warmup": 363249664,
+                "after_measurement": 363560960
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116228096,
+              "runtime_peak_rss_bytes": 363610112,
+              "planner_incremental_rss_bytes": 247382016
+            },
+            {
+              "backend": "jax-eager",
+              "fixture": "large",
+              "n_states": 64,
+              "compile_seconds": 0.0,
+              "first_execution_seconds": 1.971365249948576,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.15476791607216,
+              "measurement_iterations": 6,
+              "measurement_duration_seconds": 0.25499237491749227,
+              "latency_mean_seconds": 0.04249670849336932,
+              "latency_median_seconds": 0.04256812541279942,
+              "latency_min_seconds": 0.04117241711355746,
+              "latency_max_seconds": 0.044021832989528775,
+              "latency_p95_seconds": 0.044021832989528775,
+              "throughput_calls_per_second": 23.531234193255887,
+              "policy": [
+                0.32687467336654663,
+                0.29999998211860657,
+                0.23656265437602997,
+                0.13656267523765564
+              ],
+              "rss_bytes": {
+                "after_import": 116228096,
+                "after_fixture": 121716736,
+                "after_compile": 121716736,
+                "after_warmup": 365723648,
+                "after_measurement": 365838336
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116228096,
+              "runtime_peak_rss_bytes": 365871104,
+              "planner_incremental_rss_bytes": 249643008
+            },
+            {
+              "backend": "jax-eager",
+              "fixture": "large",
+              "n_states": 64,
+              "compile_seconds": 0.0,
+              "first_execution_seconds": 2.145600749878213,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.12930037500336766,
+              "measurement_iterations": 6,
+              "measurement_duration_seconds": 0.25107987504452467,
+              "latency_mean_seconds": 0.041844055599843465,
+              "latency_median_seconds": 0.042426562984474,
+              "latency_min_seconds": 0.03850812488235533,
+              "latency_max_seconds": 0.04511416680179536,
+              "latency_p95_seconds": 0.04511416680179536,
+              "throughput_calls_per_second": 23.89825712791905,
+              "policy": [
+                0.32687467336654663,
+                0.29999998211860657,
+                0.23656265437602997,
+                0.13656267523765564
+              ],
+              "rss_bytes": {
+                "after_import": 116441088,
+                "after_fixture": 121847808,
+                "after_compile": 121847808,
+                "after_warmup": 363855872,
+                "after_measurement": 364085248
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116441088,
+              "runtime_peak_rss_bytes": 364085248,
+              "planner_incremental_rss_bytes": 247644160
+            },
+            {
+              "backend": "jax-eager",
+              "fixture": "large",
+              "n_states": 64,
+              "compile_seconds": 0.0,
+              "first_execution_seconds": 2.1687184581533074,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.12066670903004706,
+              "measurement_iterations": 5,
+              "measurement_duration_seconds": 0.28225470893085003,
+              "latency_mean_seconds": 0.056448583211749795,
+              "latency_median_seconds": 0.051593041978776455,
+              "latency_min_seconds": 0.04378683306276798,
+              "latency_max_seconds": 0.07472270797006786,
+              "latency_p95_seconds": 0.07472270797006786,
+              "throughput_calls_per_second": 17.715236470130744,
+              "policy": [
+                0.32687467336654663,
+                0.29999998211860657,
+                0.23656265437602997,
+                0.13656267523765564
+              ],
+              "rss_bytes": {
+                "after_import": 116310016,
+                "after_fixture": 121815040,
+                "after_compile": 121815040,
+                "after_warmup": 363855872,
+                "after_measurement": 351305728
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116310016,
+              "runtime_peak_rss_bytes": 364363776,
+              "planner_incremental_rss_bytes": 248053760
+            },
+            {
+              "backend": "jax-eager",
+              "fixture": "large",
+              "n_states": 64,
+              "compile_seconds": 0.0,
+              "first_execution_seconds": 2.3201574159320444,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.11666962504386902,
+              "measurement_iterations": 6,
+              "measurement_duration_seconds": 0.2641267499420792,
+              "latency_mean_seconds": 0.044017757017475866,
+              "latency_median_seconds": 0.044920042040757835,
+              "latency_min_seconds": 0.04020279203541577,
+              "latency_max_seconds": 0.04609624994918704,
+              "latency_p95_seconds": 0.04609624994918704,
+              "throughput_calls_per_second": 22.7181044141568,
+              "policy": [
+                0.32687467336654663,
+                0.29999998211860657,
+                0.23656265437602997,
+                0.13656267523765564
+              ],
+              "rss_bytes": {
+                "after_import": 116604928,
+                "after_fixture": 122126336,
+                "after_compile": 122126336,
+                "after_warmup": 322764800,
+                "after_measurement": 320651264
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116604928,
+              "runtime_peak_rss_bytes": 359825408,
+              "planner_incremental_rss_bytes": 243220480
+            }
+          ]
+        },
+        {
+          "backend": "jax-jit",
+          "fixture": "large",
+          "n_states": 64,
+          "process_count": 5,
+          "compile_seconds_median": 0.2564695419277996,
+          "compile_seconds_ci95": [
+            0.23102783295325935,
+            0.3114495000336319
+          ],
+          "warmup_seconds_median": 0.011554083088412881,
+          "latency_seconds_median": 0.0036449922127244267,
+          "latency_seconds_ci95": [
+            0.0030365446778799756,
+            0.003783380557129632
+          ],
+          "throughput_calls_per_second_median": 274.34900862313674,
+          "throughput_calls_per_second_ci95": [
+            264.3138814348293,
+            329.32168174063224
+          ],
+          "runtime_peak_rss_bytes_median": 243941376,
+          "runtime_baseline_rss_bytes_median": 116408320,
+          "planner_incremental_rss_bytes_median": 127467520,
+          "policy": [
+            0.32687467336654663,
+            0.29999998211860657,
+            0.23656265437602997,
+            0.13656267523765564
+          ],
+          "processes": [
+            {
+              "backend": "jax-jit",
+              "fixture": "large",
+              "n_states": 64,
+              "compile_seconds": 0.23102783295325935,
+              "first_execution_seconds": 0.00409654201939702,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.009171750163659453,
+              "measurement_iterations": 83,
+              "measurement_duration_seconds": 0.2520894999615848,
+              "latency_mean_seconds": 0.0030365446778799756,
+              "latency_median_seconds": 0.00302162510342896,
+              "latency_min_seconds": 0.0030077907722443342,
+              "latency_max_seconds": 0.003474916098639369,
+              "latency_p95_seconds": 0.003104833886027336,
+              "throughput_calls_per_second": 329.32168174063224,
+              "policy": [
+                0.32687467336654663,
+                0.29999998211860657,
+                0.23656265437602997,
+                0.13656267523765564
+              ],
+              "rss_bytes": {
+                "after_import": 116178944,
+                "after_fixture": 121716736,
+                "after_compile": 237584384,
+                "after_warmup": 237748224,
+                "after_measurement": 237748224
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116178944,
+              "runtime_peak_rss_bytes": 237764608,
+              "planner_incremental_rss_bytes": 121585664
+            },
+            {
+              "backend": "jax-jit",
+              "fixture": "large",
+              "n_states": 64,
+              "compile_seconds": 0.2564695419277996,
+              "first_execution_seconds": 0.004103749990463257,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.009200041880831122,
+              "measurement_iterations": 83,
+              "measurement_duration_seconds": 0.2527980001177639,
+              "latency_mean_seconds": 0.003044958411525172,
+              "latency_median_seconds": 0.0030173328705132008,
+              "latency_min_seconds": 0.0030037090182304382,
+              "latency_max_seconds": 0.003837374970316887,
+              "latency_p95_seconds": 0.003118291962891817,
+              "throughput_calls_per_second": 328.41171039151095,
+              "policy": [
+                0.32687467336654663,
+                0.29999998211860657,
+                0.23656265437602997,
+                0.13656267523765564
+              ],
+              "rss_bytes": {
+                "after_import": 116424704,
+                "after_fixture": 121831424,
+                "after_compile": 235028480,
+                "after_warmup": 235175936,
+                "after_measurement": 235192320
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116424704,
+              "runtime_peak_rss_bytes": 235192320,
+              "planner_incremental_rss_bytes": 118767616
+            },
+            {
+              "backend": "jax-jit",
+              "fixture": "large",
+              "n_states": 64,
+              "compile_seconds": 0.25302116689272225,
+              "first_execution_seconds": 0.004602625034749508,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.011554083088412881,
+              "measurement_iterations": 67,
+              "measurement_duration_seconds": 0.25363412499427795,
+              "latency_mean_seconds": 0.003783380557129632,
+              "latency_median_seconds": 0.0035435419995337725,
+              "latency_min_seconds": 0.0030273329466581345,
+              "latency_max_seconds": 0.005991207901388407,
+              "latency_p95_seconds": 0.005675165913999081,
+              "throughput_calls_per_second": 264.3138814348293,
+              "policy": [
+                0.32687467336654663,
+                0.29999998211860657,
+                0.23656265437602997,
+                0.13656267523765564
+              ],
+              "rss_bytes": {
+                "after_import": 116326400,
+                "after_fixture": 121864192,
+                "after_compile": 245350400,
+                "after_warmup": 245514240,
+                "after_measurement": 245514240
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116326400,
+              "runtime_peak_rss_bytes": 245514240,
+              "planner_incremental_rss_bytes": 129187840
+            },
+            {
+              "backend": "jax-jit",
+              "fixture": "large",
+              "n_states": 64,
+              "compile_seconds": 0.29986962489783764,
+              "first_execution_seconds": 0.005261499900370836,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.012634499929845333,
+              "measurement_iterations": 69,
+              "measurement_duration_seconds": 0.25228370795957744,
+              "latency_mean_seconds": 0.0036539584162064652,
+              "latency_median_seconds": 0.0035330839455127716,
+              "latency_min_seconds": 0.0034129999112337828,
+              "latency_max_seconds": 0.005578499985858798,
+              "latency_p95_seconds": 0.004203249933198094,
+              "throughput_calls_per_second": 273.67580199180225,
+              "policy": [
+                0.32687467336654663,
+                0.29999998211860657,
+                0.23656265437602997,
+                0.13656267523765564
+              ],
+              "rss_bytes": {
+                "after_import": 116473856,
+                "after_fixture": 122142720,
+                "after_compile": 243777536,
+                "after_warmup": 243941376,
+                "after_measurement": 243941376
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116473856,
+              "runtime_peak_rss_bytes": 243941376,
+              "planner_incremental_rss_bytes": 127467520
+            },
+            {
+              "backend": "jax-jit",
+              "fixture": "large",
+              "n_states": 64,
+              "compile_seconds": 0.3114495000336319,
+              "first_execution_seconds": 0.00538329198025167,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.012185374973341823,
+              "measurement_iterations": 69,
+              "measurement_duration_seconds": 0.25166033301502466,
+              "latency_mean_seconds": 0.0036449922127244267,
+              "latency_median_seconds": 0.003541167126968503,
+              "latency_min_seconds": 0.0034225420095026493,
+              "latency_max_seconds": 0.005121750058606267,
+              "latency_p95_seconds": 0.004093124996870756,
+              "throughput_calls_per_second": 274.34900862313674,
+              "policy": [
+                0.32687467336654663,
+                0.29999998211860657,
+                0.23656265437602997,
+                0.13656267523765564
+              ],
+              "rss_bytes": {
+                "after_import": 116408320,
+                "after_fixture": 121929728,
+                "after_compile": 248528896,
+                "after_warmup": 248692736,
+                "after_measurement": 248692736
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116408320,
+              "runtime_peak_rss_bytes": 248709120,
+              "planner_incremental_rss_bytes": 132300800
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "xlarge",
+      "n_states": 128,
+      "results": [
+        {
+          "backend": "mojo-native",
+          "fixture": "xlarge",
+          "n_states": 128,
+          "process_count": 5,
+          "compile_seconds_median": 1.8764739171601832,
+          "compile_seconds_ci95": [
+            1.8764739171601832,
+            1.8764739171601832
+          ],
+          "warmup_seconds_median": 0.223014,
+          "latency_seconds_median": 0.07077045454545455,
+          "latency_seconds_ci95": [
+            0.06862041666666667,
+            0.0800582
+          ],
+          "throughput_calls_per_second_median": 14.1301904364302,
+          "throughput_calls_per_second_ci95": [
+            12.490912860893701,
+            14.572922295963908
+          ],
+          "runtime_peak_rss_bytes_median": 14286848,
+          "runtime_baseline_rss_bytes_median": 11993088,
+          "planner_incremental_rss_bytes_median": 2293760,
+          "policy": [
+            0.32687464,
+            0.29999992,
+            0.23656273,
+            0.13656266
+          ],
+          "processes": [
+            {
+              "backend": "mojo-native",
+              "fixture": "xlarge",
+              "n_states": 128,
+              "compile_seconds": null,
+              "first_execution_seconds": null,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.216563,
+              "measurement_iterations": 12,
+              "measurement_duration_seconds": 0.823445,
+              "latency_mean_seconds": 0.06862041666666667,
+              "latency_min_seconds": 0.065233,
+              "latency_max_seconds": 0.075719,
+              "throughput_calls_per_second": 14.572922295963908,
+              "runtime_baseline_rss_bytes": 11993088,
+              "runtime_peak_rss_bytes": 14286848,
+              "planner_incremental_rss_bytes": 2293760,
+              "policy": [
+                0.32687464,
+                0.29999992,
+                0.23656273,
+                0.13656266
+              ]
+            },
+            {
+              "backend": "mojo-native",
+              "fixture": "xlarge",
+              "n_states": 128,
+              "compile_seconds": null,
+              "first_execution_seconds": null,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.237593,
+              "measurement_iterations": 10,
+              "measurement_duration_seconds": 0.793325,
+              "latency_mean_seconds": 0.0793325,
+              "latency_min_seconds": 0.068035,
+              "latency_max_seconds": 0.121733,
+              "throughput_calls_per_second": 12.605174424101094,
+              "runtime_baseline_rss_bytes": 11976704,
+              "runtime_peak_rss_bytes": 14188544,
+              "planner_incremental_rss_bytes": 2211840,
+              "policy": [
+                0.32687464,
+                0.29999992,
+                0.23656273,
+                0.13656266
+              ]
+            },
+            {
+              "backend": "mojo-native",
+              "fixture": "xlarge",
+              "n_states": 128,
+              "compile_seconds": null,
+              "first_execution_seconds": null,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.223014,
+              "measurement_iterations": 11,
+              "measurement_duration_seconds": 0.776701,
+              "latency_mean_seconds": 0.07060918181818182,
+              "latency_min_seconds": 0.062935,
+              "latency_max_seconds": 0.074075,
+              "throughput_calls_per_second": 14.162464062747441,
+              "runtime_baseline_rss_bytes": 11993088,
+              "runtime_peak_rss_bytes": 14270464,
+              "planner_incremental_rss_bytes": 2277376,
+              "policy": [
+                0.32687464,
+                0.29999992,
+                0.23656273,
+                0.13656266
+              ]
+            },
+            {
+              "backend": "mojo-native",
+              "fixture": "xlarge",
+              "n_states": 128,
+              "compile_seconds": null,
+              "first_execution_seconds": null,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.206928,
+              "measurement_iterations": 11,
+              "measurement_duration_seconds": 0.778475,
+              "latency_mean_seconds": 0.07077045454545455,
+              "latency_min_seconds": 0.06268,
+              "latency_max_seconds": 0.105146,
+              "throughput_calls_per_second": 14.1301904364302,
+              "runtime_baseline_rss_bytes": 11960320,
+              "runtime_peak_rss_bytes": 14286848,
+              "planner_incremental_rss_bytes": 2326528,
+              "policy": [
+                0.32687464,
+                0.29999992,
+                0.23656273,
+                0.13656266
+              ]
+            },
+            {
+              "backend": "mojo-native",
+              "fixture": "xlarge",
+              "n_states": 128,
+              "compile_seconds": null,
+              "first_execution_seconds": null,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.241304,
+              "measurement_iterations": 10,
+              "measurement_duration_seconds": 0.800582,
+              "latency_mean_seconds": 0.0800582,
+              "latency_min_seconds": 0.071772,
+              "latency_max_seconds": 0.094872,
+              "throughput_calls_per_second": 12.490912860893701,
+              "runtime_baseline_rss_bytes": 12009472,
+              "runtime_peak_rss_bytes": 14303232,
+              "planner_incremental_rss_bytes": 2293760,
+              "policy": [
+                0.32687464,
+                0.29999992,
+                0.23656273,
+                0.13656266
+              ]
+            }
+          ]
+        },
+        {
+          "backend": "jax-eager",
+          "fixture": "xlarge",
+          "n_states": 128,
+          "process_count": 5,
+          "compile_seconds_median": 0.0,
+          "compile_seconds_ci95": [
+            0.0,
+            0.0
+          ],
+          "warmup_seconds_median": 0.1849531251937151,
+          "latency_seconds_median": 0.0681654749903828,
+          "latency_seconds_ci95": [
+            0.06027826685458422,
+            0.10237217494286596
+          ],
+          "throughput_calls_per_second_median": 14.670183111627788,
+          "throughput_calls_per_second_ci95": [
+            9.768279325491534,
+            16.58972714680746
+          ],
+          "runtime_peak_rss_bytes_median": 354009088,
+          "runtime_baseline_rss_bytes_median": 116408320,
+          "planner_incremental_rss_bytes_median": 237600768,
+          "policy": [
+            0.3268747925758362,
+            0.30000007152557373,
+            0.2365626096725464,
+            0.13656258583068848
+          ],
+          "processes": [
+            {
+              "backend": "jax-eager",
+              "fixture": "xlarge",
+              "n_states": 128,
+              "compile_seconds": 0.0,
+              "first_execution_seconds": 3.411818708991632,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.17692500003613532,
+              "measurement_iterations": 5,
+              "measurement_duration_seconds": 0.30141487484797835,
+              "latency_mean_seconds": 0.06027826685458422,
+              "latency_median_seconds": 0.06044199992902577,
+              "latency_min_seconds": 0.0581470001488924,
+              "latency_max_seconds": 0.0620427920948714,
+              "latency_p95_seconds": 0.0620427920948714,
+              "throughput_calls_per_second": 16.58972714680746,
+              "policy": [
+                0.3268747925758362,
+                0.30000007152557373,
+                0.2365626096725464,
+                0.13656258583068848
+              ],
+              "rss_bytes": {
+                "after_import": 116473856,
+                "after_fixture": 121782272,
+                "after_compile": 121782272,
+                "after_warmup": 284295168,
+                "after_measurement": 282624000
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116473856,
+              "runtime_peak_rss_bytes": 354385920,
+              "planner_incremental_rss_bytes": 237912064
+            },
+            {
+              "backend": "jax-eager",
+              "fixture": "xlarge",
+              "n_states": 128,
+              "compile_seconds": 0.0,
+              "first_execution_seconds": 2.950067625148222,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.1849531251937151,
+              "measurement_iterations": 5,
+              "measurement_duration_seconds": 0.3408650001510978,
+              "latency_mean_seconds": 0.0681654749903828,
+              "latency_median_seconds": 0.06870387494564056,
+              "latency_min_seconds": 0.06305470806546509,
+              "latency_max_seconds": 0.07253187499009073,
+              "latency_p95_seconds": 0.07253187499009073,
+              "throughput_calls_per_second": 14.670183111627788,
+              "policy": [
+                0.3268747925758362,
+                0.30000007152557373,
+                0.2365626096725464,
+                0.13656258583068848
+              ],
+              "rss_bytes": {
+                "after_import": 116178944,
+                "after_fixture": 121503744,
+                "after_compile": 121503744,
+                "after_warmup": 291225600,
+                "after_measurement": 284737536
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116178944,
+              "runtime_peak_rss_bytes": 358006784,
+              "planner_incremental_rss_bytes": 241827840
+            },
+            {
+              "backend": "jax-eager",
+              "fixture": "xlarge",
+              "n_states": 128,
+              "compile_seconds": 0.0,
+              "first_execution_seconds": 3.0155711250845343,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.17053374997340143,
+              "measurement_iterations": 5,
+              "measurement_duration_seconds": 0.3207562919706106,
+              "latency_mean_seconds": 0.06414624159224332,
+              "latency_median_seconds": 0.06315037491731346,
+              "latency_min_seconds": 0.06040712515823543,
+              "latency_max_seconds": 0.07221633289009333,
+              "latency_p95_seconds": 0.07221633289009333,
+              "throughput_calls_per_second": 15.589377883690723,
+              "policy": [
+                0.3268747925758362,
+                0.30000007152557373,
+                0.2365626096725464,
+                0.13656258583068848
+              ],
+              "rss_bytes": {
+                "after_import": 116408320,
+                "after_fixture": 121634816,
+                "after_compile": 121634816,
+                "after_warmup": 298221568,
+                "after_measurement": 297222144
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116408320,
+              "runtime_peak_rss_bytes": 354009088,
+              "planner_incremental_rss_bytes": 237600768
+            },
+            {
+              "backend": "jax-eager",
+              "fixture": "xlarge",
+              "n_states": 128,
+              "compile_seconds": 0.0,
+              "first_execution_seconds": 4.047445625066757,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.3154026670381427,
+              "measurement_iterations": 5,
+              "measurement_duration_seconds": 0.5119037500116974,
+              "latency_mean_seconds": 0.10237217494286596,
+              "latency_median_seconds": 0.09727041702717543,
+              "latency_min_seconds": 0.08936016587540507,
+              "latency_max_seconds": 0.12164037488400936,
+              "latency_p95_seconds": 0.12164037488400936,
+              "throughput_calls_per_second": 9.768279325491534,
+              "policy": [
+                0.3268747925758362,
+                0.30000007152557373,
+                0.2365626096725464,
+                0.13656258583068848
+              ],
+              "rss_bytes": {
+                "after_import": 116277248,
+                "after_fixture": 121651200,
+                "after_compile": 121651200,
+                "after_warmup": 217137152,
+                "after_measurement": 204554240
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116277248,
+              "runtime_peak_rss_bytes": 346456064,
+              "planner_incremental_rss_bytes": 230178816
+            },
+            {
+              "backend": "jax-eager",
+              "fixture": "xlarge",
+              "n_states": 128,
+              "compile_seconds": 0.0,
+              "first_execution_seconds": 3.733565750066191,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.23011937481351197,
+              "measurement_iterations": 5,
+              "measurement_duration_seconds": 0.38621183414943516,
+              "latency_mean_seconds": 0.0772352914325893,
+              "latency_median_seconds": 0.07420491706579924,
+              "latency_min_seconds": 0.07345116604119539,
+              "latency_max_seconds": 0.08880025008693337,
+              "latency_p95_seconds": 0.08880025008693337,
+              "throughput_calls_per_second": 12.947449041126447,
+              "policy": [
+                0.3268747925758362,
+                0.30000007152557373,
+                0.2365626096725464,
+                0.13656258583068848
+              ],
+              "rss_bytes": {
+                "after_import": 116654080,
+                "after_fixture": 121798656,
+                "after_compile": 121798656,
+                "after_warmup": 220659712,
+                "after_measurement": 216399872
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116654080,
+              "runtime_peak_rss_bytes": 339771392,
+              "planner_incremental_rss_bytes": 223117312
+            }
+          ]
+        },
+        {
+          "backend": "jax-jit",
+          "fixture": "xlarge",
+          "n_states": 128,
+          "process_count": 5,
+          "compile_seconds_median": 0.40493254200555384,
+          "compile_seconds_ci95": [
+            0.3935663339216262,
+            0.4684903749730438
+          ],
+          "warmup_seconds_median": 0.022829584078863263,
+          "latency_seconds_median": 0.007948921949719079,
+          "latency_seconds_ci95": [
+            0.0076343989648828,
+            0.008696573144146081
+          ],
+          "throughput_calls_per_second_median": 125.80322291821481,
+          "throughput_calls_per_second_ci95": [
+            114.9878214585166,
+            130.98608084275716
+          ],
+          "runtime_peak_rss_bytes_median": 242450432,
+          "runtime_baseline_rss_bytes_median": 116490240,
+          "planner_incremental_rss_bytes_median": 125960192,
+          "policy": [
+            0.3268747925758362,
+            0.30000007152557373,
+            0.2365626096725464,
+            0.13656258583068848
+          ],
+          "processes": [
+            {
+              "backend": "jax-jit",
+              "fixture": "xlarge",
+              "n_states": 128,
+              "compile_seconds": 0.4684903749730438,
+              "first_execution_seconds": 0.010017334017902613,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.028447540942579508,
+              "measurement_iterations": 29,
+              "measurement_duration_seconds": 0.2523160839919001,
+              "latency_mean_seconds": 0.008696573144146081,
+              "latency_median_seconds": 0.008267999859526753,
+              "latency_min_seconds": 0.007236749865114689,
+              "latency_max_seconds": 0.012818999821320176,
+              "latency_p95_seconds": 0.010489333188161254,
+              "throughput_calls_per_second": 114.9878214585166,
+              "policy": [
+                0.3268747925758362,
+                0.30000007152557373,
+                0.2365626096725464,
+                0.13656258583068848
+              ],
+              "rss_bytes": {
+                "after_import": 116490240,
+                "after_fixture": 121765888,
+                "after_compile": 240156672,
+                "after_warmup": 242450432,
+                "after_measurement": 194248704
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116490240,
+              "runtime_peak_rss_bytes": 242450432,
+              "planner_incremental_rss_bytes": 125960192
+            },
+            {
+              "backend": "jax-jit",
+              "fixture": "xlarge",
+              "n_states": 128,
+              "compile_seconds": 0.3935663339216262,
+              "first_execution_seconds": 0.00884145894087851,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.022656750166788697,
+              "measurement_iterations": 32,
+              "measurement_duration_seconds": 0.2544782501645386,
+              "latency_mean_seconds": 0.007948921949719079,
+              "latency_median_seconds": 0.007729937438853085,
+              "latency_min_seconds": 0.007230750052258372,
+              "latency_max_seconds": 0.009670458966866136,
+              "latency_p95_seconds": 0.009011249989271164,
+              "throughput_calls_per_second": 125.80322291821481,
+              "policy": [
+                0.3268747925758362,
+                0.30000007152557373,
+                0.2365626096725464,
+                0.13656258583068848
+              ],
+              "rss_bytes": {
+                "after_import": 116523008,
+                "after_fixture": 121782272,
+                "after_compile": 240074752,
+                "after_warmup": 242368512,
+                "after_measurement": 242368512
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116523008,
+              "runtime_peak_rss_bytes": 242384896,
+              "planner_incremental_rss_bytes": 125861888
+            },
+            {
+              "backend": "jax-jit",
+              "fixture": "xlarge",
+              "n_states": 128,
+              "compile_seconds": 0.39978112489916384,
+              "first_execution_seconds": 0.009171291952952743,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.023037249920889735,
+              "measurement_iterations": 31,
+              "measurement_duration_seconds": 0.25528500019572675,
+              "latency_mean_seconds": 0.008232006630409629,
+              "latency_median_seconds": 0.00808925018645823,
+              "latency_min_seconds": 0.007474625017493963,
+              "latency_max_seconds": 0.009969708044081926,
+              "latency_p95_seconds": 0.009507666109129786,
+              "throughput_calls_per_second": 121.4770644505955,
+              "policy": [
+                0.3268747925758362,
+                0.30000007152557373,
+                0.2365626096725464,
+                0.13656258583068848
+              ],
+              "rss_bytes": {
+                "after_import": 116555776,
+                "after_fixture": 121749504,
+                "after_compile": 242040832,
+                "after_warmup": 244334592,
+                "after_measurement": 244334592
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116555776,
+              "runtime_peak_rss_bytes": 244334592,
+              "planner_incremental_rss_bytes": 127778816
+            },
+            {
+              "backend": "jax-jit",
+              "fixture": "xlarge",
+              "n_states": 128,
+              "compile_seconds": 0.41050437511876225,
+              "first_execution_seconds": 0.009418332949280739,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.022829584078863263,
+              "measurement_iterations": 33,
+              "measurement_duration_seconds": 0.2520277500152588,
+              "latency_mean_seconds": 0.0076343989648828,
+              "latency_median_seconds": 0.007561499951407313,
+              "latency_min_seconds": 0.007351499982178211,
+              "latency_max_seconds": 0.008104082895442843,
+              "latency_p95_seconds": 0.008048624964430928,
+              "throughput_calls_per_second": 130.98608084275716,
+              "policy": [
+                0.3268747925758362,
+                0.30000007152557373,
+                0.2365626096725464,
+                0.13656258583068848
+              ],
+              "rss_bytes": {
+                "after_import": 116178944,
+                "after_fixture": 121487360,
+                "after_compile": 240877568,
+                "after_warmup": 243171328,
+                "after_measurement": 240533504
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116178944,
+              "runtime_peak_rss_bytes": 243171328,
+              "planner_incremental_rss_bytes": 126992384
+            },
+            {
+              "backend": "jax-jit",
+              "fixture": "xlarge",
+              "n_states": 128,
+              "compile_seconds": 0.40493254200555384,
+              "first_execution_seconds": 0.009603916201740503,
+              "warmup_iterations": 3,
+              "warmup_seconds": 0.022508749971166253,
+              "measurement_iterations": 32,
+              "measurement_duration_seconds": 0.2522002081386745,
+              "latency_mean_seconds": 0.007878706863266416,
+              "latency_median_seconds": 0.007675728527829051,
+              "latency_min_seconds": 0.007359750103205442,
+              "latency_max_seconds": 0.00929312501102686,
+              "latency_p95_seconds": 0.009209290845319629,
+              "throughput_calls_per_second": 126.92438205340365,
+              "policy": [
+                0.3268747925758362,
+                0.30000007152557373,
+                0.2365626096725464,
+                0.13656258583068848
+              ],
+              "rss_bytes": {
+                "after_import": 116408320,
+                "after_fixture": 121602048,
+                "after_compile": 231964672,
+                "after_warmup": 234471424,
+                "after_measurement": 232603648
+              },
+              "versions": {
+                "python": "3.13.13",
+                "jax": "0.9.0",
+                "numpy": "2.4.2",
+                "platform": "cpu",
+                "x64": false
+              },
+              "runtime_baseline_rss_bytes": 116408320,
+              "runtime_peak_rss_bytes": 239927296,
+              "planner_incremental_rss_bytes": 123518976
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
