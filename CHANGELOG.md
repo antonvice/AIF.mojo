@@ -13,8 +13,8 @@ All notable changes to AIF.mojo are documented here.
   synthetic smoke coverage, auditable pilot/tuning results, and an explicit
   separation from the native Mojo core.
 - Added an optional surrogate-gradient Spiking-EEGNet training experiment with
-  subject-separated epoch selection and focused PyTorch tests; no trained
-  performance result is claimed yet.
+  subject-separated epoch selection, focused PyTorch tests, and an auditable
+  three-seed result on untouched subjects 21-30.
 
 ## [0.1.0] - 2026-08-19
 

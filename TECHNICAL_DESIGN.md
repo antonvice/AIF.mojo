@@ -577,8 +577,12 @@ The optional `train_spiking_eegnet.py` extension uses PyTorch for a
 surrogate-gradient Spiking-EEGNet. Subjects used for final testing remain
 disjoint from both training and epoch selection. Its focused test validates
 forward shape, surrogate-gradient finiteness, spike-rate bounds, and FFT
-preprocessing. It remains result-neutral until
-`benchmarks/results/spiking_eegnet.json` is produced and reviewed.
+preprocessing. Performance claims require a reviewed
+`benchmarks/results/spiking_eegnet.json`. The checked artifact records three
+MPS-trained seeds and one untouched ten-subject
+cohort: 0.6052 balanced accuracy for Spiking-EEGNet, 0.5319 for logistic
+regression, and 0.5452 for the tuned LIF reservoir. This is an auditable local
+cohort result, not a general performance claim.
 
 ## 11. Toolchain and exact commands
 
@@ -645,9 +649,8 @@ The standard generated outputs are:
 - `benchmarks/results/eegbci_left_right.json` and
   `benchmarks/results/eeg_lif_tuning.json` from the optional EEG research
   harness; raw EEG arrays remain ignored;
-- `benchmarks/results/spiking_eegnet.json` only after the optional trainable
-  model has completed its subject-held-out protocol; checkpoint files remain
-  ignored.
+- `benchmarks/results/spiking_eegnet.json` from the optional trainable model's
+  completed subject-held-out protocol; checkpoint files remain ignored.
 
 ## 12. Definition of done
 

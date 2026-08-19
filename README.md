@@ -183,8 +183,11 @@ The default data are synthetic and validate only the benchmark pipeline. Pilot
 and held-out tuning artifacts are checked in for auditability. See
 [`benchmarks/eeg_motor_imagery/README.md`](benchmarks/eeg_motor_imagery/README.md)
 for the real EEG NPZ schema, the optional trainable Spiking-EEGNet experiment,
-and interpretation limits. The trainable experiment has unit coverage but no
-published performance claim until its held-out result JSON exists.
+and interpretation limits. On the fresh held-out subjects 21-30, its published
+three-seed result reached 0.6052 balanced accuracy versus 0.5319 for logistic
+regression and 0.5452 for the tuned LIF reservoir. Treat this as one
+subject-separated cohort result, not a general BCI claim; the full record is
+[`benchmarks/results/spiking_eegnet.json`](benchmarks/results/spiking_eegnet.json).
 
 ## Verify it
 
