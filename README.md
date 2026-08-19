@@ -1,4 +1,8 @@
-# AIF-MOJO 🔥
+# AIF.mojo 🔥
+
+[![CI](https://github.com/antonvice/AIF.mojo/actions/workflows/ci.yml/badge.svg)](https://github.com/antonvice/AIF.mojo/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Mojo](https://img.shields.io/badge/Mojo-1.0.0b2-orange.svg)](https://mojolang.org/)
 
 A standalone, CPU-first toolkit for **active inference and message-passing
 planning, written in Mojo**. It provides native belief updates, finite-horizon
@@ -83,7 +87,7 @@ var q_u = loopy_bp_planning_dense(
 ```
 
 See [`examples/`](examples/) for complete inputs and
-[`MOJO_PORTING_TECHDOC.md`](MOJO_PORTING_TECHDOC.md) for every tensor contract
+[`TECHNICAL_DESIGN.md`](TECHNICAL_DESIGN.md) for every tensor contract
 and planner path.
 
 ## Mojo versus JAX
@@ -92,21 +96,13 @@ and planner path.
 
 This is a fair CPU comparison of the **same** dense Float32 Loopy-BP fixture.
 AOT/JIT compilation and three warm-up calls are separated from repeated
-in-process calls. Every backend must return the same normalized policy within
-`1e-5`.
+in-process calls. Five independent processes are measured for every backend at
+four state-space sizes, and every process must return the same normalized policy
+within `1e-5`.
 
-| States | Backend | Compile | Mean latency | Throughput | Peak RSS |
-|---:|---|---:|---:|---:|---:|
-| 8 | Mojo native | 1.636 s | 0.171 ms | 5,848 calls/s | 12.0 MiB |
-| 8 | JAX eager | — | 33.018 ms | 30 calls/s | 341.8 MiB |
-| 8 | JAX warm-JIT | 0.135 s | 0.042 ms | 23,651 calls/s | 217.4 MiB |
-| 64 | Mojo native | 1.636 s | 9.346 ms | 107 calls/s | 12.1 MiB |
-| 64 | JAX eager | — | 34.170 ms | 29 calls/s | 348.2 MiB |
-| 64 | JAX warm-JIT | 0.163 s | 2.129 ms | 470 calls/s | 233.1 MiB |
-
-Snapshot: Apple arm64, Mojo 1.0.0b2, JAX/JAXlib 0.9.0, Python 3.13.13,
-2026-08-19. Lower latency and memory are better. These are local measurements,
-not universal language claims.
+<!-- BENCHMARK_RESULTS_START -->
+Run `pixi run benchmark-publication` to generate the publication table.
+<!-- BENCHMARK_RESULTS_END -->
 
 Choose **Mojo native** when low process memory, predictable native deployment,
 or avoiding a Python/XLA runtime matters. Choose **JAX warm-JIT** when peak CPU
@@ -119,6 +115,8 @@ Reproduce the comparison on your machine:
 ```bash
 pixi run benchmark
 # JSON: benchmarks/results/fair_latest.json
+
+pixi run benchmark-publication  # five processes, dated JSON, README + SVG
 ```
 
 `pixi run benchmark-process` is a separate launch-time regression benchmark;
@@ -147,15 +145,26 @@ orchestration, and research-host adapters such as plotting and video.
 The numerical core is native Mojo and CPU-first. General NDArray semantics,
 autodiff, GPU kernels, native plotting/video, and cross-runtime random-stream
 identity are intentionally out of scope until a measured use case justifies
-them. See the [technical design](MOJO_PORTING_TECHDOC.md) for details.
+them. See the [technical design](TECHNICAL_DESIGN.md) for details.
 
 ## Acknowledgements
 
 This standalone Mojo implementation was validated against
 [`biaslab/UAI-MP-AIF-JAX`](https://github.com/biaslab/UAI-MP-AIF-JAX), companion
-code for *What Type of Inference Is Active Inference?* Thank you to its
+code for [*What Type of Inference Is Active Inference?*](https://arxiv.org/abs/2606.04935)
+by Wouter W. L. Nuijten, Mykola Lukashchuk, Thijs van de Laar, and Bert de
+Vries. Thank you to its Git
 contributors [Wouter Nuijten](https://github.com/biaslab/UAI-MP-AIF-JAX/commits?author=wouternuijten)
 and [Mykola Lukashchuk](https://github.com/biaslab/UAI-MP-AIF-JAX/commits?author=nikola-lukashuk)
 for the original research implementation and canonical environment semantics.
 The reference repository remains unmodified at commit
 `30ee6f0ebce32c6a430fa7c25f1c01390415a797`.
+
+## Contributing, citation, and license
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the correctness and validation
+contract, [CITATION.cff](CITATION.cff) for software and paper citations, and
+[API stability](docs/API_STABILITY.md) for compatibility guarantees.
+
+AIF.mojo is licensed under [Apache-2.0](LICENSE). The separately fetched JAX
+oracle is not distributed under this license; see [NOTICE](NOTICE).

@@ -13,7 +13,7 @@ comptime WARMUP_ITERATIONS = 3
 
 
 def state_belief(n_states: Int) -> List[Float32]:
-    var result = List[Float32]()
+    var result = List[Float32](capacity=n_states)
     result.append(1.0)
     for _ in range(1, n_states):
         result.append(0.0)
@@ -37,7 +37,7 @@ def action_prior() -> List[Float32]:
 
 
 def terminal_goal(n_states: Int) -> List[Float32]:
-    var result = List[Float32]()
+    var result = List[Float32](capacity=n_states)
     var total = Float32(n_states * (n_states + 1) // 2)
     for state_idx in range(n_states):
         result.append(Float32(state_idx + 1) / total)
@@ -46,7 +46,9 @@ def terminal_goal(n_states: Int) -> List[Float32]:
 
 def transition_tensor(n_states: Int) -> List[Float32]:
     """Deterministic T(new, old, theta, action) shared with JAX."""
-    var result = List[Float32]()
+    var result = List[Float32](
+        capacity=n_states * n_states * N_STATIC * N_ACTIONS
+    )
     for new_state in range(n_states):
         for old_state in range(n_states):
             for theta in range(N_STATIC):
@@ -119,11 +121,22 @@ def benchmark_fixture(name: String, n_states: Int) raises:
 def main() raises:
     var args = argv()
     if len(args) != 2:
-        raise Error("usage: fair_planner_benchmark <small|large>")
+        raise Error(
+            "usage: fair_planner_benchmark <baseline|small|medium|large|xlarge>"
+        )
+    if args[1] == "baseline":
+        print("BASELINE")
+        return
     if args[1] == "small":
         benchmark_fixture("small", 8)
+        return
+    if args[1] == "medium":
+        benchmark_fixture("medium", 32)
         return
     if args[1] == "large":
         benchmark_fixture("large", 64)
         return
-    raise Error("fixture must be small or large")
+    if args[1] == "xlarge":
+        benchmark_fixture("xlarge", 128)
+        return
+    raise Error("fixture must be baseline, small, medium, large, or xlarge")

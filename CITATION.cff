@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use AIF.mojo, cite this software and the research paper below."
+title: "AIF.mojo: Native Active Inference and message-passing planning in Mojo"
+type: software
+authors:
+  - family-names: Vice
+    given-names: Anton
+repository-code: "https://github.com/antonvice/AIF.mojo"
+url: "https://github.com/antonvice/AIF.mojo"
+version: 0.1.0
+date-released: 2026-08-19
+license: Apache-2.0
+preferred-citation:
+  type: article
+  title: "What Type of Inference Is Active Inference?"
+  authors:
+    - family-names: Nuijten
+      given-names: "Wouter W. L."
+    - family-names: Lukashchuk
+      given-names: Mykola
+    - family-names: van de Laar
+      given-names: Thijs
+    - family-names: de Vries
+      given-names: Bert
+  year: 2026
+  identifiers:
+    - type: doi
+      value: "10.48550/arXiv.2606.04935"
+  url: "https://arxiv.org/abs/2606.04935"

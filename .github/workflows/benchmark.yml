@@ -1,0 +1,30 @@
+name: Publication benchmark
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: prefix-dev/setup-pixi@f00437f565399d418b0acc85936d12c1fb668347 # v0.10.1
+        with:
+          pixi-version: v0.67.2
+          locked: true
+          cache: true
+      - run: pixi run bootstrap-oracle
+      - run: pixi run sync-oracle
+      - run: pixi run benchmark-publication
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: aif-mojo-publication-benchmark-${{ github.sha }}
+          path: |
+            benchmarks/results/fair_latest.json
+            docs/benchmarks/*.json
+            docs/backend_comparison.svg
+          if-no-files-found: error

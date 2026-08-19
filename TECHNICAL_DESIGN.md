@@ -1,4 +1,4 @@
-# AIF-MOJO: technical design and validation history
+# AIF.mojo: technical design and validation history
 
 Status: standalone native numerical core complete; Python validation adapters retained
 Prepared: 2026-08-07
@@ -6,23 +6,23 @@ Updated: 2026-08-19
 Reference implementation: `UAI-MP-AIF-JAX` at commit
 `30ee6f0ebce32c6a430fa7c25f1c01390415a797`
 
-## 1. Decision and outcome
+## 1. Design and outcome
 
-AIF-MOJO is a standalone native, CPU-first implementation of active inference,
+AIF.mojo is a standalone native, CPU-first implementation of active inference,
 message-passing planners, and partially observable environment models. The JAX
-research repository is retained only as a frozen behavioral oracle. AIF-MOJO
+research repository is retained only as a frozen behavioral oracle. AIF.mojo
 preserves its validated mathematical semantics without depending on the JAX API
 or execution model at runtime.
 
-The test-first sequence is now closed for the native-core scope:
+The test-first implementation sequence is complete for the native-core scope:
 
 1. Freeze and record an exact JAX oracle.
 2. Pin the Mojo compiler and establish native and differential gates.
-3. Port Float32 log-domain numerics, dense messages, and deterministic-sparse
-   messages.
-4. Port state inference and all eight retained planners.
-5. Port all four environment models and consolidate shared agent behavior.
-6. Port the complete VFE helper surface and instrumented convergence traces.
+3. Implement Float32 log-domain numerics, dense messages, and
+   deterministic-sparse messages.
+4. Implement state inference and all eight retained planners.
+5. Implement all four environment models and consolidate shared agent behavior.
+6. Implement the complete VFE helper surface and convergence traces.
 7. Lock the schema, policy-smoke, package, example, and benchmark boundaries.
 
 Python remains by design for the frozen oracle, pytest driving, JSON
@@ -71,7 +71,7 @@ the policies produced by the Mojo experiment or benchmark runners.
 - Reproducing `jit`, `vmap`, `lax.scan`, and `.at[]` as framework abstractions.
 - Treating process-launch timings as steady-state in-process planner latency.
 
-These boundaries follow YAGNI. The current port has explicit, auditable loops
+These boundaries follow YAGNI. The implementation has explicit, auditable loops
 for every contraction it needs; adding a generic tensor or accelerator layer
 without a measured consumer would increase semantic risk without completing a
 missing user-facing contract.
@@ -221,7 +221,7 @@ libraries while keeping belief updates and planning native.
 
 ### 4.4 VFE formulas and convergence traces
 
-`convergence.mojo` ports normalized and unnormalized entropy, factor energy,
+`convergence.mojo` implements normalized and unnormalized entropy, factor energy,
 conditional action/dynamics/observation entropy, and all reference VFE formulas:
 
 - Bethe/Loopy BP;
@@ -236,7 +236,7 @@ The same seven reference convergence planners expose instrumented
 `planning_with_vfe` traces. Terminal and theta-dependent goal modes are covered
 for each, producing 14 differential trace groups. Loopy VBP is one of the eight
 native planners, but the frozen reference does not expose a corresponding
-convergence API, so it is not an omitted trace port.
+convergence API, so there is no corresponding trace surface to implement.
 
 `pixi run parity-convergence` compares the complete trace vectors and VFE helper
 fixtures against the frozen JAX functions. The focused native convergence suite
@@ -271,7 +271,7 @@ The exclusions are intentional and recorded in the original baseline: the
 legacy `reference/` directory shadows the installed MiniGrid package under plain
 collection, `run_tests.py` contains stale RockSample method names, and the
 scenario-argument MiniGrid ground-truth functions are not ordinary pytest tests.
-The Mojo port did not repair or commit into the nested reference checkout.
+AIF.mojo does not repair or commit into the nested reference checkout.
 
 `scripts/bootstrap_oracle.py` clones the repository only when absent. If the
 path already exists it must be a clean Git checkout at the exact SHA; wrong or
@@ -325,7 +325,7 @@ Mojo dispatcher.
 ### 6.1 Actual repository layout
 
 ```text
-AIF-MOJO/
+AIF.mojo/
   pixi.toml
   pixi.lock
   src/aif_mojo/
@@ -433,17 +433,19 @@ paper reproduction.
 `pixi run benchmark` performs a like-for-like CPU comparison of the dense
 terminal-goal Loopy-BP planner in Mojo native, JAX eager, and JAX warm-JIT modes.
 All modes consume the same generated Float32 tensors and use `K=2`, `A=4`,
-`H=3`, three planning iterations, and the same normalized policy oracle. Two
-state sizes are measured: `S=8` and `S=64`.
+`H=3`, three planning iterations, and the same normalized policy oracle. Four
+state sizes are measured: `S=8`, `S=32`, `S=64`, and `S=128`.
 
 Mojo AOT compilation and JAX lowering/compilation are recorded separately.
-Each runtime then performs three warm-up calls followed by adaptive repeated
-calls inside one process. JAX calls synchronize with `block_until_ready`; Mojo
-uses `std.benchmark.run` with `max_batch_size=1` and keeps an output live to
-prevent dead-code elimination. Results include mean/min/max latency,
-calls/second, measurement duration and count, warm-up duration, and complete
-process peak RSS. Median and p95 are additionally available for the individually
-timed JAX calls; the pinned Mojo benchmark API reports aggregate batches.
+Each runtime performs three warm-up calls followed by adaptive repeated calls
+inside one process. Five independent processes are run for every backend and
+state size. JAX calls synchronize with `block_until_ready`; Mojo uses
+`std.benchmark.run` with `max_batch_size=1` and keeps an output live to prevent
+dead-code elimination. The report includes process-median latency and
+throughput with deterministic bootstrap 95% confidence intervals, AOT/JIT
+compile time, complete-process peak RSS, runtime baseline RSS, and the
+non-negative planner RSS delta. Every process-level record is retained in dated
+JSON, and the README table and SVG are generated from that artifact.
 
 `pixi run benchmark-process` retains the previous eight-planner plus bounded
 3x3 MiniGrid Active runner. Its process-wall samples include startup and remain
@@ -475,7 +477,7 @@ showed it was unnecessary, so milestone closure uses flat Lists instead. This is
 a documented YAGNI refinement, not missing work.
 
 Likewise, M5 does not require replacing Gymnasium or the research repository's
-DVC/plot/video layer. The porting goal is native inference and environment
+DVC/plot/video layer. The design goal is native inference and environment
 semantics with adapters at the system boundary, not a language-purity rewrite.
 
 ## 9. High-risk semantic details
@@ -515,7 +517,7 @@ semantics with adapters at the system boundary, not a language-purity rewrite.
 - Generated probability tables are compared separately from samples.
 - End-to-end semantic tests inject explicit action/outcome tapes.
 - Native RNG reproducibility, if added later, is a new contract rather than a
-  prerequisite for this port.
+  prerequisite for AIF.mojo.
 
 ## 10. Performance policy
 
@@ -523,13 +525,13 @@ Correctness comes before optimization. Current code uses contiguous Float32
 buffers, explicit loops, stable reductions, and deterministic sparse transitions
 where valid.
 
-The fair benchmark now isolates compilation and warm-up from repeated
-in-process calls, compares two state-space sizes, and records latency,
-throughput, and peak RSS. The latest local artifact is
-`benchmarks/results/fair_latest.json`; results remain machine-specific. On the
-development Mac, warm-JIT JAX wins latency at both sizes, Mojo beats eager JAX
-and has much lower process peak RSS. This supports workload-specific choices,
-not a general language ranking.
+The fair benchmark isolates compilation and warm-up from repeated in-process
+calls, compares four state-space sizes across five independent processes per
+backend, and records latency, throughput, peak RSS, runtime baseline RSS, and
+planner RSS delta. The latest local artifact is
+`benchmarks/results/fair_latest.json`; dated publication records live under
+`docs/benchmarks/`. Results remain machine-specific and support workload-specific
+choices rather than a general language ranking.
 
 The first measured optimization was exact-capacity preallocation for temporary
 Lists in the dense Loopy-BP hot path. It preserves the public flat-buffer model,
@@ -578,6 +580,7 @@ pixi run test-schema
 ```bash
 pixi run experiment-smoke
 pixi run benchmark
+pixi run benchmark-publication
 pixi run benchmark-process
 pixi run package-smoke
 pixi run example-loopy
@@ -603,11 +606,13 @@ The standard generated outputs are:
 - `aif_mojo.mojoc` from packaging;
 - `data/smoke_matrix/` from the policy matrix;
 - `benchmarks/results/fair_latest.json` from the fair comparison;
+- `docs/benchmarks/YYYY-MM-DD.json` plus the generated README table and SVG from
+  the publication benchmark;
 - `benchmarks/results/latest.json` from the legacy process benchmark.
 
 ## 12. Definition of done
 
-The native-core port is complete when all of the following remain true:
+The native core is release-ready while all of the following remain true:
 
 - the nested JAX oracle is clean and at the manifest SHA;
 - the pinned toolchain, dtype/x64 setting, axes, goal forms, tolerances, paths,
@@ -629,8 +634,7 @@ The native-core port is complete when all of the following remain true:
   measurements and validates identical policies;
 - no Python/JAX inference runs inside the Mojo numerical core.
 
-The following are intentionally retained boundaries, not incomplete core-port
-items:
+The following are intentional system boundaries:
 
 - Python/JAX oracle and pytest orchestration;
 - Python DVC/YAML, plots, Gymnasium/MiniGrid hosting, rendering, and video;
@@ -643,5 +647,4 @@ items:
 
 Future work may replace an adapter, add native episode loops, introduce a narrow
 layout optimization, or propose the RockSample Loopy BP fix upstream. Those are
-new extensions. They are not required to call the native numerical-core port
-complete.
+extensions rather than missing native-core functionality.

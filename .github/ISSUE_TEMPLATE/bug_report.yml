@@ -1,0 +1,32 @@
+name: Bug report
+description: Report incorrect numerical behavior, an environment issue, or a crash.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: textarea
+    attributes:
+      label: What happened?
+      description: Include the smallest reproducible model and expected behavior.
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: AIF.mojo commit or version
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Mojo, macOS, and architecture
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Reproduction command and output
+    validations:
+      required: true
+  - type: checkboxes
+    attributes:
+      label: Validation
+      options:
+        - label: I ran `pixi run manifest` and the frozen oracle is clean.
+          required: true

@@ -25,7 +25,7 @@ sys.path.insert(0, str(ORACLE))
 from inference.loopy_bp import loopy_bp_planning  # noqa: E402
 
 
-FIXTURES = {"small": 8, "large": 64}
+FIXTURES = {"small": 8, "medium": 32, "large": 64, "xlarge": 128}
 N_STATIC = 2
 N_ACTIONS = 4
 HORIZON = 3

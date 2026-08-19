@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  correctness:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: prefix-dev/setup-pixi@f00437f565399d418b0acc85936d12c1fb668347 # v0.10.1
+        with:
+          pixi-version: v0.67.2
+          locked: true
+          cache: true
+      - run: pixi run bootstrap-oracle
+      - run: pixi run sync-oracle
+      - run: pixi run manifest
+      - run: pixi run package-smoke
+      - run: pixi run test
+      - run: pixi run parity
+      - run: pixi run parity-env
+      - run: pixi run parity-convergence
+      - run: pixi run test-schema

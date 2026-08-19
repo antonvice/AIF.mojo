@@ -1,0 +1,11 @@
+AIF.mojo
+Copyright 2026 Anton Vice
+
+This product is an independent Mojo implementation validated against the
+research repository "What Type of Inference Is Active Inference?" by Wouter W.
+L. Nuijten, Mykola Lukashchuk, Thijs van de Laar, and Bert de Vries:
+https://github.com/biaslab/UAI-MP-AIF-JAX
+
+The reference repository is not distributed as part of AIF.mojo and is not
+licensed by the AIF.mojo Apache-2.0 license. It is fetched separately and used
+only as a frozen behavioral oracle for differential testing.

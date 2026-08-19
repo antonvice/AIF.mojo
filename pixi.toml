@@ -37,6 +37,7 @@ sync-oracle = "uv sync --project UAI-MP-AIF-JAX --python 3.13.13"
 manifest = "python3 tests/parity/check_manifest.py"
 experiment-smoke = "python3 scripts/run_experiment_matrix.py --output-dir data/smoke_matrix"
 benchmark = "python3 benchmarks/run_fair_benchmarks.py --output benchmarks/results/fair_latest.json"
+benchmark-publication = "python3 benchmarks/run_fair_benchmarks.py --process-runs 5 --publish --output benchmarks/results/fair_latest.json"
 benchmark-process = "python3 benchmarks/run_planner_benchmarks.py --runs 9 --output benchmarks/results/latest.json"
 
 [tasks.test-ref]

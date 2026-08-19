@@ -1,0 +1,21 @@
+name: Feature request
+description: Propose a measured planner, environment, API, or performance extension.
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    attributes:
+      label: Use case
+      description: What concrete workflow needs this feature?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Proposed contract
+      description: Include tensor axes, compatibility impact, and validation plan.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Alternatives
+      description: Explain why the current public surface is insufficient.
