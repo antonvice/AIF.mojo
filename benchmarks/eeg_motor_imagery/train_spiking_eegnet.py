@@ -303,6 +303,8 @@ def paired_bootstrap(reference: list[dict], candidate: list[dict]) -> dict:
 def choose_device(value: str) -> torch.device:
     if value != "auto":
         return torch.device(value)
+    if torch.cuda.is_available():
+        return torch.device("cuda")
     if torch.backends.mps.is_available():
         return torch.device("mps")
     return torch.device("cpu")
