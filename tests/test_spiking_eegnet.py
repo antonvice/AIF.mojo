@@ -67,7 +67,7 @@ class SpikingEEGNetTests(unittest.TestCase):
             },
         )
 
-    def test_kaggle_notebook_uses_public_main(self):
+    def test_kaggle_notebook_uses_published_experiment_branch(self):
         notebook = json.loads(
             Path(
                 "benchmarks/eeg_motor_imagery/kaggle_kernel/"
@@ -79,8 +79,7 @@ class SpikingEEGNetTests(unittest.TestCase):
             for cell in notebook["cells"]
             for line in cell.get("source", [])
         )
-        self.assertIn("'--branch', 'main'", source)
-        self.assertNotIn("null/eeg-research-harness", source)
+        self.assertIn("'--branch', 'null/eeg-research-harness'", source)
 
 
 if __name__ == "__main__":
