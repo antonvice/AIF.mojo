@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Build the public Kaggle walkthrough notebook."""
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -9,12 +10,18 @@ ROOT = Path(__file__).parent
 
 
 def markdown(source: str) -> dict:
-    return {"cell_type": "markdown", "metadata": {}, "source": source.splitlines(True)}
+    return {
+        "cell_type": "markdown",
+        "id": hashlib.sha1(source.encode()).hexdigest()[:8],
+        "metadata": {},
+        "source": source.splitlines(True),
+    }
 
 
 def code(source: str) -> dict:
     return {
         "cell_type": "code",
+        "id": hashlib.sha1(source.encode()).hexdigest()[:8],
         "execution_count": None,
         "metadata": {},
         "outputs": [],
@@ -71,6 +78,15 @@ subprocess.run([
     'https://github.com/antonvice/AIF.mojo.git', str(REPO)
 ], check=True)
 subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', 'mne', 'rich'], check=True)
+gpu_name = subprocess.check_output(
+    ['nvidia-smi', '--query-gpu=name', '--format=csv,noheader'], text=True
+).strip() if shutil.which('nvidia-smi') else ''
+if 'P100' in gpu_name:
+    print('P100 detected: installing PyTorch 2.7.1 CUDA 11.8 for sm_60 support')
+    subprocess.run([
+        sys.executable, '-m', 'pip', 'install', '-q', '--force-reinstall',
+        'torch==2.7.1', '--index-url', 'https://download.pytorch.org/whl/cu118'
+    ], check=True)
 os.chdir(REPO)
 print('Source commit:', subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip())
 """
@@ -83,6 +99,9 @@ print('PyTorch:', torch.__version__)
 print('Device:', device)
 if device == 'cuda':
     print('GPU:', torch.cuda.get_device_name(0))
+    print('GPU capability:', torch.cuda.get_device_capability(0))
+    print('Compiled CUDA architectures:', torch.cuda.get_arch_list())
+    print('CUDA probe:', (torch.ones(1, device='cuda') * 2).item())
 """
     ),
     markdown(
