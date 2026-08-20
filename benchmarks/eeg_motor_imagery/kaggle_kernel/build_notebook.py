@@ -74,7 +74,7 @@ REPO = WORK / 'AIF-MOJO'
 if REPO.exists():
     shutil.rmtree(REPO)
 subprocess.run([
-    'git', 'clone', '--depth', '1', '--branch', 'main',
+    'git', 'clone', '--depth', '1', '--branch', 'null/eeg-research-harness',
     'https://github.com/antonvice/AIF.mojo.git', str(REPO)
 ], check=True)
 subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', 'mne', 'rich'], check=True)
@@ -206,7 +206,7 @@ We have not exhausted the design space. This run uses only 30 of 109 EEGBCI subj
 
 Now that subjects 21-30 have been observed, they should not guide another claimed fresh test. The next serious experiment is to tune only on subjects 1-20, lock everything, and evaluate once on new subjects 31-50 (then scale to 31-109). Add FBCSP+LDA, Riemannian, and analog EEGNet; search channel sets, filterbanks, crop augmentation, temporal kernel/width, LIF decay/threshold/surrogate slope, regularization, learning rate, and weight decay. Only after that should we discuss a ceiling or an efficiency advantage.
 
-Source and full JSON protocol: [antonvice/AIF.mojo](https://github.com/antonvice/AIF.mojo/tree/main/benchmarks/eeg_motor_imagery)
+Source and full JSON protocol: [antonvice/AIF.mojo](https://github.com/antonvice/AIF.mojo/tree/null/eeg-research-harness/benchmarks/eeg_motor_imagery)
 """
     ),
 ]
