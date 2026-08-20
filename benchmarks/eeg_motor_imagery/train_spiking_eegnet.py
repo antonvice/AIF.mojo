@@ -129,6 +129,52 @@ class SpikingEEGNet(nn.Module):
         return torch.stack(logits).mean(dim=0), spike_count / features.shape[1]
 
 
+class AnalogEEGNet(nn.Module):
+    """Parameter-matched non-spiking control for the Spiking EEGNet."""
+
+    def __init__(self, channels: int, classes: int = 2, config: TrainConfig | None = None):
+        super().__init__()
+        self.config = config or TrainConfig()
+        f1 = self.config.temporal_filters
+        f2 = f1 * self.config.depth_multiplier
+        self.frontend = nn.Sequential(
+            nn.Conv2d(
+                1,
+                f1,
+                kernel_size=(1, self.config.temporal_kernel),
+                padding=(0, self.config.temporal_kernel // 2),
+                bias=False,
+            ),
+            nn.BatchNorm2d(f1),
+            nn.Conv2d(f1, f2, kernel_size=(channels, 1), groups=f1, bias=False),
+            nn.BatchNorm2d(f2),
+            nn.ELU(),
+            nn.AvgPool2d(kernel_size=(1, self.config.pool)),
+            nn.Dropout(0.25),
+        )
+        self.projection = nn.Linear(f2, self.config.hidden)
+        self.activation_scale = nn.Parameter(torch.ones(self.config.hidden))
+        self.activation_bias = nn.Parameter(torch.zeros(self.config.hidden))
+        self.readout = nn.Linear(self.config.hidden, classes)
+
+    def forward(self, eeg: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        features = self.frontend(eeg[:, None]).squeeze(2).transpose(1, 2)
+        hidden = F.elu(self.projection(features))
+        hidden = hidden * self.activation_scale + self.activation_bias
+        logits = self.readout(hidden).mean(dim=1)
+        return logits, torch.zeros((), device=eeg.device, dtype=eeg.dtype)
+
+
+def build_neural_model(
+    model_type: str, channels: int, config: TrainConfig
+) -> nn.Module:
+    if model_type == "spiking":
+        return SpikingEEGNet(channels, config=config)
+    if model_type == "analog":
+        return AnalogEEGNet(channels, config=config)
+    raise ValueError(f"unknown neural model type: {model_type}")
+
+
 class ChannelStandardizer:
     def fit(self, X: np.ndarray) -> "ChannelStandardizer":
         self.mean = X.mean(axis=(0, 2), keepdims=True)
@@ -171,7 +217,7 @@ def make_loader(
 
 
 def train_epoch(
-    model: SpikingEEGNet,
+    model: nn.Module,
     loader: DataLoader,
     optimizer: torch.optim.Optimizer,
     device: torch.device,
@@ -184,8 +230,10 @@ def train_epoch(
             eeg = eeg + torch.randn_like(eeg) * model.config.noise_std
         optimizer.zero_grad(set_to_none=True)
         logits, spike_rate = model(eeg)
-        activity = (spike_rate - model.config.activity_target).pow(2)
-        loss = F.cross_entropy(logits, labels) + model.config.activity_weight * activity
+        loss = F.cross_entropy(logits, labels)
+        if isinstance(model, SpikingEEGNet):
+            activity = (spike_rate - model.config.activity_target).pow(2)
+            loss = loss + model.config.activity_weight * activity
         loss.backward()
         nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         optimizer.step()
@@ -195,7 +243,7 @@ def train_epoch(
 
 @torch.no_grad()
 def predict(
-    model: SpikingEEGNet, X: np.ndarray, batch_size: int, device: torch.device
+    model: nn.Module, X: np.ndarray, batch_size: int, device: torch.device
 ) -> tuple[np.ndarray, float, float]:
     model.eval()
     loader = make_loader(X, np.zeros(X.shape[0]), batch_size, 0, False)
@@ -218,9 +266,10 @@ def select_epoch(
     seed: int,
     max_epochs: int,
     device: torch.device,
+    model_type: str = "spiking",
 ) -> tuple[int, list[dict]]:
     set_seed(seed)
-    model = SpikingEEGNet(channels, config=config).to(device)
+    model = build_neural_model(model_type, channels, config).to(device)
     optimizer = torch.optim.AdamW(
         model.parameters(), lr=config.learning_rate, weight_decay=config.weight_decay
     )
@@ -257,9 +306,10 @@ def fit_fixed_epochs(
     seed: int,
     epochs: int,
     device: torch.device,
-) -> SpikingEEGNet:
+    model_type: str = "spiking",
+) -> nn.Module:
     set_seed(seed)
-    model = SpikingEEGNet(channels, config=config).to(device)
+    model = build_neural_model(model_type, channels, config).to(device)
     optimizer = torch.optim.AdamW(
         model.parameters(), lr=config.learning_rate, weight_decay=config.weight_decay
     )

@@ -1,0 +1,13 @@
+{
+  "id": "dzehtsiarou/locked-snn-eeg-109-subject-benchmark",
+  "title": "Locked SNN EEG 109 Subject Benchmark",
+  "code_file": "locked-snn-eeg-109-subject-benchmark.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": false,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": []
+}

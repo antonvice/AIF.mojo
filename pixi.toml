@@ -25,7 +25,7 @@ test-rocksample = "mojo run -I src tests/mojo/test_rocksample.mojo"
 test-minigrid = "mojo run -I src tests/mojo/test_minigrid.mojo"
 test-agent = "mojo run -I src tests/mojo/test_agent.mojo"
 test = { depends-on = ["test-numerics", "test-messages", "test-sparse", "test-loopy", "test-state", "test-convergence", "test-dyn-channel", "test-vbp-channel", "test-nuijten", "test-loopy-vbp", "test-precise-info", "test-region-extended", "test-active-inference", "test-frozen-lake", "test-wumpus", "test-rocksample", "test-minigrid", "test-agent"] }
-check = { depends-on = ["manifest", "test-schema", "test", "parity", "parity-env", "parity-convergence", "test-eeg", "test-eeg-trainable", "experiment-smoke", "package-smoke", "example-frozen"] }
+check = { depends-on = ["manifest", "test-schema", "test", "parity", "parity-env", "parity-convergence", "test-eeg", "test-eeg-trainable", "test-eeg-locked", "experiment-smoke", "package-smoke", "example-frozen"] }
 check-all = { depends-on = ["check", "test-ref"] }
 example-loopy = "mojo run --Werror -I src examples/loopy_bp.mojo"
 example-all = "mojo run --Werror -I src examples/all_planners.mojo"
@@ -46,6 +46,10 @@ eeg-tune = "uv run --with optuna --with numpy python -m benchmarks.eeg_motor_ima
 eeg-prepare-30 = "uv run --with mne python benchmarks/eeg_motor_imagery/prepare_eegbci.py --subjects 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 --output data/eegbci_left_right_30.npz"
 test-eeg-trainable = "uv run --with torch --with rich --with numpy python -m unittest tests.test_spiking_eegnet"
 eeg-train-snn = "uv run --with torch --with rich --with numpy python -m benchmarks.eeg_motor_imagery.train_spiking_eegnet --data data/eegbci_left_right_30.npz --development-subjects 1-20 --validation-subjects 17-20 --test-subjects 21-30 --reservoir-result benchmarks/results/eeg_lif_tuning.json --output benchmarks/results/spiking_eegnet.json"
+test-eeg-locked = "uv run --with torch --with rich --with numpy --with optuna --with mne --with scikit-learn --with pyriemann python -m unittest tests.test_eeg_locked_benchmark"
+eeg-prepare-109 = "uv run --with mne python benchmarks/eeg_motor_imagery/prepare_eegbci.py --subject-range 1-109 --jobs 4 --output data/eegbci_left_right_109.npz"
+eeg-tune-locked = "uv run --with torch --with rich --with numpy --with optuna python -m benchmarks.eeg_motor_imagery.tune_locked_snn --data data/eegbci_left_right_109.npz --trials 30 --output benchmarks/results/eeg_snn_lock.json"
+eeg-evaluate-locked = "uv run --with torch --with rich --with numpy --with mne --with scikit-learn --with pyriemann --with nvidia-ml-py python -m benchmarks.eeg_motor_imagery.evaluate_locked --data data/eegbci_left_right_109.npz --lock benchmarks/results/eeg_snn_lock.json --output benchmarks/results/eeg_locked_31_109.json"
 
 [tasks.test-ref]
 cmd = "uv run pytest -q --ignore=reference --ignore=tests/test_minigrid_groundtruth.py"

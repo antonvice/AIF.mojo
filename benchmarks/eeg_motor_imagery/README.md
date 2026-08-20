@@ -139,6 +139,40 @@ mean subject balanced-accuracy gain was 7.1 points with a paired bootstrap 95%
 interval of +2.4 to +12.3 points. It improved nine of ten subjects versus the
 tuned reservoir, with a mean gain of 5.6 points and interval of +2.7 to +8.7.
 
+## Locked 109-subject benchmark
+
+The next protocol adds three stronger controls: filter-bank common spatial
+patterns (FBCSP), an OAS-covariance Riemannian tangent-space classifier, and an
+analog EEGNet with exactly the same parameter count and training recipe as the
+spiking model. FBCSP uses six 4-40 Hz sub-bands and MNE's regularized CSP;
+the tangent-space model uses pyRiemann's affine-invariant `TSClassifier`.
+
+The design follows the public [MNE CSP API](https://mne.tools/stable/generated/mne.decoding.CSP.html),
+[pyRiemann tangent-space API](https://pyriemann.readthedocs.io/), and the
+[EEGNet architecture paper](https://arxiv.org/abs/1611.08024).
+
+```bash
+pixi run test-eeg-locked
+pixi run eeg-prepare-109
+pixi run eeg-tune-locked
+pixi run eeg-evaluate-locked
+```
+
+The tuner slices subjects 1-20 before any preprocessing. Subjects 1-16 train;
+17-20 select hyperparameters and per-seed epoch counts. It writes a canonical
+SHA-256 lock containing the configuration, split, objective, and epoch counts.
+The evaluator verifies that hash, refuses to overwrite an existing receipt,
+excludes the previously observed subjects 21-30, evaluates subjects 31-50 as
+the primary fresh cohort, and then reports subjects 31-109 as a fixed-config
+expansion.
+
+Neural inference latency is measured at batch sizes 1 and 64 after warm-up.
+On NVIDIA workers, NVML samples board power every 20 ms during repeated
+inference and reports both gross and idle-subtracted joules per trial. This is
+real power telemetry for the dense PyTorch implementation, not a neuromorphic
+hardware estimate. NVIDIA documents total-energy counters only for Volta and
+newer GPUs, so sampling power is also compatible with Kaggle's Pascal P100.
+
 ### Kaggle walkthrough
 
 The checked notebook under `kaggle_kernel/` downloads EEGBCI from PhysioNet and
