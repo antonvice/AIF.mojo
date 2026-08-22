@@ -12,6 +12,8 @@ test-sparse = "mojo run -I src tests/mojo/test_sparse_messages.mojo"
 test-loopy = "mojo run -I src tests/mojo/test_loopy_bp.mojo"
 test-state = "mojo run -I src tests/mojo/test_state_inference.mojo"
 test-convergence = "mojo run -I src tests/mojo/test_convergence.mojo"
+test-convergence-control = "mojo run -I src tests/mojo/test_convergence_control.mojo"
+test-preferences = "mojo run -I src tests/mojo/test_preferences.mojo"
 test-dyn-channel = "mojo run -I src tests/mojo/test_dyn_channel_loopy_bp.mojo"
 test-vbp-channel = "mojo run -I src tests/mojo/test_vbp_channel.mojo"
 test-nuijten = "mojo run -I src tests/mojo/test_nuijten_mp.mojo"
@@ -24,8 +26,8 @@ test-wumpus = "mojo run -I src tests/mojo/test_wumpus_world.mojo"
 test-rocksample = "mojo run -I src tests/mojo/test_rocksample.mojo"
 test-minigrid = "mojo run -I src tests/mojo/test_minigrid.mojo"
 test-agent = "mojo run -I src tests/mojo/test_agent.mojo"
-test = { depends-on = ["test-numerics", "test-messages", "test-sparse", "test-loopy", "test-state", "test-convergence", "test-dyn-channel", "test-vbp-channel", "test-nuijten", "test-loopy-vbp", "test-precise-info", "test-region-extended", "test-active-inference", "test-frozen-lake", "test-wumpus", "test-rocksample", "test-minigrid", "test-agent"] }
-check = { depends-on = ["manifest", "test-schema", "test", "parity", "parity-env", "parity-convergence", "test-eeg", "test-eeg-trainable", "experiment-smoke", "package-smoke", "example-frozen"] }
+test = { depends-on = ["test-numerics", "test-messages", "test-sparse", "test-loopy", "test-state", "test-convergence", "test-convergence-control", "test-preferences", "test-dyn-channel", "test-vbp-channel", "test-nuijten", "test-loopy-vbp", "test-precise-info", "test-region-extended", "test-active-inference", "test-frozen-lake", "test-wumpus", "test-rocksample", "test-minigrid", "test-agent"] }
+check = { depends-on = ["manifest", "test-schema", "test", "parity", "parity-env", "parity-convergence", "test-eeg", "test-eeg-trainable", "experiment-smoke", "paper-smoke", "package-smoke", "example-frozen"] }
 check-all = { depends-on = ["check", "test-ref"] }
 example-loopy = "mojo run --Werror -I src examples/loopy_bp.mojo"
 example-all = "mojo run --Werror -I src examples/all_planners.mojo"
@@ -36,6 +38,12 @@ bootstrap-oracle = "python3 scripts/bootstrap_oracle.py"
 sync-oracle = "uv sync --project UAI-MP-AIF-JAX --python 3.13.13"
 manifest = "python3 tests/parity/check_manifest.py"
 experiment-smoke = "python3 scripts/run_experiment_matrix.py --output-dir data/smoke_matrix"
+appendix-f5-smoke = "python3 scripts/run_appendix_f5_sweep.py --mode smoke"
+appendix-f5 = "python3 scripts/run_appendix_f5_sweep.py --mode full"
+appendix-f5-adaptive = "python3 scripts/run_appendix_f5_sweep.py --mode full --adaptive"
+paper-experiments-smoke = "python3 scripts/run_paper_experiments.py --mode smoke"
+paper-experiments = "python3 scripts/run_paper_experiments.py --mode full"
+paper-smoke = "python3 scripts/run_appendix_f5_sweep.py --mode smoke && python3 scripts/run_paper_experiments.py --mode smoke"
 benchmark = "python3 benchmarks/run_fair_benchmarks.py --output benchmarks/results/fair_latest.json"
 benchmark-publication = "python3 benchmarks/run_fair_benchmarks.py --process-runs 5 --publish --output benchmarks/results/fair_latest.json"
 benchmark-process = "python3 benchmarks/run_planner_benchmarks.py --runs 9 --output benchmarks/results/latest.json"
@@ -68,7 +76,7 @@ cmd = "uv run pytest -q ../tests/parity/test_result_schemas.py"
 cwd = "UAI-MP-AIF-JAX"
 
 [dependencies]
-mojo = "==1.0.0b2"
+mojo = "==1.0.0"
 uv = "==0.12.2"
 
 [activation.env]

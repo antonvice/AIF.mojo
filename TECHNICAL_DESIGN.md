@@ -51,7 +51,7 @@ the policies produced by the Mojo experiment or benchmark runners.
   preferences.
 - Provide native tensor/state models for Frozen Lake, Wumpus World, RockSample,
   and MiniGrid DoorKey.
-- Provide pure draw-injected Frozen Lake and RockSample simulator steps with
+- Provide pure draw-injected Frozen Lake, Wumpus, and RockSample simulator steps with
   reward, termination, and truncation semantics.
 - Provide consolidated belief updates and planner dispatch, including Frozen
   Lake all-eight dispatch and MiniGrid multimodal state inference across all
@@ -244,6 +244,35 @@ also covers masks and the flattened `K=1` goal-shape ambiguity.
 The convergence-focused suite and all seven affected planner regression suites
 have been rerun successfully; no convergence gate remains pending.
 
+Residual-aware runtime APIs complement, rather than replace, the frozen trace
+surface. Loopy BP stops on the maximum theta-cavity message change. VBP stops
+on its action channel; RM-MP on action and dynamics channels; AIF-MP on action,
+dynamics, conditional-observation, and marginal-observation channels. The
+legacy APIs retain fixed iteration counts and byte-for-byte-compatible output
+layouts. Residual APIs append
+`[converged, iterations, final_residual, final_damping, residuals...]`.
+
+`pixi run appendix-f5` implements the Appendix F.5 matrix: BP at `1.0`, the
+three channel methods at `0.25, 0.4, 0.5, 0.6, 0.75, 0.9`, seeds `0..4`, a
+`1e-4` maximum-channel criterion, and a 1,000-iteration cap. The separately
+labeled adaptive task is this project's first research extension, not a result
+reported by the paper.
+
+### 4.5 Prepared execution and preferences
+
+The channel planners expose compile-time-specialized prepared structs:
+`PreparedDenseVBP[H, I]`, `PreparedDenseRMMP[H, I]`, and
+`PreparedDenseAIFMP[H, I]`. Constructors cache static transition,
+observation, goal, and action-prior logs; `plan()` accepts changing state and
+theta beliefs. This removes repeated static logarithms while leaving public
+probability-space APIs unchanged. Loopy BP additionally reuses a full mutable
+scratch workspace.
+
+`preferences.mojo` accepts shared or `(time, state)` state preferences, shared
+or `(time, field, outcome)` observation preferences, and produces explicit log
+messages. AIF-MP's precomputed route accepts these time-indexed local
+preferences without reapplying a terminal goal.
+
 ## 5. Oracle, fixtures, and comparison contract
 
 ### 5.1 Frozen reference
@@ -257,7 +286,7 @@ The oracle is unchanged at
 | JAX / jaxlib | 0.9.0 / 0.9.0 |
 | NumPy | 2.4.2 |
 | JAX backend | CPU, `jax_enable_x64=False` |
-| Mojo | 1.0.0b2 |
+| Mojo | 1.0.0 |
 | Production tensor dtype | Float32 |
 
 The canonical reference command remains:
@@ -386,7 +415,7 @@ The implementation follows these ownership rules:
 | JAX construct | Mojo implementation |
 |---|---|
 | `@jax.jit` | ordinary compiled Mojo function |
-| static horizon/iterations | runtime loops |
+| static horizon/iterations | runtime compatibility loops plus `[H, I]` specialized prepared planners |
 | `lax.fori_loop` / reverse `scan` | explicit forward/backward loops and buffers |
 | `vmap` | explicit outer loops |
 | fixed `einsum` signatures | named nested contractions |
@@ -395,8 +424,8 @@ The implementation follows these ownership rules:
 | transpose/broadcast | explicit offsets or tiling helpers |
 | `jax.nn.softmax` | project stable softmax |
 
-The absence of JIT static arguments simplifies correctness. Specialization is a
-future performance option, not part of semantic parity.
+Runtime APIs remain the compatibility surface; the VBP, RM-MP, and AIF-MP
+prepared structs also bind horizon and iteration count at compile time.
 
 ## 7. Result schemas, experiment smoke, examples, and packaging
 
@@ -429,7 +458,27 @@ This boundary is deliberately **policy-only**. Every result config records
 prove native planner invocation and schema compatibility, not episode quality or
 paper reproduction.
 
-### 7.3 Benchmark contract
+### 7.3 Native paper episode matrix
+
+`pixi run paper-experiments` compiles a native episode driver and crosses the
+five reported methods (BP, VBP, RM-MP, Nuijten-MP, and AIF-MP) with Frozen Lake,
+Wumpus World, and RockSample for 1,000 episodes. It uses the paper horizons,
+iteration budgets, and selected Table 4 damping values. Belief updates,
+planning, transitions, observations, rewards, termination, and truncation all
+execute in Mojo; Python only generates deterministic environment configurations,
+launches the compiled executable, and writes JSON/CSV.
+
+The artifact profile is `authors-public-code-at-30ee6f0`. Paper-v4 prose gives
+RockSample 16 states and 9 actions, while the public code at the frozen SHA has
+640 states and 8 actions. The runner uses and names the executable public-code
+model rather than claiming prose-exact reproduction. Mojo episode seeds are
+stable within this runner but are not NumPy bitstream parity.
+
+`paper-experiments-smoke` covers all five planners on Frozen Lake and one native
+episode for each other environment. Full 1,000-episode results are research
+artifacts, not correctness or CI gates.
+
+### 7.4 Benchmark contract
 
 `pixi run benchmark` performs a like-for-like CPU comparison of the dense
 terminal-goal Loopy-BP planner in Mojo native, JAX eager, and JAX warm-JIT modes.
@@ -453,7 +502,7 @@ JSON, and the README table and SVG are generated from that artifact.
 useful for launch-time regression tracking, but they are not mixed with the fair
 steady-state comparison.
 
-### 7.4 Examples and package smoke
+### 7.5 Examples and package smoke
 
 - `example-loopy` exercises the public deterministic-sparse Loopy BP API.
 - `example-all` exercises the consolidated eight-planner dispatcher.
@@ -470,8 +519,9 @@ steady-state comparison.
 | M2: dense/sparse messages | complete | full retained message surface and differential/invariant coverage |
 | M3: first planner | complete | Loopy BP dense/sparse, both goals, horizons, iterations, masks |
 | M4: all planners | complete | all eight dense; supported sparse/precomputed paths; planner parity gates |
-| M5: environments/agents | complete for native-core scope | four native models and tapes; pure Frozen/Rock simulators; shared belief updates; Frozen all-eight and MiniGrid dense-eight/sparse-five dispatch; Python host adapters retained |
-| M6: convergence/schema/performance boundary | complete | seven VFE formulas, 14 traces, exact schemas, policy matrix, package smoke, fair eager/JIT/native benchmark |
+| M5: environments/agents | complete for native-core scope | four native models and tapes; pure Frozen/Wumpus/Rock simulators; shared belief updates; Frozen all-eight and MiniGrid dense-eight/sparse-five dispatch; Python host adapters retained |
+| M6: convergence/schema/performance boundary | complete | seven VFE formulas, 14 traces, residual stopping, adaptive damping, exact schemas, policy matrix, package smoke, fair eager/JIT/native benchmark |
+| M7: paper execution surface | complete | compile-time prepared channel planners, time-indexed preferences, Appendix F.5 sweep, five-method/three-environment native episode runner |
 
 The original plan proposed a general `NDArray` in M1. Implementation evidence
 showed it was unnecessary, so milestone closure uses flat Lists instead. This is
@@ -544,17 +594,19 @@ The optimized kernel implements the measured priorities directly:
    vectors;
 4. contiguous action blocks use four-lane SIMD with scalar tails, preserving
    action counts that are not multiples of four;
-5. independent reduced-transition and theta-message rows use the default CPU
-   worker pool from 32 states upward;
+5. the Mojo 1.0.0 standalone build uses the serial pure-Mojo fallback because
+   the former standalone `parallelize` API moved behind MAX;
 6. the probability-space compatibility API delegates to the same kernel, so
    existing callers retain their signatures and outputs.
 
-The terminal-goal fast path is intentionally narrow. Theta-dependent dense
-preferences still use the reference implementation, and deterministic
-transitions should prefer the existing sparse planners. Future optimization is
-limited to measured consumers: a theta-goal workspace kernel, a narrow
-layout/view type if pointer arithmetic remains dominant, and GPU kernels only
-with separate correctness and benchmark contracts.
+The terminal-goal Loopy fast path is intentionally narrow. Channel planners
+now cache static logs and compile-time dimensions but still allocate iteration
+scratch Lists. Deterministic transitions should prefer the existing sparse
+planners. Future optimization is limited to measured consumers: full channel
+scratch reuse, independent workspace lanes for real multi-agent batches, and an
+optional MAX layout/GPU backend only with separate correctness and benchmark
+contracts. The completed feasibility decision and promotion gate are in
+`docs/ACCELERATOR_EVALUATION.md`.
 
 The release/API review is recorded in `MOJO_UPGRADE_NOTES.md`. No GPU claim is
 made by this CPU benchmark.
@@ -586,7 +638,7 @@ cohort result, not a general performance claim.
 
 ## 11. Toolchain and exact commands
 
-Mojo is pinned to `1.0.0b2` by `pixi.toml` and `pixi.lock`. Mojo packages are
+Mojo is pinned to `1.0.0` by `pixi.toml` and `pixi.lock`. Mojo packages are
 compiler-version-sensitive, so compiler updates require a deliberate full gate.
 
 ### 11.1 Bootstrap and oracle lock
@@ -614,6 +666,11 @@ pixi run test-eeg-trainable
 
 ```bash
 pixi run experiment-smoke
+pixi run appendix-f5-smoke
+pixi run appendix-f5
+pixi run appendix-f5-adaptive
+pixi run paper-experiments-smoke
+pixi run paper-experiments
 pixi run benchmark
 pixi run benchmark-publication
 pixi run benchmark-process
@@ -642,6 +699,8 @@ The standard generated outputs are:
 
 - `aif_mojo.mojoc` from packaging;
 - `data/smoke_matrix/` from the policy matrix;
+- `data/appendix_f5/` from fixed/adaptive residual sweeps;
+- `data/paper_experiments/` from the native episode matrix;
 - `benchmarks/results/fair_latest.json` from the fair comparison;
 - `docs/benchmarks/YYYY-MM-DD.json` plus the generated README table and SVG from
   the publication benchmark;
@@ -680,13 +739,14 @@ The following are intentional system boundaries:
 
 - Python/JAX oracle and pytest orchestration;
 - Python DVC/YAML, plots, Gymnasium/MiniGrid hosting, rendering, and video;
-- reference-compatible full episode drivers and seeded random environment
-  selection in Python;
+- deterministic environment-configuration generation and artifact orchestration
+  in Python; native episode dynamics and inference stay in Mojo;
 - flat row-major Lists instead of a general NDArray;
-- no GPU backend and no NumPy/Mojo RNG-stream parity;
+- no standalone GPU backend and no NumPy/Mojo RNG-stream parity;
 - no episode-quality claim from `experiment-smoke`;
 - machine-specific benchmark results rather than universal backend claims.
 
-Future work may replace an adapter, add native episode loops, introduce a narrow
-layout optimization, or propose the RockSample Loopy BP fix upstream. Those are
-extensions rather than missing native-core functionality.
+Future work may replace an adapter, add independently useful batch workspace
+lanes, introduce an optional MAX layout/GPU backend, or resolve the paper/public
+RockSample discrepancy upstream. Those are extensions rather than missing
+native-core functionality.

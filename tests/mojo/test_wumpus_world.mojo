@@ -16,6 +16,7 @@ from aif_mojo.wumpus_world import (
     wumpus_state_index,
     wumpus_state_position,
     wumpus_state_sensed,
+    wumpus_step,
 )
 
 
@@ -138,6 +139,47 @@ def test_slip_spreads_movement_but_not_sense() raises:
     assert_close(transition[transition_offset(2, 0, 0, 2)], 0.1)
     assert_close(transition[transition_offset(0, 0, 0, 2)], 0.2)
     assert_close(transition[transition_offset(4, 0, 0, 4)], 1.0)
+
+
+def test_pure_step_covers_goal_and_truncation() raises:
+    var observation = generate_wumpus_observation(
+        2, pits(), wumpus(), gold(), 2, 0.1, 0.1
+    )
+    var draws = List[Float32](length=7, fill=0.5)
+    var reached = wumpus_step(
+        0,
+        WUMPUS_RIGHT,
+        WUMPUS_RIGHT,
+        1,
+        0,
+        5,
+        2,
+        pits(),
+        wumpus(),
+        gold(),
+        observation,
+        draws,
+    )
+    assert_equal(Int(reached[0]), 1)
+    assert_close(reached[2], 1.0)
+    assert_close(reached[3], 1.0)
+    assert_close(reached[4], 0.0)
+    var truncated = wumpus_step(
+        0,
+        WUMPUS_SENSE,
+        -1,
+        0,
+        0,
+        1,
+        2,
+        pits(),
+        wumpus(),
+        gold(),
+        observation,
+        draws,
+    )
+    assert_close(truncated[3], 0.0)
+    assert_close(truncated[4], 1.0)
 
 
 def test_observation_tensor_and_explicit_draws_match_jax() raises:

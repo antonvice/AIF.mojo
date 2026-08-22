@@ -34,3 +34,4 @@ jobs:
       - run: pixi run test-schema
       - run: pixi run test-eeg
       - run: pixi run test-eeg-trainable
+      - run: pixi run paper-smoke

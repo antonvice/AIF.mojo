@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/antonvice/AIF.mojo/actions/workflows/ci.yml/badge.svg)](https://github.com/antonvice/AIF.mojo/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![Mojo](https://img.shields.io/badge/Mojo-1.0.0b2-orange.svg)](https://mojolang.org/)
+[![Mojo](https://img.shields.io/badge/Mojo-1.0.0-orange.svg)](https://mojolang.org/)
 
 A standalone, CPU-first toolkit for **active inference and message-passing
 planning, written in Mojo**. It provides native belief updates, finite-horizon
@@ -19,11 +19,13 @@ correctness, deterministic behavior, and low-memory CPU execution.
   Seeking, and Active Inference.
 - Dense execution for all eight, plus deterministic sparse/precomputed paths
   where the model permits them.
-- Terminal-state goals and theta-dependent preferences.
+- Terminal-state, theta-dependent, observation-space, and time-indexed state
+  preference APIs.
 - Native models for Frozen Lake, Wumpus World, RockSample, and MiniGrid
   DoorKey.
-- Belief updates, planner dispatch, convergence/VFE traces, pure simulator
-  steps, runnable examples, and a precompiled `.mojoc` package.
+- Belief updates, planner dispatch, convergence/VFE traces, pure Frozen Lake,
+  Wumpus, and RockSample simulator steps, runnable examples, and a precompiled
+  `.mojoc` package.
 - Flat, row-major `List[Float32]` and `List[Int]` tensors with documented axes.
   There is no hidden NumPy dependency or general tensor framework.
 
@@ -98,8 +100,10 @@ This is a fair CPU comparison of the **same** dense Float32 Loopy-BP fixture.
 AOT/JIT compilation and three warm-up calls are separated from repeated
 in-process calls. Five independent processes are measured for every backend at
 four state-space sizes, and every process must return the same normalized policy
-within `1e-5`. Both backends use their default CPU worker pools; the native
-kernel parallelizes independent dense reductions from 32 states upward.
+within `1e-5`. Both backends use their default CPU worker pools. The historical
+beta build used parallel dense reductions; the current standalone Mojo 1.0.0
+build uses the deterministic serial fallback because the parallel runtime moved
+behind MAX.
 
 <!-- BENCHMARK_RESULTS_START -->
 Median and bootstrap 95% CI across five independent processes. Lower latency and memory are better.
@@ -119,7 +123,7 @@ Median and bootstrap 95% CI across five independent processes. Lower latency and
 | 128 | JAX eager | 0.000 | 103.585 [68.354, 113.865] | 9.654 [8.782, 14.630] | 360.4 MiB | 249.5 MiB |
 | 128 | JAX warm-JIT | 0.521 | 8.540 [7.693, 9.768] | 117.100 [102.377, 129.990] | 231.1 MiB | 120.2 MiB |
 
-Snapshot: Apple M4 (arm64), Mojo 1.0.0b2 (2cf4d08a), 2026-08-19. [Full process-level JSON](docs/benchmarks/2026-08-19.json).
+Historical snapshot: Apple M4 (arm64), Mojo 1.0.0b2 (2cf4d08a), 2026-08-19. [Full process-level JSON](docs/benchmarks/2026-08-19.json).
 These are machine-specific measurements, not universal language claims.
 <!-- BENCHMARK_RESULTS_END -->
 
@@ -149,8 +153,47 @@ var planner = PreparedDenseLoopyBP(
 var policy = planner.plan(q_state, q_theta)
 ```
 
-The prepared planner owns mutable scratch storage; use one instance per
-concurrently executing agent.
+Loopy BP's prepared planner owns mutable scratch storage; use one instance per
+concurrently executing agent. `PreparedDenseVBP[H, I]`,
+`PreparedDenseRMMP[H, I]`, and `PreparedDenseAIFMP[H, I]` cache their static
+log-domain inputs and specialize the horizon and iteration budget at compile
+time.
+
+### Convergence research controls
+
+BP, VBP, RM-MP, and AIF-MP expose residual-aware planning entry points. The
+channel methods can stop when the maximum absolute channel update is below a
+tolerance and can optionally adapt damping when residuals worsen or improve.
+The Appendix F.5 runner freezes the paper configurations, uses the documented
+`1e-4` criterion, six damping values, five seeds, and 1,000-iteration budget:
+
+```bash
+pixi run appendix-f5-smoke     # exact Frozen config, two-iteration plumbing gate
+pixi run appendix-f5           # full fixed-damping paper-scale sweep
+pixi run appendix-f5-adaptive  # research extension; not a paper baseline
+```
+
+The full sweeps are intentionally not CI gates. They write JSON and CSV under
+`data/appendix_f5/` and can take substantial CPU time and memory. The paper-v4
+RockSample prose and the authors' current public executable disagree on the
+state/action model (16/9 in the paper versus 640/8 in code), so full episode
+reproduction is not labeled exact until that upstream ambiguity is resolved.
+
+The native episode runner crosses the paper's five reported methods with its
+three environments and uses the paper horizons, iteration budgets, and selected
+damping values:
+
+```bash
+pixi run paper-experiments-smoke  # all five methods plus all three environments
+pixi run paper-experiments        # 5 methods x 3 environments x 1,000 episodes
+```
+
+The full result labels itself `authors-public-code-at-30ee6f0`: Frozen Lake and
+Wumpus follow the public experiment configuration, while RockSample retains the
+authors' executable 640-state/8-action model rather than pretending it is the
+paper prose's 16-state/9-action model. Episode seeds are deterministic in Mojo,
+but are not NumPy bitstream-identical. JSON and CSV are written under
+`data/paper_experiments/`; the full run is intentionally not a CI gate.
 
 Reproduce the comparison on your machine:
 
@@ -211,8 +254,10 @@ experiment; the planners and environment models remain native Mojo.
 
 The numerical core is native Mojo and CPU-first. General NDArray semantics,
 autodiff, GPU kernels, native plotting/video, and cross-runtime random-stream
-identity are intentionally out of scope until a measured use case justifies
-them. See the [technical design](TECHNICAL_DESIGN.md) for details.
+identity remain out of scope. Mojo 1.0.0 moved `LayoutTensor`, accelerator host
+APIs, and the parallel runtime behind MAX; the measured adoption criteria are
+recorded in the [layout/batch/GPU evaluation](docs/ACCELERATOR_EVALUATION.md).
+See the [technical design](TECHNICAL_DESIGN.md) for details.
 
 ## Acknowledgements
 

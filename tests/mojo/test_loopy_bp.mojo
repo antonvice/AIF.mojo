@@ -12,8 +12,10 @@ from aif_mojo.loopy_bp import (
     loopy_bp_planning_sparse,
     loopy_bp_planning_sparse_theta_goal,
     loopy_bp_planning_dense,
+    loopy_bp_planning_dense_until_converged,
     loopy_bp_planning_dense_prelogged_with_workspace,
     loopy_bp_planning_dense_theta_goal,
+    loopy_bp_planning_dense_theta_goal_until_converged,
 )
 from aif_mojo.numerics import LOG_ZERO, safe_log
 
@@ -345,6 +347,80 @@ def test_sparse_planner_preserves_action_mask() raises:
     )
     assert_close(result[0], 1.0)
     assert_true(result[1] < 1.0e-6)
+
+
+def test_dense_residual_stop_matches_fixed_iterations() raises:
+    var fixed = loopy_bp_planning_dense(
+        probability_pair(1.0, 0.0),
+        probability_pair(0.9, 0.1),
+        dense_uncertain_transition(),
+        probability_pair(0.01, 0.99),
+        probability_pair(0.5, 0.5),
+        1,
+        2,
+        2,
+        2,
+        2,
+    )
+    var stopped = loopy_bp_planning_dense_until_converged(
+        probability_pair(1.0, 0.0),
+        probability_pair(0.9, 0.1),
+        dense_uncertain_transition(),
+        probability_pair(0.01, 0.99),
+        probability_pair(0.5, 0.5),
+        1,
+        20,
+        1000.0,
+        2,
+        2,
+        2,
+        2,
+    )
+    assert_true(len(stopped) == 8)
+    assert_close(stopped[0], fixed[0])
+    assert_close(stopped[1], fixed[1])
+    assert_close(stopped[2], 1.0)
+    assert_close(stopped[3], 2.0)
+    assert_true(stopped[4] >= 0.0)
+    assert_close(stopped[5], 1.0)
+
+
+def test_theta_goal_residual_stop_matches_fixed_iterations() raises:
+    var goal = List[Float32]()
+    goal.append(0.01)
+    goal.append(0.9)
+    goal.append(0.99)
+    goal.append(0.1)
+    var fixed = loopy_bp_planning_dense_theta_goal(
+        probability_pair(1.0, 0.0),
+        probability_pair(0.9, 0.1),
+        dense_uncertain_transition(),
+        goal,
+        probability_pair(0.5, 0.5),
+        1,
+        2,
+        2,
+        2,
+        2,
+    )
+    var stopped = loopy_bp_planning_dense_theta_goal_until_converged(
+        probability_pair(1.0, 0.0),
+        probability_pair(0.9, 0.1),
+        dense_uncertain_transition(),
+        goal,
+        probability_pair(0.5, 0.5),
+        1,
+        20,
+        1000.0,
+        2,
+        2,
+        2,
+        2,
+    )
+    assert_close(stopped[0], fixed[0])
+    assert_close(stopped[1], fixed[1])
+    assert_close(stopped[2], 1.0)
+    assert_close(stopped[3], 2.0)
 
 
 def main() raises:

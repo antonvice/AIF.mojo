@@ -12,6 +12,11 @@ from aif_mojo.dyn_channel_loopy_bp import (
     _zeros,
 )
 from aif_mojo.numerics import LOG_ZERO, logsumexp, safe_log, safe_log_div
+from aif_mojo.convergence_control import (
+    append_convergence_metadata,
+    max_channel_residual,
+    next_adaptive_damping,
+)
 from aif_mojo.precise_info_seeking import (
     _backward_pass_precise,
     _compute_precise_obs_regions,
@@ -21,6 +26,14 @@ from aif_mojo.precise_info_seeking import (
     _initial_precise_obs_channels,
     compute_precise_obs_kernels,
 )
+
+
+def _log_static_input(
+    values: List[Float32], already_log: Bool
+) -> List[Float32]:
+    if already_log:
+        return values.copy()
+    return _safe_log_values(values)
 
 
 def compute_dyn_kernels_aif(
@@ -420,6 +433,13 @@ def _active_inference_planning(
     theta_goal: Bool,
     record_history: Bool = False,
     convergence_mode: Bool = False,
+    convergence_tolerance: Float32 = -1.0,
+    minimum_iterations: Int = 1,
+    record_residuals: Bool = False,
+    adaptive_damping: Bool = False,
+    minimum_damping: Float32 = 0.05,
+    maximum_damping: Float32 = 1.0,
+    static_inputs_are_log: Bool = False,
 ) -> List[Float32]:
     """Shared dense and precomputed planner.
 
@@ -451,16 +471,20 @@ def _active_inference_planning(
 
     var log_q0 = _safe_log_values(q_current_state)
     var log_prior_theta = _safe_log_values(q_static_state)
-    var log_action_prior = _safe_log_values(action_prior)
+    var log_action_prior = _log_static_input(
+        action_prior, static_inputs_are_log
+    )
     var log_goal = _zeros(n_states)
     if not theta_goal:
-        log_goal = _safe_log_values(goal)
+        log_goal = _log_static_input(goal, static_inputs_are_log)
     var log_preference = List[Float32]()
     if theta_goal:
-        log_preference = _safe_log_values(goal)
+        log_preference = _log_static_input(goal, static_inputs_are_log)
     var log_observation = List[Float32]()
     if dense_observations:
-        log_observation = _safe_log_values(observation_tensor)
+        log_observation = _log_static_input(
+            observation_tensor, static_inputs_are_log
+        )
 
     var fixed_local = List[Float32]()
     if not dense_observations:
@@ -528,8 +552,15 @@ def _active_inference_planning(
                 initial_obs[conditional_size + index]
             )
     var diagnostic_history = List[Float32]()
+    var residual_history = List[Float32]()
+    var effective_damping = damping
+    var last_damping = damping
+    var previous_residual = Float32(-1.0)
+    var final_residual = Float32(-1.0)
+    var iterations_used = 0
+    var converged = False
 
-    for _ in range(n_iterations):
+    for iteration_idx in range(n_iterations):
         var log_local_to_x: List[Float32]
         var log_obs_kernels = List[Float32]()
         if dense_observations:
@@ -580,7 +611,7 @@ def _active_inference_planning(
             log_action_prior,
             log_local_to_x,
             log_fwd_previous,
-            damping,
+            effective_damping,
             horizon,
             n_states,
             n_actions,
@@ -592,7 +623,7 @@ def _active_inference_planning(
             log_action_prior,
             log_local_to_x,
             log_bwd_previous,
-            damping,
+            effective_damping,
             horizon,
             n_states,
             n_actions,
@@ -670,21 +701,25 @@ def _active_inference_planning(
         var raw_action = _normalize_action_channels(
             pair, horizon, n_states, n_actions
         )
-        log_action_channels = _damp_action_channels(
+        var damped_action_channels = _damp_action_channels(
             log_action_channels,
             raw_action,
-            damping,
+            effective_damping,
             horizon,
             n_states,
             n_actions,
         )
-        log_dyn_channels = _damp_dyn_channels(
+        var damped_dyn_channels = _damp_dyn_channels(
             log_dyn_channels,
             raw_dyn,
-            damping,
+            effective_damping,
             horizon,
             n_states,
             n_actions,
+        )
+        final_residual = max(
+            max_channel_residual(log_action_channels, damped_action_channels),
+            max_channel_residual(log_dyn_channels, damped_dyn_channels),
         )
 
         if dense_observations:
@@ -706,28 +741,63 @@ def _active_inference_planning(
             var raw_marginal = List[Float32]()
             for index in range((horizon + 1) * n_fov * n_obs_types * n_states):
                 raw_marginal.append(raw_obs[obs_size + index])
-            log_obs_channels = _damp_obs_channels(
+            var damped_obs_channels = _damp_obs_channels(
                 log_obs_channels,
                 raw_obs_channels,
-                damping,
+                effective_damping,
                 horizon,
                 n_states,
                 n_static,
                 n_fov,
                 n_obs_types,
             )
-            log_marginal_obs_channels = _damp_obs_channels(
+            var damped_marginal_obs_channels = _damp_obs_channels(
                 log_marginal_obs_channels,
                 raw_marginal,
-                damping,
+                effective_damping,
                 horizon,
                 n_states,
                 1,
                 n_fov,
                 n_obs_types,
             )
+            final_residual = max(
+                final_residual,
+                max(
+                    max_channel_residual(log_obs_channels, damped_obs_channels),
+                    max_channel_residual(
+                        log_marginal_obs_channels,
+                        damped_marginal_obs_channels,
+                    ),
+                ),
+            )
+            log_obs_channels = damped_obs_channels^
+            log_marginal_obs_channels = damped_marginal_obs_channels^
+        log_action_channels = damped_action_channels^
+        log_dyn_channels = damped_dyn_channels^
         log_fwd_previous = log_fwd^
         log_bwd_previous = log_bwd^
+        iterations_used = iteration_idx + 1
+        last_damping = effective_damping
+        if record_residuals:
+            residual_history.append(final_residual)
+        var should_stop = (
+            convergence_tolerance >= 0.0
+            and iterations_used >= minimum_iterations
+            and final_residual < convergence_tolerance
+        )
+        if adaptive_damping:
+            effective_damping = next_adaptive_damping(
+                effective_damping,
+                previous_residual,
+                final_residual,
+                minimum_damping,
+                maximum_damping,
+            )
+        previous_residual = final_residual
+        if should_stop:
+            converged = True
+            break
 
     var result = List[Float32]()
     var total = Float32(0.0)
@@ -743,6 +813,15 @@ def _active_inference_planning(
     if record_history:
         for value in diagnostic_history:
             result.append(value)
+    if record_residuals:
+        append_convergence_metadata(
+            result,
+            converged,
+            iterations_used,
+            final_residual,
+            last_damping,
+            residual_history,
+        )
     return result^
 
 
@@ -815,6 +894,111 @@ def active_inference_planning_precomputed_theta_goal(
         List[Float32](),
         False,
         True,
+    )
+
+
+def active_inference_planning_precomputed_until_converged(
+    q_current_state: List[Float32],
+    q_static_state: List[Float32],
+    log_base: List[Float32],
+    log_local_to_x: List[Float32],
+    goal: List[Float32],
+    action_prior: List[Float32],
+    horizon: Int,
+    maximum_iterations: Int,
+    damping: Float32,
+    tolerance: Float32,
+    minimum_iterations: Int,
+    n_states: Int,
+    n_actions: Int,
+    n_static: Int,
+    theta_goal: Bool,
+    adaptive_damping: Bool = False,
+    minimum_damping: Float32 = 0.05,
+    maximum_damping: Float32 = 1.0,
+) -> List[Float32]:
+    """Precomputed AIF-MP with residual early stopping."""
+    return _active_inference_planning(
+        q_current_state,
+        q_static_state,
+        log_base,
+        log_local_to_x,
+        List[Float32](),
+        goal,
+        action_prior,
+        horizon,
+        maximum_iterations,
+        damping,
+        n_states,
+        n_actions,
+        n_static,
+        0,
+        0,
+        List[Float32](),
+        False,
+        theta_goal,
+        False,
+        False,
+        tolerance,
+        minimum_iterations,
+        True,
+        adaptive_damping,
+        minimum_damping,
+        maximum_damping,
+    )
+
+
+def active_inference_planning_precomputed_with_preferences(
+    q_current_state: List[Float32],
+    q_static_state: List[Float32],
+    log_base: List[Float32],
+    log_observation_local: List[Float32],
+    log_preference_local: List[Float32],
+    action_prior: List[Float32],
+    horizon: Int,
+    n_iterations: Int,
+    damping: Float32,
+    n_states: Int,
+    n_actions: Int,
+    n_static: Int,
+) -> List[Float32]:
+    """Precomputed AIF-MP with explicit time-indexed log preferences.
+
+    Both local inputs may be `(state)` or `(horizon + 1, state)`. The state
+    and/or observation preference APIs in `aif_mojo.preferences` produce the
+    second input. A neutral terminal goal avoids applying preferences twice.
+    """
+    var observation_local = _broadcast_local_message(
+        log_observation_local, horizon, n_states
+    )
+    var preference_local = _broadcast_local_message(
+        log_preference_local, horizon, n_states
+    )
+    var combined = List[Float32](capacity=(horizon + 1) * n_states)
+    for index in range((horizon + 1) * n_states):
+        combined.append(observation_local[index] + preference_local[index])
+    var neutral_goal = List[Float32](capacity=n_states)
+    for _ in range(n_states):
+        neutral_goal.append(1.0 / Float32(n_states))
+    return _active_inference_planning(
+        q_current_state,
+        q_static_state,
+        log_base,
+        combined,
+        List[Float32](),
+        neutral_goal,
+        action_prior,
+        horizon,
+        n_iterations,
+        damping,
+        n_states,
+        n_actions,
+        n_static,
+        0,
+        0,
+        List[Float32](),
+        False,
+        False,
     )
 
 
@@ -917,4 +1101,204 @@ def active_inference_planning_dense_theta_goal(
         log_transition,
         True,
         True,
+    )
+
+
+def active_inference_planning_dense_until_converged(
+    q_current_state: List[Float32],
+    q_static_state: List[Float32],
+    transition_tensor: List[Float32],
+    observation_tensor: List[Float32],
+    goal: List[Float32],
+    action_prior: List[Float32],
+    horizon: Int,
+    maximum_iterations: Int,
+    damping: Float32,
+    tolerance: Float32,
+    minimum_iterations: Int,
+    n_states: Int,
+    n_actions: Int,
+    n_static: Int,
+    n_fov: Int,
+    n_obs_types: Int,
+    theta_goal: Bool,
+    adaptive_damping: Bool = False,
+    minimum_damping: Float32 = 0.05,
+    maximum_damping: Float32 = 1.0,
+) -> List[Float32]:
+    """Dense AIF-MP with residual early stopping and optional adaptation.
+
+    Returns the normal action/dynamics/observation-channel payload followed by
+    `[converged, iterations, final_residual, final_damping, residuals...]`.
+    """
+    debug_assert(
+        len(transition_tensor) == n_states * n_states * n_static * n_actions,
+        "transition shape mismatch",
+    )
+    var log_prior = _safe_log_values(q_static_state)
+    var log_transition = _safe_log_values(transition_tensor)
+    var log_base = _compute_dense_log_base(
+        log_transition,
+        log_prior,
+        n_states,
+        n_actions,
+        n_static,
+    )
+    return _active_inference_planning(
+        q_current_state,
+        q_static_state,
+        log_base,
+        List[Float32](),
+        observation_tensor,
+        goal,
+        action_prior,
+        horizon,
+        maximum_iterations,
+        damping,
+        n_states,
+        n_actions,
+        n_static,
+        n_fov,
+        n_obs_types,
+        log_transition,
+        True,
+        theta_goal,
+        False,
+        False,
+        tolerance,
+        minimum_iterations,
+        True,
+        adaptive_damping,
+        minimum_damping,
+        maximum_damping,
+    )
+
+
+struct PreparedDenseAIFMP[horizon: Int, iterations: Int]:
+    """Compile-time-specialized dense AIF-MP with static logs cached."""
+
+    var log_transition: List[Float32]
+    var log_observation: List[Float32]
+    var log_goal: List[Float32]
+    var log_action_prior: List[Float32]
+    var damping: Float32
+    var n_states: Int
+    var n_actions: Int
+    var n_static: Int
+    var n_fov: Int
+    var n_obs_types: Int
+    var theta_goal: Bool
+
+    def __init__(
+        out self,
+        transition_tensor: List[Float32],
+        observation_tensor: List[Float32],
+        goal: List[Float32],
+        action_prior: List[Float32],
+        damping: Float32,
+        n_states: Int,
+        n_actions: Int,
+        n_static: Int,
+        n_fov: Int,
+        n_obs_types: Int,
+        theta_goal: Bool = False,
+    ):
+        self.log_transition = _safe_log_values(transition_tensor)
+        self.log_observation = _safe_log_values(observation_tensor)
+        self.log_goal = _safe_log_values(goal)
+        self.log_action_prior = _safe_log_values(action_prior)
+        self.damping = damping
+        self.n_states = n_states
+        self.n_actions = n_actions
+        self.n_static = n_static
+        self.n_fov = n_fov
+        self.n_obs_types = n_obs_types
+        self.theta_goal = theta_goal
+
+    def plan(
+        self,
+        q_current_state: List[Float32],
+        q_static_state: List[Float32],
+    ) -> List[Float32]:
+        var log_prior = _safe_log_values(q_static_state)
+        var log_base = _compute_dense_log_base(
+            self.log_transition,
+            log_prior,
+            self.n_states,
+            self.n_actions,
+            self.n_static,
+        )
+        return _active_inference_planning(
+            q_current_state,
+            q_static_state,
+            log_base,
+            List[Float32](),
+            self.log_observation,
+            self.log_goal,
+            self.log_action_prior,
+            Self.horizon,
+            Self.iterations,
+            self.damping,
+            self.n_states,
+            self.n_actions,
+            self.n_static,
+            self.n_fov,
+            self.n_obs_types,
+            self.log_transition,
+            True,
+            self.theta_goal,
+            False,
+            False,
+            -1.0,
+            1,
+            False,
+            False,
+            0.05,
+            1.0,
+            True,
+        )
+
+
+def active_inference_planning_dense_specialized[
+    horizon: Int, iterations: Int
+](
+    q_current_state: List[Float32],
+    q_static_state: List[Float32],
+    transition_tensor: List[Float32],
+    observation_tensor: List[Float32],
+    goal: List[Float32],
+    action_prior: List[Float32],
+    damping: Float32,
+    n_states: Int,
+    n_actions: Int,
+    n_static: Int,
+    n_fov: Int,
+    n_obs_types: Int,
+    theta_goal: Bool = False,
+) -> List[Float32]:
+    """Specialize dense AIF-MP on horizon and iteration parameters."""
+    var log_prior = _safe_log_values(q_static_state)
+    var log_transition = _safe_log_values(transition_tensor)
+    var log_base = _compute_dense_log_base(
+        log_transition, log_prior, n_states, n_actions, n_static
+    )
+    return _active_inference_planning(
+        q_current_state,
+        q_static_state,
+        log_base,
+        List[Float32](),
+        observation_tensor,
+        goal,
+        action_prior,
+        horizon,
+        iterations,
+        damping,
+        n_states,
+        n_actions,
+        n_static,
+        n_fov,
+        n_obs_types,
+        log_transition,
+        True,
+        theta_goal,
     )
