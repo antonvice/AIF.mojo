@@ -169,7 +169,7 @@ display(metrics_table('fixed_config_expansion').style.format('{:.4f}', na_rep='n
     cell(
         "code",
         """for cohort in ('primary_fresh_evaluation', 'fixed_config_expansion'):
-    print('\n' + cohort)
+    print('\\n' + cohort)
     rows = []
     for name, value in result[cohort]['paired_comparisons'].items():
         rows.append({
