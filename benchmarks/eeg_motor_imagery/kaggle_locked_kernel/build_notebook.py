@@ -94,7 +94,9 @@ EEGBCI runs 4, 8, and 12 provide left/right fist motor imagery. Each subject con
     cell(
         "code",
         """data_path = WORK / 'eegbci_left_right_109.npz'
-os.environ['MNE_DATASETS_EEGBCI_PATH'] = str(WORK / 'mne_data')
+mne_path = WORK / 'mne_data'
+mne_path.mkdir(parents=True, exist_ok=True)
+os.environ['MNE_DATASETS_EEGBCI_PATH'] = str(mne_path)
 subprocess.run([
     sys.executable, 'benchmarks/eeg_motor_imagery/prepare_eegbci.py',
     '--subject-range', '1-109', '--jobs', '4', '--output', str(data_path)
@@ -227,4 +229,3 @@ ROOT.mkdir(parents=True, exist_ok=True)
 (ROOT / "locked-snn-eeg-109-subject-benchmark.ipynb").write_text(
     json.dumps(notebook, indent=1) + "\n"
 )
-
