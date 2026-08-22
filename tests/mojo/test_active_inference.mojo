@@ -3,10 +3,14 @@ from std.math import exp
 from std.testing import TestSuite, assert_true
 
 from aif_mojo.active_inference import (
+    PreparedDenseAIFMP,
     active_inference_planning_dense,
     active_inference_planning_dense_theta_goal,
+    active_inference_planning_dense_until_converged,
+    active_inference_planning_dense_specialized,
     active_inference_planning_precomputed,
     active_inference_planning_precomputed_theta_goal,
+    active_inference_planning_precomputed_with_preferences,
     compute_dyn_kernels_aif,
     precompute_obs_channels,
     precompute_pref_to_x,
@@ -335,6 +339,114 @@ def test_sparse_precomputed_base_and_action_mask() raises:
     )
     assert_close(masked[0], 1.0)
     assert_true(masked[1] < 1.0e-6)
+
+
+def test_dense_early_stop_matches_fixed_iteration_result() raises:
+    var fixed = active_inference_planning_dense(
+        pair(0.65, 0.35),
+        pair(0.55, 0.45),
+        transition(),
+        observation(),
+        pair(0.15, 0.85),
+        pair(0.6, 0.4),
+        2,
+        2,
+        0.5,
+        2,
+        2,
+        2,
+        1,
+        2,
+    )
+    var stopped = active_inference_planning_dense_until_converged(
+        pair(0.65, 0.35),
+        pair(0.55, 0.45),
+        transition(),
+        observation(),
+        pair(0.15, 0.85),
+        pair(0.6, 0.4),
+        2,
+        20,
+        0.5,
+        1000.0,
+        2,
+        2,
+        2,
+        2,
+        1,
+        2,
+        False,
+    )
+    assert_true(len(fixed) == 42)
+    assert_true(len(stopped) == 48)
+    for index in range(42):
+        assert_close(stopped[index], fixed[index])
+    assert_close(stopped[42], 1.0)
+    assert_close(stopped[43], 2.0)
+    assert_true(stopped[44] >= 0.0)
+    assert_close(stopped[45], 0.5)
+    assert_true(stopped[46] >= 0.0)
+    assert_true(stopped[47] >= 0.0)
+
+
+def test_prepared_and_compile_time_specialized_aif_match_public_api() raises:
+    var expected = dense_terminal(pair(0.6, 0.4))
+    var prepared = PreparedDenseAIFMP[2, 2](
+        transition(),
+        observation(),
+        pair(0.15, 0.85),
+        pair(0.6, 0.4),
+        0.5,
+        2,
+        2,
+        2,
+        1,
+        2,
+    )
+    var prepared_result = prepared.plan(pair(0.65, 0.35), pair(0.55, 0.45))
+    var specialized = active_inference_planning_dense_specialized[2, 2](
+        pair(0.65, 0.35),
+        pair(0.55, 0.45),
+        transition(),
+        observation(),
+        pair(0.15, 0.85),
+        pair(0.6, 0.4),
+        0.5,
+        2,
+        2,
+        2,
+        1,
+        2,
+    )
+    assert_true(len(prepared_result) == len(expected))
+    assert_true(len(specialized) == len(expected))
+    for index in range(len(expected)):
+        assert_close(prepared_result[index], expected[index])
+        assert_close(specialized[index], expected[index])
+
+
+def test_precomputed_aif_accepts_time_indexed_preference_messages() raises:
+    var preference = List[Float32]()
+    preference.extend(pair(0.0, 0.0))
+    preference.extend(pair(0.0, 0.0))
+    preference.extend(log_values(pair(0.1, 0.9)))
+    var result = active_inference_planning_precomputed_with_preferences(
+        pair(0.65, 0.35),
+        pair(0.55, 0.45),
+        dense_log_base(),
+        precomputed_local(False),
+        preference,
+        pair(0.6, 0.4),
+        2,
+        2,
+        0.5,
+        2,
+        2,
+        2,
+    )
+    assert_true(len(result) == 18)
+    assert_close(result[0] + result[1], 1.0)
+    assert_true(result[0] != result[1])
 
 
 def main() raises:

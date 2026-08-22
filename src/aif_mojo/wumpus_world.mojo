@@ -359,3 +359,66 @@ def wumpus_reward(
     ):
         return -1.0
     return 0.0
+
+
+def wumpus_step(
+    state: Int,
+    action: Int,
+    realized_movement_action: Int,
+    theta: Int,
+    step_count: Int,
+    max_steps: Int,
+    grid_size: Int,
+    pits: List[Float32],
+    wumpus: List[Float32],
+    gold: List[Float32],
+    observation_tensor: List[Float32],
+    uniform_draws: List[Float32],
+) -> List[Float32]:
+    """Pure Wumpus simulator step with caller-owned randomness.
+
+    Returns `[next_state, next_step_count, reward, terminated01,
+    truncated01, obs...]`, matching the Frozen and RockSample adapters.
+    """
+    var n_pos = grid_size * grid_size
+    var n_states = 2 * n_pos
+    debug_assert(len(pits) % n_pos == 0, "pit shape mismatch")
+    var n_static = len(pits) // n_pos
+    debug_assert(
+        action >= 0 and action < WUMPUS_N_ACTIONS, "action out of range"
+    )
+    debug_assert(step_count >= 0 and max_steps > 0, "invalid step budget")
+    var realized_action = WUMPUS_SENSE
+    if action != WUMPUS_SENSE:
+        debug_assert(
+            realized_movement_action >= 0 and realized_movement_action < 4,
+            "realized movement out of range",
+        )
+        realized_action = realized_movement_action
+    var next_state = wumpus_next_state(
+        state, realized_action, grid_size, pits, wumpus, theta
+    )
+    var next_step_count = step_count + 1
+    var terminated = wumpus_is_terminal(
+        next_state, grid_size, pits, wumpus, gold, theta
+    )
+    var truncated = next_step_count >= max_steps and not terminated
+    var observation = sample_wumpus_observation(
+        observation_tensor,
+        uniform_draws,
+        next_state,
+        theta,
+        len(uniform_draws),
+        n_states,
+        n_static,
+    )
+    var result = List[Float32]()
+    result.append(Float32(next_state))
+    result.append(Float32(next_step_count))
+    result.append(
+        wumpus_reward(next_state, grid_size, pits, wumpus, gold, theta)
+    )
+    result.append(Float32(1.0) if terminated else Float32(0.0))
+    result.append(Float32(1.0) if truncated else Float32(0.0))
+    result.extend(observation^)
+    return result^

@@ -1,10 +1,14 @@
 .pixi/
+.pixi-cache/
+.generated/
 *.mojopkg
 *.mojoc
 __pycache__/
 *.pyc
 UAI-MP-AIF-JAX/
 data/smoke_matrix/
+data/appendix_f5/
+data/paper_experiments/
 data/eegbci_left_right.npz
 data/eegbci_left_right_20.npz
 data/eegbci_left_right_30.npz

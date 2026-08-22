@@ -1,8 +1,11 @@
 from std.collections import List
-from std.algorithm import parallelize
 from std.math import exp, log
 
 from aif_mojo.numerics import logsumexp, safe_log, softmax
+from aif_mojo.convergence_control import (
+    append_convergence_metadata,
+    max_channel_residual,
+)
 from aif_mojo.sparse_messages import sparse_dyn_to_theta, sparse_reduced
 
 
@@ -470,16 +473,21 @@ def loopy_bp_planning_dense_prelogged_with_workspace(
                         (new_idx * n_states + old_idx) * n_static
                     ) * n_actions + action_idx
                     var maximum = (
-                        transition_ptr[transition_offset]
-                        + workspace_ptr[cavity_start + time_idx * n_static]
+                        transition_ptr[unsafe_offset=transition_offset]
+                        + workspace_ptr[
+                            unsafe_offset=cavity_start + time_idx * n_static
+                        ]
                     )
                     for static_idx in range(1, n_static):
                         var term = (
                             transition_ptr[
-                                transition_offset + static_idx * n_actions
+                                unsafe_offset=transition_offset
+                                + static_idx * n_actions
                             ]
                             + workspace_ptr[
-                                cavity_start + time_idx * n_static + static_idx
+                                unsafe_offset=cavity_start
+                                + time_idx * n_static
+                                + static_idx
                             ]
                         )
                         maximum = max(maximum, term)
@@ -487,10 +495,13 @@ def loopy_bp_planning_dense_prelogged_with_workspace(
                     for static_idx in range(n_static):
                         shifted_sum += exp(
                             transition_ptr[
-                                transition_offset + static_idx * n_actions
+                                unsafe_offset=transition_offset
+                                + static_idx * n_actions
                             ]
                             + workspace_ptr[
-                                cavity_start + time_idx * n_static + static_idx
+                                unsafe_offset=cavity_start
+                                + time_idx * n_static
+                                + static_idx
                             ]
                             - maximum
                         )
@@ -498,14 +509,11 @@ def loopy_bp_planning_dense_prelogged_with_workspace(
                         ((time_idx * n_states + new_idx) * n_states) + old_idx
                     ) * n_actions + action_idx
                     workspace_ptr[
-                        reduced_start + reduced_offset
+                        unsafe_offset=reduced_start + reduced_offset
                     ] = maximum + log(shifted_sum)
 
-        if n_states >= 32:
-            parallelize[fill_reduced_row](horizon * n_states)
-        else:
-            for row_idx in range(horizon * n_states):
-                fill_reduced_row(row_idx)
+        for row_idx in range(horizon * n_states):
+            fill_reduced_row(row_idx)
 
         # Forward messages. Each reduction streams twice over the source
         # slice instead of constructing a temporary terms List.
@@ -518,9 +526,13 @@ def loopy_bp_planning_dense_prelogged_with_workspace(
                     (time_idx * n_states + new_idx) * n_states * n_actions
                 )
                 var maximum = (
-                    workspace_ptr[reduced_start + first_reduced_offset]
-                    + workspace_ptr[fwd_start + time_idx * n_states]
-                    + action_prior_ptr[0]
+                    workspace_ptr[
+                        unsafe_offset=reduced_start + first_reduced_offset
+                    ]
+                    + workspace_ptr[
+                        unsafe_offset=fwd_start + time_idx * n_states
+                    ]
+                    + action_prior_ptr[unsafe_offset=0]
                 )
                 for old_idx in range(n_states):
                     var action_idx = 0
@@ -530,12 +542,14 @@ def loopy_bp_planning_dense_prelogged_with_workspace(
                             + old_idx
                         ) * n_actions + action_idx
                         var terms = (
-                            workspace_ptr.load[width=4](
+                            workspace_ptr.unsafe_load[width=4](
                                 reduced_start + reduced_offset
                             )
-                            + action_prior_ptr.load[width=4](action_idx)
+                            + action_prior_ptr.unsafe_load[width=4](action_idx)
                             + workspace_ptr[
-                                fwd_start + time_idx * n_states + old_idx
+                                unsafe_offset=fwd_start
+                                + time_idx * n_states
+                                + old_idx
                             ]
                         )
                         maximum = max(maximum, terms.reduce_max())
@@ -547,11 +561,15 @@ def loopy_bp_planning_dense_prelogged_with_workspace(
                         ) * n_actions + action_idx
                         maximum = max(
                             maximum,
-                            workspace_ptr[reduced_start + reduced_offset]
-                            + workspace_ptr[
-                                fwd_start + time_idx * n_states + old_idx
+                            workspace_ptr[
+                                unsafe_offset=reduced_start + reduced_offset
                             ]
-                            + action_prior_ptr[action_idx],
+                            + workspace_ptr[
+                                unsafe_offset=fwd_start
+                                + time_idx * n_states
+                                + old_idx
+                            ]
+                            + action_prior_ptr[unsafe_offset=action_idx],
                         )
                         action_idx += 1
                 var shifted_sum = Float32(0.0)
@@ -563,12 +581,14 @@ def loopy_bp_planning_dense_prelogged_with_workspace(
                             + old_idx
                         ) * n_actions + action_idx
                         var terms = (
-                            workspace_ptr.load[width=4](
+                            workspace_ptr.unsafe_load[width=4](
                                 reduced_start + reduced_offset
                             )
-                            + action_prior_ptr.load[width=4](action_idx)
+                            + action_prior_ptr.unsafe_load[width=4](action_idx)
                             + workspace_ptr[
-                                fwd_start + time_idx * n_states + old_idx
+                                unsafe_offset=fwd_start
+                                + time_idx * n_states
+                                + old_idx
                             ]
                             - maximum
                         )
@@ -580,15 +600,21 @@ def loopy_bp_planning_dense_prelogged_with_workspace(
                             + old_idx
                         ) * n_actions + action_idx
                         shifted_sum += exp(
-                            workspace_ptr[reduced_start + reduced_offset]
-                            + workspace_ptr[
-                                fwd_start + time_idx * n_states + old_idx
+                            workspace_ptr[
+                                unsafe_offset=reduced_start + reduced_offset
                             ]
-                            + action_prior_ptr[action_idx]
+                            + workspace_ptr[
+                                unsafe_offset=fwd_start
+                                + time_idx * n_states
+                                + old_idx
+                            ]
+                            + action_prior_ptr[unsafe_offset=action_idx]
                             - maximum
                         )
                         action_idx += 1
-                workspace_ptr[next_start + new_idx] = maximum + log(shifted_sum)
+                workspace_ptr[
+                    unsafe_offset=next_start + new_idx
+                ] = maximum + log(shifted_sum)
             _normalize_log_workspace(workspace, next_start, n_states)
 
         # Backward messages.
@@ -603,9 +629,13 @@ def loopy_bp_planning_dense_prelogged_with_workspace(
                     time_idx * n_states * n_states + old_idx
                 ) * n_actions
                 var maximum = (
-                    workspace_ptr[reduced_start + first_reduced_offset]
-                    + workspace_ptr[bwd_start + (time_idx + 1) * n_states]
-                    + action_prior_ptr[0]
+                    workspace_ptr[
+                        unsafe_offset=reduced_start + first_reduced_offset
+                    ]
+                    + workspace_ptr[
+                        unsafe_offset=bwd_start + (time_idx + 1) * n_states
+                    ]
+                    + action_prior_ptr[unsafe_offset=0]
                 )
                 for new_idx in range(n_states):
                     var action_idx = 0
@@ -615,12 +645,14 @@ def loopy_bp_planning_dense_prelogged_with_workspace(
                             + old_idx
                         ) * n_actions + action_idx
                         var terms = (
-                            workspace_ptr.load[width=4](
+                            workspace_ptr.unsafe_load[width=4](
                                 reduced_start + reduced_offset
                             )
-                            + action_prior_ptr.load[width=4](action_idx)
+                            + action_prior_ptr.unsafe_load[width=4](action_idx)
                             + workspace_ptr[
-                                bwd_start + (time_idx + 1) * n_states + new_idx
+                                unsafe_offset=bwd_start
+                                + (time_idx + 1) * n_states
+                                + new_idx
                             ]
                         )
                         maximum = max(maximum, terms.reduce_max())
@@ -632,11 +664,15 @@ def loopy_bp_planning_dense_prelogged_with_workspace(
                         ) * n_actions + action_idx
                         maximum = max(
                             maximum,
-                            workspace_ptr[reduced_start + reduced_offset]
-                            + workspace_ptr[
-                                bwd_start + (time_idx + 1) * n_states + new_idx
+                            workspace_ptr[
+                                unsafe_offset=reduced_start + reduced_offset
                             ]
-                            + action_prior_ptr[action_idx],
+                            + workspace_ptr[
+                                unsafe_offset=bwd_start
+                                + (time_idx + 1) * n_states
+                                + new_idx
+                            ]
+                            + action_prior_ptr[unsafe_offset=action_idx],
                         )
                         action_idx += 1
                 var shifted_sum = Float32(0.0)
@@ -648,12 +684,14 @@ def loopy_bp_planning_dense_prelogged_with_workspace(
                             + old_idx
                         ) * n_actions + action_idx
                         var terms = (
-                            workspace_ptr.load[width=4](
+                            workspace_ptr.unsafe_load[width=4](
                                 reduced_start + reduced_offset
                             )
-                            + action_prior_ptr.load[width=4](action_idx)
+                            + action_prior_ptr.unsafe_load[width=4](action_idx)
                             + workspace_ptr[
-                                bwd_start + (time_idx + 1) * n_states + new_idx
+                                unsafe_offset=bwd_start
+                                + (time_idx + 1) * n_states
+                                + new_idx
                             ]
                             - maximum
                         )
@@ -665,17 +703,21 @@ def loopy_bp_planning_dense_prelogged_with_workspace(
                             + old_idx
                         ) * n_actions + action_idx
                         shifted_sum += exp(
-                            workspace_ptr[reduced_start + reduced_offset]
-                            + workspace_ptr[
-                                bwd_start + (time_idx + 1) * n_states + new_idx
+                            workspace_ptr[
+                                unsafe_offset=reduced_start + reduced_offset
                             ]
-                            + action_prior_ptr[action_idx]
+                            + workspace_ptr[
+                                unsafe_offset=bwd_start
+                                + (time_idx + 1) * n_states
+                                + new_idx
+                            ]
+                            + action_prior_ptr[unsafe_offset=action_idx]
                             - maximum
                         )
                         action_idx += 1
-                workspace_ptr[message_start + old_idx] = maximum + log(
-                    shifted_sum
-                )
+                workspace_ptr[
+                    unsafe_offset=message_start + old_idx
+                ] = maximum + log(shifted_sum)
             _normalize_log_workspace(workspace, message_start, n_states)
 
         # Action marginals, using the existing action slice for logits and
@@ -687,9 +729,15 @@ def loopy_bp_planning_dense_prelogged_with_workspace(
                     time_idx * n_states * n_states * n_actions + action_idx
                 )
                 var maximum = (
-                    workspace_ptr[reduced_start + first_reduced_offset]
-                    + workspace_ptr[bwd_start + (time_idx + 1) * n_states]
-                    + workspace_ptr[fwd_start + time_idx * n_states]
+                    workspace_ptr[
+                        unsafe_offset=reduced_start + first_reduced_offset
+                    ]
+                    + workspace_ptr[
+                        unsafe_offset=bwd_start + (time_idx + 1) * n_states
+                    ]
+                    + workspace_ptr[
+                        unsafe_offset=fwd_start + time_idx * n_states
+                    ]
                 )
                 for new_idx in range(n_states):
                     for old_idx in range(n_states):
@@ -698,12 +746,18 @@ def loopy_bp_planning_dense_prelogged_with_workspace(
                             + old_idx
                         ) * n_actions + action_idx
                         var term = (
-                            workspace_ptr[reduced_start + reduced_offset]
-                            + workspace_ptr[
-                                bwd_start + (time_idx + 1) * n_states + new_idx
+                            workspace_ptr[
+                                unsafe_offset=reduced_start + reduced_offset
                             ]
                             + workspace_ptr[
-                                fwd_start + time_idx * n_states + old_idx
+                                unsafe_offset=bwd_start
+                                + (time_idx + 1) * n_states
+                                + new_idx
+                            ]
+                            + workspace_ptr[
+                                unsafe_offset=fwd_start
+                                + time_idx * n_states
+                                + old_idx
                             ]
                         )
                         maximum = max(maximum, term)
@@ -715,17 +769,25 @@ def loopy_bp_planning_dense_prelogged_with_workspace(
                             + old_idx
                         ) * n_actions + action_idx
                         shifted_sum += exp(
-                            workspace_ptr[reduced_start + reduced_offset]
-                            + workspace_ptr[
-                                bwd_start + (time_idx + 1) * n_states + new_idx
+                            workspace_ptr[
+                                unsafe_offset=reduced_start + reduced_offset
                             ]
                             + workspace_ptr[
-                                fwd_start + time_idx * n_states + old_idx
+                                unsafe_offset=bwd_start
+                                + (time_idx + 1) * n_states
+                                + new_idx
+                            ]
+                            + workspace_ptr[
+                                unsafe_offset=fwd_start
+                                + time_idx * n_states
+                                + old_idx
                             ]
                             - maximum
                         )
-                workspace_ptr[logits_start + action_idx] = (
-                    maximum + log(shifted_sum) + action_prior_ptr[action_idx]
+                workspace_ptr[unsafe_offset=logits_start + action_idx] = (
+                    maximum
+                    + log(shifted_sum)
+                    + action_prior_ptr[unsafe_offset=action_idx]
                 )
             var maximum = workspace[logits_start]
             for action_idx in range(1, n_actions):
@@ -747,10 +809,12 @@ def loopy_bp_planning_dense_prelogged_with_workspace(
             var static_idx = message_idx % n_static
             var transition_offset = static_idx * n_actions
             var maximum = (
-                transition_ptr[transition_offset]
-                + workspace_ptr[fwd_start + time_idx * n_states]
-                + workspace_ptr[bwd_start + (time_idx + 1) * n_states]
-                + action_prior_ptr[0]
+                transition_ptr[unsafe_offset=transition_offset]
+                + workspace_ptr[unsafe_offset=fwd_start + time_idx * n_states]
+                + workspace_ptr[
+                    unsafe_offset=bwd_start + (time_idx + 1) * n_states
+                ]
+                + action_prior_ptr[unsafe_offset=0]
             )
             for new_idx in range(n_states):
                 for old_idx in range(n_states):
@@ -761,13 +825,19 @@ def loopy_bp_planning_dense_prelogged_with_workspace(
                             + static_idx
                         ) * n_actions + action_idx
                         var terms = (
-                            transition_ptr.load[width=4](transition_offset)
-                            + action_prior_ptr.load[width=4](action_idx)
+                            transition_ptr.unsafe_load[width=4](
+                                transition_offset
+                            )
+                            + action_prior_ptr.unsafe_load[width=4](action_idx)
                             + workspace_ptr[
-                                fwd_start + time_idx * n_states + old_idx
+                                unsafe_offset=fwd_start
+                                + time_idx * n_states
+                                + old_idx
                             ]
                             + workspace_ptr[
-                                bwd_start + (time_idx + 1) * n_states + new_idx
+                                unsafe_offset=bwd_start
+                                + (time_idx + 1) * n_states
+                                + new_idx
                             ]
                         )
                         maximum = max(maximum, terms.reduce_max())
@@ -779,14 +849,18 @@ def loopy_bp_planning_dense_prelogged_with_workspace(
                         ) * n_actions + action_idx
                         maximum = max(
                             maximum,
-                            transition_ptr[transition_offset]
+                            transition_ptr[unsafe_offset=transition_offset]
                             + workspace_ptr[
-                                fwd_start + time_idx * n_states + old_idx
+                                unsafe_offset=fwd_start
+                                + time_idx * n_states
+                                + old_idx
                             ]
                             + workspace_ptr[
-                                bwd_start + (time_idx + 1) * n_states + new_idx
+                                unsafe_offset=bwd_start
+                                + (time_idx + 1) * n_states
+                                + new_idx
                             ]
-                            + action_prior_ptr[action_idx],
+                            + action_prior_ptr[unsafe_offset=action_idx],
                         )
                         action_idx += 1
             var shifted_sum = Float32(0.0)
@@ -799,13 +873,19 @@ def loopy_bp_planning_dense_prelogged_with_workspace(
                             + static_idx
                         ) * n_actions + action_idx
                         var terms = (
-                            transition_ptr.load[width=4](transition_offset)
-                            + action_prior_ptr.load[width=4](action_idx)
+                            transition_ptr.unsafe_load[width=4](
+                                transition_offset
+                            )
+                            + action_prior_ptr.unsafe_load[width=4](action_idx)
                             + workspace_ptr[
-                                fwd_start + time_idx * n_states + old_idx
+                                unsafe_offset=fwd_start
+                                + time_idx * n_states
+                                + old_idx
                             ]
                             + workspace_ptr[
-                                bwd_start + (time_idx + 1) * n_states + new_idx
+                                unsafe_offset=bwd_start
+                                + (time_idx + 1) * n_states
+                                + new_idx
                             ]
                             - maximum
                         )
@@ -817,24 +897,27 @@ def loopy_bp_planning_dense_prelogged_with_workspace(
                             + static_idx
                         ) * n_actions + action_idx
                         shifted_sum += exp(
-                            transition_ptr[transition_offset]
+                            transition_ptr[unsafe_offset=transition_offset]
                             + workspace_ptr[
-                                fwd_start + time_idx * n_states + old_idx
+                                unsafe_offset=fwd_start
+                                + time_idx * n_states
+                                + old_idx
                             ]
                             + workspace_ptr[
-                                bwd_start + (time_idx + 1) * n_states + new_idx
+                                unsafe_offset=bwd_start
+                                + (time_idx + 1) * n_states
+                                + new_idx
                             ]
-                            + action_prior_ptr[action_idx]
+                            + action_prior_ptr[unsafe_offset=action_idx]
                             - maximum
                         )
                         action_idx += 1
-            workspace_ptr[dyn_start + message_idx] = maximum + log(shifted_sum)
+            workspace_ptr[
+                unsafe_offset=dyn_start + message_idx
+            ] = maximum + log(shifted_sum)
 
-        if n_states >= 32:
-            parallelize[fill_dyn_message](horizon * n_static)
-        else:
-            for message_idx in range(horizon * n_static):
-                fill_dyn_message(message_idx)
+        for message_idx in range(horizon * n_static):
+            fill_dyn_message(message_idx)
 
         # Theta cavities. Totals and cavities live in the same workspace.
         for static_idx in range(n_static):
@@ -869,8 +952,7 @@ def loopy_bp_planning_sparse(
     n_actions: Int,
     n_static: Int,
 ) -> List[Float32]:
-    """Sparse loopy-BP planner for the original one-dimensional terminal goal.
-    """
+    """Sparse loopy-BP planner for the original one-dimensional terminal goal."""
     var log_prior_theta = _safe_log_values(q_static_state)
     var log_q0 = _safe_log_values(q_current_state)
     var log_goal = _safe_log_values(goal)
@@ -931,6 +1013,409 @@ def loopy_bp_planning_sparse(
     for action_idx in range(n_actions):
         result.append(q_u[action_idx])
     return result^
+
+
+def _loopy_bp_planning_until_converged(
+    q_current_state: List[Float32],
+    q_static_state: List[Float32],
+    transition_indices: List[Int],
+    transition_tensor: List[Float32],
+    goal: List[Float32],
+    action_prior: List[Float32],
+    horizon: Int,
+    maximum_iterations: Int,
+    tolerance: Float32,
+    minimum_iterations: Int,
+    n_states: Int,
+    n_actions: Int,
+    n_static: Int,
+    use_sparse: Bool,
+) -> List[Float32]:
+    """Loopy BP stopped on its theta-cavity message residual."""
+    var log_prior_theta = _safe_log_values(q_static_state)
+    var log_q0 = _safe_log_values(q_current_state)
+    var log_goal = _safe_log_values(goal)
+    var log_action_prior = _safe_log_values(action_prior)
+    var log_transition = _safe_log_values(transition_tensor)
+    var log_cavity_theta = List[Float32](capacity=horizon * n_static)
+    for _ in range(horizon):
+        for static_idx in range(n_static):
+            log_cavity_theta.append(log_prior_theta[static_idx])
+    var local_messages = _zeros((horizon + 1) * n_states)
+    var action_per_t = List[Float32](capacity=horizon * n_actions)
+    for _ in range(horizon):
+        for action_idx in range(n_actions):
+            action_per_t.append(log_action_prior[action_idx])
+    var q_u = _zeros(horizon * n_actions)
+    var residual_history = List[Float32]()
+    var final_residual = Float32(-1.0)
+    var iterations_used = 0
+    var converged = False
+    for iteration_idx in range(maximum_iterations):
+        var reduced: List[Float32]
+        if use_sparse:
+            reduced = sparse_reduced(
+                transition_indices,
+                log_cavity_theta,
+                horizon,
+                n_states,
+                n_actions,
+                n_static,
+            )
+        else:
+            reduced = compute_reduced_per_t_dense(
+                log_transition,
+                log_cavity_theta,
+                horizon,
+                n_states,
+                n_actions,
+                n_static,
+            )
+        var log_fwd = forward_pass(
+            reduced, log_q0, log_action_prior, horizon, n_states, n_actions
+        )
+        var log_bwd = backward_messages(
+            reduced, log_goal, log_action_prior, horizon, n_states, n_actions
+        )
+        q_u = compute_action_marginals(
+            reduced,
+            log_fwd,
+            log_bwd,
+            log_action_prior,
+            horizon,
+            n_states,
+            n_actions,
+        )
+        var log_dyn_to_theta: List[Float32]
+        if use_sparse:
+            log_dyn_to_theta = sparse_dyn_to_theta(
+                transition_indices,
+                log_fwd,
+                log_bwd,
+                local_messages,
+                action_per_t,
+                horizon,
+                n_states,
+                n_actions,
+                n_static,
+            )
+        else:
+            log_dyn_to_theta = compute_dyn_to_theta_dense(
+                log_transition,
+                log_fwd,
+                log_bwd,
+                log_action_prior,
+                horizon,
+                n_states,
+                n_actions,
+                n_static,
+            )
+        var next_cavity = compute_theta_cavities(
+            log_prior_theta, log_dyn_to_theta, horizon, n_static
+        )
+        final_residual = max_channel_residual(log_cavity_theta, next_cavity)
+        residual_history.append(final_residual)
+        log_cavity_theta = next_cavity^
+        iterations_used = iteration_idx + 1
+        if iterations_used >= minimum_iterations and final_residual < tolerance:
+            converged = True
+            break
+    var result = List[Float32](capacity=n_actions + 4 + iterations_used)
+    for action_idx in range(n_actions):
+        result.append(q_u[action_idx])
+    append_convergence_metadata(
+        result,
+        converged,
+        iterations_used,
+        final_residual,
+        1.0,
+        residual_history,
+    )
+    return result^
+
+
+def loopy_bp_planning_sparse_until_converged(
+    q_current_state: List[Float32],
+    q_static_state: List[Float32],
+    transition_indices: List[Int],
+    goal: List[Float32],
+    action_prior: List[Float32],
+    horizon: Int,
+    maximum_iterations: Int,
+    tolerance: Float32,
+    minimum_iterations: Int,
+    n_states: Int,
+    n_actions: Int,
+    n_static: Int,
+) -> List[Float32]:
+    return _loopy_bp_planning_until_converged(
+        q_current_state,
+        q_static_state,
+        transition_indices,
+        List[Float32](),
+        goal,
+        action_prior,
+        horizon,
+        maximum_iterations,
+        tolerance,
+        minimum_iterations,
+        n_states,
+        n_actions,
+        n_static,
+        True,
+    )
+
+
+def loopy_bp_planning_dense_until_converged(
+    q_current_state: List[Float32],
+    q_static_state: List[Float32],
+    transition_tensor: List[Float32],
+    goal: List[Float32],
+    action_prior: List[Float32],
+    horizon: Int,
+    maximum_iterations: Int,
+    tolerance: Float32,
+    minimum_iterations: Int,
+    n_states: Int,
+    n_actions: Int,
+    n_static: Int,
+) -> List[Float32]:
+    return _loopy_bp_planning_until_converged(
+        q_current_state,
+        q_static_state,
+        List[Int](),
+        transition_tensor,
+        goal,
+        action_prior,
+        horizon,
+        maximum_iterations,
+        tolerance,
+        minimum_iterations,
+        n_states,
+        n_actions,
+        n_static,
+        False,
+    )
+
+
+def _loopy_bp_theta_goal_until_converged(
+    q_current_state: List[Float32],
+    q_static_state: List[Float32],
+    transition_indices: List[Int],
+    transition_tensor: List[Float32],
+    goal_by_static: List[Float32],
+    action_prior: List[Float32],
+    horizon: Int,
+    maximum_iterations: Int,
+    tolerance: Float32,
+    minimum_iterations: Int,
+    n_states: Int,
+    n_actions: Int,
+    n_static: Int,
+    use_sparse: Bool,
+) -> List[Float32]:
+    """Theta-goal Loopy BP stopped on its theta-cavity residual."""
+    var log_prior_theta = _safe_log_values(q_static_state)
+    var log_q0 = _safe_log_values(q_current_state)
+    var log_goal = _safe_log_values(goal_by_static)
+    var log_action_prior = _safe_log_values(action_prior)
+    var log_transition = _safe_log_values(transition_tensor)
+    var log_cavity_theta = List[Float32]()
+    for _ in range(horizon):
+        for static_idx in range(n_static):
+            log_cavity_theta.append(log_prior_theta[static_idx])
+    var action_per_t = List[Float32]()
+    for _ in range(horizon):
+        for action_idx in range(n_actions):
+            action_per_t.append(log_action_prior[action_idx])
+    var previous_dyn_to_theta = _zeros(horizon * n_static)
+    var q_u = _zeros(horizon * n_actions)
+    var residual_history = List[Float32]()
+    var final_residual = Float32(-1.0)
+    var iterations_used = 0
+    var converged = False
+    for iteration_idx in range(maximum_iterations):
+        var reduced: List[Float32]
+        if use_sparse:
+            reduced = sparse_reduced(
+                transition_indices,
+                log_cavity_theta,
+                horizon,
+                n_states,
+                n_actions,
+                n_static,
+            )
+        else:
+            reduced = compute_reduced_per_t_dense(
+                log_transition,
+                log_cavity_theta,
+                horizon,
+                n_states,
+                n_actions,
+                n_static,
+            )
+        var theta_logits = List[Float32]()
+        for static_idx in range(n_static):
+            var value = log_prior_theta[static_idx]
+            for time_idx in range(horizon):
+                value += previous_dyn_to_theta[time_idx * n_static + static_idx]
+            theta_logits.append(value)
+        var theta_normalizer = logsumexp(theta_logits)
+        for static_idx in range(n_static):
+            theta_logits[static_idx] -= theta_normalizer
+        var log_preference = List[Float32]()
+        for state_idx in range(n_states):
+            var terms = List[Float32]()
+            for static_idx in range(n_static):
+                terms.append(
+                    log_goal[state_idx * n_static + static_idx]
+                    + theta_logits[static_idx]
+                )
+            log_preference.append(logsumexp(terms))
+        var preference_normalizer = logsumexp(log_preference)
+        for state_idx in range(n_states):
+            log_preference[state_idx] -= preference_normalizer
+        var local_messages = List[Float32]()
+        for _ in range(horizon + 1):
+            for state_idx in range(n_states):
+                local_messages.append(log_preference[state_idx])
+        var log_fwd = _forward_pass_with_local(
+            reduced,
+            log_q0,
+            log_action_prior,
+            local_messages,
+            horizon,
+            n_states,
+            n_actions,
+        )
+        var log_bwd = _backward_messages_with_local(
+            reduced,
+            log_action_prior,
+            local_messages,
+            horizon,
+            n_states,
+            n_actions,
+        )
+        var fwd_with_local = _add_messages(log_fwd, local_messages)
+        var bwd_with_local = _add_messages(log_bwd, local_messages)
+        q_u = compute_action_marginals(
+            reduced,
+            fwd_with_local,
+            bwd_with_local,
+            log_action_prior,
+            horizon,
+            n_states,
+            n_actions,
+        )
+        if use_sparse:
+            previous_dyn_to_theta = sparse_dyn_to_theta(
+                transition_indices,
+                log_fwd,
+                log_bwd,
+                local_messages,
+                action_per_t,
+                horizon,
+                n_states,
+                n_actions,
+                n_static,
+            )
+        else:
+            previous_dyn_to_theta = compute_dyn_to_theta_dense(
+                log_transition,
+                fwd_with_local,
+                bwd_with_local,
+                log_action_prior,
+                horizon,
+                n_states,
+                n_actions,
+                n_static,
+            )
+        var next_cavity = compute_theta_cavities(
+            log_prior_theta, previous_dyn_to_theta, horizon, n_static
+        )
+        final_residual = max_channel_residual(log_cavity_theta, next_cavity)
+        residual_history.append(final_residual)
+        log_cavity_theta = next_cavity^
+        iterations_used = iteration_idx + 1
+        if iterations_used >= minimum_iterations and final_residual < tolerance:
+            converged = True
+            break
+    var result = List[Float32](capacity=n_actions + 4 + iterations_used)
+    for action_idx in range(n_actions):
+        result.append(q_u[action_idx])
+    append_convergence_metadata(
+        result,
+        converged,
+        iterations_used,
+        final_residual,
+        1.0,
+        residual_history,
+    )
+    return result^
+
+
+def loopy_bp_planning_dense_theta_goal_until_converged(
+    q_current_state: List[Float32],
+    q_static_state: List[Float32],
+    transition_tensor: List[Float32],
+    goal_by_static: List[Float32],
+    action_prior: List[Float32],
+    horizon: Int,
+    maximum_iterations: Int,
+    tolerance: Float32,
+    minimum_iterations: Int,
+    n_states: Int,
+    n_actions: Int,
+    n_static: Int,
+) -> List[Float32]:
+    return _loopy_bp_theta_goal_until_converged(
+        q_current_state,
+        q_static_state,
+        List[Int](),
+        transition_tensor,
+        goal_by_static,
+        action_prior,
+        horizon,
+        maximum_iterations,
+        tolerance,
+        minimum_iterations,
+        n_states,
+        n_actions,
+        n_static,
+        False,
+    )
+
+
+def loopy_bp_planning_sparse_theta_goal_until_converged(
+    q_current_state: List[Float32],
+    q_static_state: List[Float32],
+    transition_indices: List[Int],
+    goal_by_static: List[Float32],
+    action_prior: List[Float32],
+    horizon: Int,
+    maximum_iterations: Int,
+    tolerance: Float32,
+    minimum_iterations: Int,
+    n_states: Int,
+    n_actions: Int,
+    n_static: Int,
+) -> List[Float32]:
+    return _loopy_bp_theta_goal_until_converged(
+        q_current_state,
+        q_static_state,
+        transition_indices,
+        List[Float32](),
+        goal_by_static,
+        action_prior,
+        horizon,
+        maximum_iterations,
+        tolerance,
+        minimum_iterations,
+        n_states,
+        n_actions,
+        n_static,
+        True,
+    )
 
 
 def loopy_bp_planning_dense(

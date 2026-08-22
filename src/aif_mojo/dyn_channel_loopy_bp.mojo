@@ -8,11 +8,25 @@ from aif_mojo.numerics import (
     safe_log_div,
     softmax,
 )
+from aif_mojo.convergence_control import (
+    append_convergence_metadata,
+    combined_channel_residual,
+    max_channel_residual,
+    next_adaptive_damping,
+)
 from aif_mojo.sparse_messages import (
     sparse_dyn_to_theta_dyn_channel,
     sparse_dyn_channels_and_pair_dyn_channel,
     sparse_reduced_dyn_channel,
 )
+
+
+def _log_static_input(
+    values: List[Float32], already_log: Bool
+) -> List[Float32]:
+    if already_log:
+        return values.copy()
+    return _safe_log_values(values)
 
 
 def _zeros(length: Int) -> List[Float32]:
@@ -800,6 +814,13 @@ def _dyn_channel_loopy_bp_planning(
     theta_goal: Bool,
     record_history: Bool = False,
     convergence_mode: Bool = False,
+    convergence_tolerance: Float32 = -1.0,
+    minimum_iterations: Int = 1,
+    record_residuals: Bool = False,
+    adaptive_damping: Bool = False,
+    minimum_damping: Float32 = 0.05,
+    maximum_damping: Float32 = 1.0,
+    static_inputs_are_log: Bool = False,
 ) -> List[Float32]:
     """Shared dense/sparse dyn+action-channel planner.
 
@@ -835,13 +856,19 @@ def _dyn_channel_loopy_bp_planning(
 
     var log_q0 = _safe_log_values(q_current_state)
     var log_prior_theta = _safe_log_values(q_static_state)
-    var log_observation = _safe_log_values(observation_tensor)
-    var log_transition = _safe_log_values(transition_tensor)
-    var log_preference = _safe_log_values(goal)
+    var log_observation = _log_static_input(
+        observation_tensor, static_inputs_are_log
+    )
+    var log_transition = _log_static_input(
+        transition_tensor, static_inputs_are_log
+    )
+    var log_preference = _log_static_input(goal, static_inputs_are_log)
     var log_goal = _zeros(n_states)
     if not theta_goal:
-        log_goal = _safe_log_values(goal)
-    var log_action_prior = _safe_log_values(action_prior)
+        log_goal = _log_static_input(goal, static_inputs_are_log)
+    var log_action_prior = _log_static_input(
+        action_prior, static_inputs_are_log
+    )
     var log_dyn_to_theta = _zeros(horizon * n_static)
     var log_obs_to_theta = _zeros((horizon + 1) * n_static)
     var log_pref_to_theta = _zeros((horizon + 1) * n_static)
@@ -866,8 +893,15 @@ def _dyn_channel_loopy_bp_planning(
             n_static,
         )
     var diagnostic_history = List[Float32]()
+    var residual_history = List[Float32]()
+    var effective_damping = damping
+    var last_damping = damping
+    var previous_residual = Float32(-1.0)
+    var final_residual = Float32(-1.0)
+    var iterations_used = 0
+    var converged = False
 
-    for _ in range(n_iterations):
+    for iteration_idx in range(n_iterations):
         var cavities = _compute_theta_cavities_extended(
             log_prior_theta,
             log_dyn_to_theta,
@@ -1054,23 +1088,57 @@ def _dyn_channel_loopy_bp_planning(
         var raw_action_channel = _normalize_action_channels(
             log_pair, horizon, n_states, n_actions
         )
-        log_dyn_channels = _damp_dyn_channels(
+        var damped_dyn_channels = _damp_dyn_channels(
             log_dyn_channels,
             raw_dyn_channels,
-            damping,
+            effective_damping,
             horizon,
             n_states,
             n_actions,
         )
+        var damped_action_channel = log_action_channel.copy()
         if not convergence_mode:
-            log_action_channel = _damp_action_channels(
+            damped_action_channel = _damp_action_channels(
                 log_action_channel,
                 raw_action_channel,
-                damping,
+                effective_damping,
                 horizon,
                 n_states,
                 n_actions,
             )
+            final_residual = combined_channel_residual(
+                log_dyn_channels,
+                damped_dyn_channels,
+                log_action_channel,
+                damped_action_channel,
+            )
+        else:
+            final_residual = max_channel_residual(
+                log_dyn_channels, damped_dyn_channels
+            )
+        log_dyn_channels = damped_dyn_channels^
+        log_action_channel = damped_action_channel^
+        iterations_used = iteration_idx + 1
+        last_damping = effective_damping
+        if record_residuals:
+            residual_history.append(final_residual)
+        var should_stop = (
+            convergence_tolerance >= 0.0
+            and iterations_used >= minimum_iterations
+            and final_residual < convergence_tolerance
+        )
+        if adaptive_damping:
+            effective_damping = next_adaptive_damping(
+                effective_damping,
+                previous_residual,
+                final_residual,
+                minimum_damping,
+                maximum_damping,
+            )
+        previous_residual = final_residual
+        if should_stop:
+            converged = True
+            break
 
     var result = List[Float32]()
     var total = Float32(0.0)
@@ -1083,6 +1151,15 @@ def _dyn_channel_loopy_bp_planning(
     if record_history:
         for value in diagnostic_history:
             result.append(value)
+    if record_residuals:
+        append_convergence_metadata(
+            result,
+            converged,
+            iterations_used,
+            final_residual,
+            last_damping,
+            residual_history,
+        )
     return result^
 
 
@@ -1239,4 +1316,228 @@ def dyn_channel_loopy_bp_planning_dense_theta_goal(
         n_obs_types,
         False,
         True,
+    )
+
+
+def dyn_channel_loopy_bp_planning_dense_until_converged(
+    q_current_state: List[Float32],
+    q_static_state: List[Float32],
+    transition_tensor: List[Float32],
+    observation_tensor: List[Float32],
+    goal: List[Float32],
+    action_prior: List[Float32],
+    horizon: Int,
+    maximum_iterations: Int,
+    damping: Float32,
+    tolerance: Float32,
+    minimum_iterations: Int,
+    n_states: Int,
+    n_actions: Int,
+    n_static: Int,
+    n_fov: Int,
+    n_obs_types: Int,
+    theta_goal: Bool,
+    adaptive_damping: Bool = False,
+    minimum_damping: Float32 = 0.05,
+    maximum_damping: Float32 = 1.0,
+) -> List[Float32]:
+    """Dense RM-MP with residual early stopping and optional adaptation.
+
+    Returns the normal action/dynamics-channel payload followed by
+    `[converged, iterations, final_residual, final_damping, residuals...]`.
+    """
+    var no_transition_indices = List[Int]()
+    return _dyn_channel_loopy_bp_planning(
+        q_current_state,
+        q_static_state,
+        no_transition_indices,
+        transition_tensor,
+        observation_tensor,
+        goal,
+        action_prior,
+        horizon,
+        maximum_iterations,
+        damping,
+        n_states,
+        n_actions,
+        n_static,
+        n_fov,
+        n_obs_types,
+        False,
+        theta_goal,
+        False,
+        False,
+        tolerance,
+        minimum_iterations,
+        True,
+        adaptive_damping,
+        minimum_damping,
+        maximum_damping,
+    )
+
+
+def dyn_channel_loopy_bp_planning_sparse_until_converged(
+    q_current_state: List[Float32],
+    q_static_state: List[Float32],
+    transition_indices: List[Int],
+    observation_tensor: List[Float32],
+    goal: List[Float32],
+    action_prior: List[Float32],
+    horizon: Int,
+    maximum_iterations: Int,
+    damping: Float32,
+    tolerance: Float32,
+    minimum_iterations: Int,
+    n_states: Int,
+    n_actions: Int,
+    n_static: Int,
+    n_fov: Int,
+    n_obs_types: Int,
+    theta_goal: Bool,
+    adaptive_damping: Bool = False,
+    minimum_damping: Float32 = 0.05,
+    maximum_damping: Float32 = 1.0,
+) -> List[Float32]:
+    """Sparse RM-MP with the same residual contract as the dense API."""
+    return _dyn_channel_loopy_bp_planning(
+        q_current_state,
+        q_static_state,
+        transition_indices,
+        List[Float32](),
+        observation_tensor,
+        goal,
+        action_prior,
+        horizon,
+        maximum_iterations,
+        damping,
+        n_states,
+        n_actions,
+        n_static,
+        n_fov,
+        n_obs_types,
+        True,
+        theta_goal,
+        False,
+        False,
+        tolerance,
+        minimum_iterations,
+        True,
+        adaptive_damping,
+        minimum_damping,
+        maximum_damping,
+    )
+
+
+struct PreparedDenseRMMP[horizon: Int, iterations: Int]:
+    """Compile-time-specialized RM-MP with static log inputs cached."""
+
+    var log_transition: List[Float32]
+    var log_observation: List[Float32]
+    var log_goal: List[Float32]
+    var log_action_prior: List[Float32]
+    var damping: Float32
+    var n_states: Int
+    var n_actions: Int
+    var n_static: Int
+    var n_fov: Int
+    var n_obs_types: Int
+    var theta_goal: Bool
+
+    def __init__(
+        out self,
+        transition_tensor: List[Float32],
+        observation_tensor: List[Float32],
+        goal: List[Float32],
+        action_prior: List[Float32],
+        damping: Float32,
+        n_states: Int,
+        n_actions: Int,
+        n_static: Int,
+        n_fov: Int,
+        n_obs_types: Int,
+        theta_goal: Bool = False,
+    ):
+        self.log_transition = _safe_log_values(transition_tensor)
+        self.log_observation = _safe_log_values(observation_tensor)
+        self.log_goal = _safe_log_values(goal)
+        self.log_action_prior = _safe_log_values(action_prior)
+        self.damping = damping
+        self.n_states = n_states
+        self.n_actions = n_actions
+        self.n_static = n_static
+        self.n_fov = n_fov
+        self.n_obs_types = n_obs_types
+        self.theta_goal = theta_goal
+
+    def plan(
+        self,
+        q_current_state: List[Float32],
+        q_static_state: List[Float32],
+    ) -> List[Float32]:
+        return _dyn_channel_loopy_bp_planning(
+            q_current_state,
+            q_static_state,
+            List[Int](),
+            self.log_transition,
+            self.log_observation,
+            self.log_goal,
+            self.log_action_prior,
+            Self.horizon,
+            Self.iterations,
+            self.damping,
+            self.n_states,
+            self.n_actions,
+            self.n_static,
+            self.n_fov,
+            self.n_obs_types,
+            False,
+            self.theta_goal,
+            False,
+            False,
+            -1.0,
+            1,
+            False,
+            False,
+            0.05,
+            1.0,
+            True,
+        )
+
+
+def dyn_channel_loopy_bp_planning_dense_specialized[
+    horizon: Int, iterations: Int
+](
+    q_current_state: List[Float32],
+    q_static_state: List[Float32],
+    transition_tensor: List[Float32],
+    observation_tensor: List[Float32],
+    goal: List[Float32],
+    action_prior: List[Float32],
+    damping: Float32,
+    n_states: Int,
+    n_actions: Int,
+    n_static: Int,
+    n_fov: Int,
+    n_obs_types: Int,
+    theta_goal: Bool = False,
+) -> List[Float32]:
+    """Specialize RM-MP on a compile-time horizon and iteration budget."""
+    return _dyn_channel_loopy_bp_planning(
+        q_current_state,
+        q_static_state,
+        List[Int](),
+        transition_tensor,
+        observation_tensor,
+        goal,
+        action_prior,
+        horizon,
+        iterations,
+        damping,
+        n_states,
+        n_actions,
+        n_static,
+        n_fov,
+        n_obs_types,
+        False,
+        theta_goal,
     )

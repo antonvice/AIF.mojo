@@ -3,10 +3,13 @@ from std.math import exp
 from std.testing import TestSuite, assert_equal, assert_true
 
 from aif_mojo.dyn_channel_loopy_bp import (
+    PreparedDenseRMMP,
     dyn_channel_loopy_bp_planning_dense,
     dyn_channel_loopy_bp_planning_dense_theta_goal,
+    dyn_channel_loopy_bp_planning_dense_until_converged,
     dyn_channel_loopy_bp_planning_sparse,
     dyn_channel_loopy_bp_planning_sparse_theta_goal,
+    dyn_channel_loopy_bp_planning_dense_specialized,
 )
 
 
@@ -434,6 +437,107 @@ def test_frozen_lake_fixture_prefers_safe_down_action() raises:
                     )
                     total += exp(dense[offset])
                 assert_close(total, 1.0)
+
+
+def test_residual_early_stop_matches_fixed_iteration_rm_policy() raises:
+    var inputs = fixture_inputs()
+    var q_current = List[Float32]()
+    q_current.append(inputs[0])
+    q_current.append(inputs[1])
+    var q_static = List[Float32]()
+    q_static.append(inputs[2])
+    q_static.append(inputs[3])
+    var obs = List[Float32]()
+    for index in range(4, 12):
+        obs.append(inputs[index])
+    var prior = List[Float32]()
+    prior.append(inputs[12])
+    prior.append(inputs[13])
+    var goal = List[Float32]()
+    goal.append(0.1)
+    goal.append(0.9)
+    var stopped = dyn_channel_loopy_bp_planning_dense_until_converged(
+        q_current,
+        q_static,
+        fixture_dense_transition(),
+        obs,
+        goal,
+        prior,
+        2,
+        10,
+        0.5,
+        10.0,
+        2,
+        2,
+        2,
+        2,
+        1,
+        2,
+        False,
+    )
+    var fixed = run_dense_fixture(goal, False)
+    assert_equal(len(stopped), len(fixed) + 6)
+    for index in range(len(fixed)):
+        assert_close(stopped[index], fixed[index])
+    var metadata = len(fixed)
+    assert_equal(stopped[metadata], 1.0)
+    assert_equal(stopped[metadata + 1], 2.0)
+    assert_true(stopped[metadata + 2] >= 0.0)
+    assert_equal(stopped[metadata + 3], 0.5)
+    assert_true(stopped[metadata + 4] >= 0.0)
+    assert_equal(stopped[metadata + 5], stopped[metadata + 2])
+
+
+def test_prepared_and_compile_time_specialized_rm_match_public_api() raises:
+    var inputs = fixture_inputs()
+    var q_current = List[Float32]()
+    q_current.append(inputs[0])
+    q_current.append(inputs[1])
+    var q_static = List[Float32]()
+    q_static.append(inputs[2])
+    q_static.append(inputs[3])
+    var obs = List[Float32]()
+    for index in range(4, 12):
+        obs.append(inputs[index])
+    var prior = List[Float32]()
+    prior.append(inputs[12])
+    prior.append(inputs[13])
+    var goal = List[Float32]()
+    goal.append(0.1)
+    goal.append(0.9)
+    var expected = run_dense_fixture(goal, False)
+    var prepared = PreparedDenseRMMP[2, 2](
+        fixture_dense_transition(),
+        obs,
+        goal,
+        prior,
+        0.5,
+        2,
+        2,
+        2,
+        1,
+        2,
+    )
+    var prepared_result = prepared.plan(q_current, q_static)
+    var specialized = dyn_channel_loopy_bp_planning_dense_specialized[2, 2](
+        q_current,
+        q_static,
+        fixture_dense_transition(),
+        obs,
+        goal,
+        prior,
+        0.5,
+        2,
+        2,
+        2,
+        1,
+        2,
+    )
+    assert_equal(len(prepared_result), len(expected))
+    assert_equal(len(specialized), len(expected))
+    for index in range(len(expected)):
+        assert_close(prepared_result[index], expected[index])
+        assert_close(specialized[index], expected[index])
 
 
 def main() raises:

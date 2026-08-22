@@ -11,7 +11,7 @@
     "jax": "0.9.0",
     "jaxlib": "0.9.0",
     "numpy": "2.4.2",
-    "mojo": "1.0.0b2",
+    "mojo": "1.0.0",
     "dtype": "Float32",
     "jax_backend": "cpu",
     "jax_enable_x64": false
